@@ -1,0 +1,106 @@
+@import url('https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,200..800;1,200..800&display=swap');
+@import 'tailwindcss';
+
+:root {
+    /* font-family: system-ui, Avenir, Helvetica, Arial, sans-serif; */
+    line-height: 1.5;
+    font-weight: 400;
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    /* --blue-50: #eff2fe;
+    --blue-100: #e2e7fc;
+    --blue-200: #c9d2fb;
+    --blue-300: #a7b3fb;
+    --blue-400: #7d8af8;
+    --blue-500: #6066f3;
+    --blue-600: #4c46e7;
+    --blue-700: #443fcf;
+    --blue-800: #3430a4;
+    --blue-900: #2e327a;
+    --blue-950: #1a1d4b; */
+
+    /*
+    --teal-50: #f1fdfc;
+    --teal-100: #c5dddc;
+    --teal-200: #c0eeec;
+    --teal-300: #9be2e0;
+    --teal-400: #71ccca;
+    --teal-500: #60b3b1;
+    --teal-600: #49918f;
+    --teal-700: #3c7473;
+    --teal-800: #325e5d;
+    --teal-900: #2d4e4d;
+    --teal-950: #193433;
+
+    --gray-50: #fafafa;
+    --gray-100: #f5f5f5;
+    --gray-200: #e5e5e5;
+    --gray-300: #d4d4d4;
+    --gray-400: #a1a1a1;
+    --gray-500: #737373;
+    --gray-600: #525252;
+    --gray-700: #404040;
+    --gray-800: #262626;
+    --gray-900: #171717;
+    --gray-950: #0a0a0a;
+
+    --radius: 0.5rem;
+    --shadow: 1px 3px 5px rgba(0, 0, 0, 0.1), 0 1px 1px rgba(0, 0, 0, 0.06);
+    --shadow-more: 2px 6px 10px rgba(0, 0, 0, 0.1), 0 3px 5px rgba(0, 0, 0, 0.06); */
+}
+
+@theme {
+    --font-sans: 'Karla', sans-serif;
+
+    --color-bluegray-50: #fafafb;
+    --color-bluegray-100: #f4f4f5;
+    --color-bluegray-200: #e3e4e7;
+    --color-bluegray-300: #d2d4dc;
+    --color-bluegray-400: #9b9fad;
+    --color-bluegray-500: #6d7181;
+    --color-bluegray-600: #4d5160;
+    --color-bluegray-700: #3c3f4a;
+    --color-bluegray-800: #26272d;
+    --color-bluegray-900: #17181c;
+    --color-bluegray-950: #08090d;
+}
+
+@layer components {
+    .tag {
+        @apply bg-gray-200 text-gray-900 text-sm leading-none relative flex items-center justify-center rounded-sm px-3 py-0.5;
+    }
+
+    .taglist {
+        display: flex;
+        flex-wrap: wrap;
+        column-gap: 0.5rem;
+        row-gap: 0.4rem;
+        align-items: start;
+    }
+
+    .btn {
+        @apply bg-blue-800 text-sm leading-none py-1 px-3 rounded-sm font-semibold text-gray-50 cursor-pointer;
+        @apply transition-all duration-200 border-2 border-transparent;
+        @apply hover:bg-blue-700 focus:bg-blue-700;
+
+        &.btn--text {
+            @apply bg-transparent text-blue-700;
+            @apply hover:bg-blue-100 focus:bg-blue-100;
+        }
+
+        &.btn--outline {
+            @apply bg-transparent border-blue-700 text-blue-700;
+            @apply hover:bg-blue-100 focus:bg-blue-100;
+        }
+
+        &.btn--soft {
+            @apply bg-blue-100 text-blue-800;
+
+            @apply hover:bg-blue-200 focus:bg-blue-200;
+        }
+    }
+}
