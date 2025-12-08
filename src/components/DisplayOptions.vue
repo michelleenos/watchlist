@@ -24,10 +24,6 @@ const model = defineModel<MovieDisplayOptions>({ required: true })
             Description
         </label>
         <label class="flex items-center gap-1">
-            <input v-model="model.lbDescription" type="checkbox" />
-            Letterboxd description
-        </label>
-        <label class="flex items-center gap-1">
             <input v-model="model.genres" type="checkbox" />
             Genres
         </label>

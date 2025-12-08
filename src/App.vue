@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
-import moviesData from '../data/movies-new.json'
-import { type MovieTypeFull } from '../data/movie-type'
+import moviesData from '../backend/data/movies.json'
+import { type MovieTypeFull } from '../backend/src/movie-type'
+import AddMovie from './components/AddMovie.vue'
 
 import TagsFilter from './components/TagsFilter.vue'
 import MovieCard from './components/MovieCard.vue'
@@ -59,7 +60,8 @@ const moviesDisplay = reactive<MovieDisplayOptions>({
 </script>
 
 <template>
-    <div class="grid h-screen grid-cols-[30%_1fr] relative overflow-y-hidden">
+    <div
+        class="grid h-screen grid-cols-[30%_1fr] xl:grid-cols-[25%_1fr] relative overflow-y-hidden">
         <div
             class="sidebar h-screen p-8 overflow-y-auto border-r border-bluegray-200 row-start-1 row-end-3">
             <DisplayOptions v-model="moviesDisplay" />
@@ -75,9 +77,13 @@ const moviesDisplay = reactive<MovieDisplayOptions>({
                 label="Themes"
                 @update="(value) => (selectedThemes = value)" />
         </div>
-        <div class="movies-topbar h-10 border-b border-bluegray-200 px-5 flex items-center">
+        <div
+            class="movies-topbar h-10 border-b border-bluegray-200 px-5 flex items-center justify-between">
             <div class="font-semibold">
                 Showing {{ shownMovies.length }} movie{{ shownMovies.length !== 1 ? 's' : '' }}
+            </div>
+            <div>
+                <AddMovie />
             </div>
         </div>
         <div class="movies-list overflow-y-auto">

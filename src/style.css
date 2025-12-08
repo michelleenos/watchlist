@@ -103,4 +103,13 @@
             @apply hover:bg-blue-200 focus:bg-blue-200;
         }
     }
+
+    .debg {
+        /* @apply outline-2 outline-amber-200; */
+        @apply ring-2 ring-orange-400/50;
+    }
+
+    .focus-outline {
+        @apply focus:outline-orange-400 focus:not-focus-visible:outline-none focus-visible:outline-orange-400;
+    }
 }

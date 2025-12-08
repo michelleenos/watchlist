@@ -19,6 +19,7 @@ export default defineConfig([
         languageOptions: { parserOptions: { parser: tseslint.parser } },
         rules: {
             'vue/attribute-hyphenation': 'off',
+            // 'vue/require-default-props': 'off',
         },
     },
     eslintConfigPrettier,

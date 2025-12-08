@@ -1,4 +1,4 @@
-import { getTmdbImage } from './images'
+import { getTmdbImage } from './images.js'
 import {
     isLetterboxdMovie,
     isTmdbMovie,
@@ -6,19 +6,21 @@ import {
     type MovieTypeFull,
     type MovieTypeLetterboxd,
     type MovieTypeTMDB,
-} from '../movie-type'
-import { letterboxdScrape } from './scrape-letterboxd'
-import { getTmdbData } from './tmdb'
+} from '../movie-type.js'
+import { letterboxdScrape } from './scrape-letterboxd.js'
+import { getTmdbData } from './tmdb.js'
+import { nanoid } from 'nanoid'
 
 export interface GetMovieOptions {
     getImage?: boolean
     replaceImage?: boolean
     getTmdb?: boolean
     getLetterboxd?: boolean
-    tmdbId?: number
     letterboxdUrl?: string
+    tmdbId?: number
     name: string
 }
+
 export const getMovie = async ({
     name,
     getImage = true,
@@ -32,22 +34,22 @@ export const getMovie = async ({
 
     const errors: string[] = []
 
-    let lbMovie: MovieTypeLetterboxd | MovieErrorType | null = null
     let tmdbMovie: MovieTypeTMDB | MovieErrorType | null = null
-
-    if (getLetterboxd) {
-        lbMovie = await letterboxdScrape(name, letterboxdUrl)
-        if ('errors' in lbMovie && lbMovie.errors.length > 0) {
-            console.log(`   🛑 OH NO: Letterboxd errors for "${name}":`, lbMovie.errors)
-            errors.push(...lbMovie.errors)
-        }
-    }
+    let lbMovie: MovieTypeLetterboxd | MovieErrorType | null = null
 
     if (getTmdb) {
         tmdbMovie = await getTmdbData(tmdbId || name)
         if ('errors' in tmdbMovie && tmdbMovie.errors.length > 0) {
             console.log(`   🛑 OH NO: TMDB errors for "${name}":`, tmdbMovie.errors)
             errors.push(...tmdbMovie.errors)
+        }
+    }
+
+    if (getLetterboxd) {
+        lbMovie = await letterboxdScrape(name, letterboxdUrl)
+        if ('errors' in lbMovie && lbMovie.errors.length > 0) {
+            console.log(`   🛑 OH NO: Letterboxd errors for "${name}":`, lbMovie.errors)
+            errors.push(...lbMovie.errors)
         }
     }
 
@@ -61,16 +63,6 @@ export const getMovie = async ({
         )
     }
 
-    if (isTmdbMovie(tmdbMovie) && isLetterboxdMovie(lbMovie)) {
-        if (
-            tmdbMovie.tmdbOverview &&
-            lbMovie.letterboxdDescription &&
-            tmdbMovie.tmdbOverview !== lbMovie.letterboxdDescription
-        ) {
-            errors.push(`Mismatched descriptions`)
-        }
-    }
-
     const genresSet = new Set<string>()
     if (isTmdbMovie(tmdbMovie) && tmdbMovie.tmdbGenres) {
         tmdbMovie.tmdbGenres.forEach((g) => genresSet.add(g))
@@ -82,6 +74,7 @@ export const getMovie = async ({
 
     const movieFull: MovieTypeFull = {
         name,
+        id: nanoid(),
         ...(lbMovie || {}),
         ...(tmdbMovie || {}),
         genres,
@@ -98,4 +91,26 @@ export const getMovie = async ({
     }
 
     return movieFull
+}
+
+export const getMovieTmdb = async (tmdbId: number, { replaceImage = false } = {}) => {
+    const tmdbMovie = await getTmdbData(tmdbId)
+
+    if (!isTmdbMovie(tmdbMovie)) {
+        throw new Error(`issue retrieving tmdb movie: ${tmdbMovie.errors.join(', ')}`)
+    }
+
+    const newMovieData: MovieTypeFull = {
+        ...tmdbMovie,
+        id: nanoid(),
+    }
+
+    const getPosterResult = await getTmdbImage(tmdbMovie, replaceImage)
+    if ('error' in getPosterResult) {
+        newMovieData.errors.push(getPosterResult.error)
+    } else {
+        newMovieData.posterPath = getPosterResult.path
+    }
+
+    return newMovieData
 }

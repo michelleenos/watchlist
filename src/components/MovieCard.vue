@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import TagItem from './TagItem.vue'
-import { type MovieTypeFull } from '../../data/movie-type'
 import { computed } from 'vue'
+import { type MovieTypeFull } from '../../backend/src/movie-type'
 import { defaultDisplayOptions, type MovieDisplayOptions } from '../display-options'
+import DropdownContent from './DropdownContent.vue'
+import DropdownRow from './DropdownRow.vue'
+import TagItem from './TagItem.vue'
 
 const props = defineProps<{
     movie: MovieTypeFull
@@ -11,6 +13,19 @@ const props = defineProps<{
 const { movie } = props
 
 const displayOptions = computed(() => ({ ...defaultDisplayOptions, ...props.displayOptions }))
+
+const deleteMovie = () => {
+    fetch(`/api/movie?id=${movie.id}`, {
+        method: 'DELETE',
+    })
+        .then((response) => {
+            console.log(response.status)
+            console.log(response)
+        })
+        .catch((error) => {
+            console.error(error)
+        })
+}
 </script>
 
 <template>
@@ -29,7 +44,7 @@ const displayOptions = computed(() => ({ ...defaultDisplayOptions, ...props.disp
         </div>
         <div class="movie__col-main">
             <div
-                class="movie__header grid grid-cols-[1fr_auto] items-start border-b border-gray-200 pb-2.5 mb-2">
+                class="movie__header grid grid-cols-[1fr_auto] gap-x-2 items-start border-b border-gray-200 pb-1 mb-2">
                 <div class="col-start-1 row-start-1 self-center">
                     <h2 class="m-0 font-bold text-xl leading-6 text-gray-800">
                         {{ movie.name }}
@@ -41,13 +56,27 @@ const displayOptions = computed(() => ({ ...defaultDisplayOptions, ...props.disp
                     </div>
                 </div>
 
+                <div class="col-start-2 self-start justify-self-end relative">
+                    <DropdownContent>
+                        <DropdownRow @click="deleteMovie"> Delete Movie </DropdownRow>
+                    </DropdownContent>
+                    <!-- <AppBtn
+                        variant="text"
+                        color="red"
+                        size="icon"
+                        ariaLabel="delete"
+                        @click="() => deleteMovie(movie.id)">
+                        <Icon icon="mdi:delete" /> -->
+                    <!-- </AppBtn> -->
+                </div>
+
                 <p
                     v-if="displayOptions.tagline && movie.tagline"
-                    class="italic text-gray-600 mt-1 col-start-1 col-end-3 font-light">
+                    class="italic text-gray-600 mt-1 col-start-1 font-light leading-snug">
                     {{ movie.tagline }}
                 </p>
                 <div
-                    class="self-baseline row-start-1 leading-none col-start-2 text-sm text-gray-600 mt-1">
+                    class="self-baseline leading-none col-start-1 text-sm text-gray-600 grid gap-x-5 grid-cols-[12ch_12ch] mt-1">
                     <div v-if="movie.language" class="flex justify-between gap-2 mb-1">
                         <strong>language</strong>
                         {{ movie.language }}
@@ -63,11 +92,6 @@ const displayOptions = computed(() => ({ ...defaultDisplayOptions, ...props.disp
                 v-if="displayOptions.description && movie.tmdbOverview"
                 class="movie__description mb-2">
                 {{ movie.tmdbOverview }}
-            </p>
-            <p
-                v-if="displayOptions.lbDescription && movie.letterboxdDescription"
-                class="movie__description">
-                {{ movie.letterboxdDescription }}
             </p>
 
             <div v-if="displayOptions.tmdbScores" class="text-sm my-2">

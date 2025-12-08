@@ -3,7 +3,6 @@ export interface MovieDisplayOptions {
     genres: boolean
     poster: boolean
     tagline?: boolean
-    lbDescription?: boolean
     errors?: boolean
     tmdbScores?: boolean
     themes?: boolean
@@ -12,7 +11,6 @@ export interface MovieDisplayOptions {
 export const defaultDisplayOptions: MovieDisplayOptions = {
     description: true,
     tagline: true,
-    lbDescription: false,
     genres: true,
     poster: true,
     errors: false,

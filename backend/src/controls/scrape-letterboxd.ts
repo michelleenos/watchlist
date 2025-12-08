@@ -28,24 +28,12 @@ export const letterboxdScrape = async (
 
         const $ = cheerio.load(res.data)
 
-        const synEl = $('.production-synopsis')
-
-        const taglineEl = synEl.find('.tagline')
-        const tagline = taglineEl.text().trim()
-
-        const descEl = synEl.find('p').first()
-        const desc = descEl.text().trim()
-
         const crewTab = $('#tab-crew')
         const directorEls = crewTab.find('a[href*="/director"]')
         const director = $(directorEls)
             .map((_, el) => $(el).text().trim())
             .toArray()
             .join(', ')
-        // if (director.length > 1) {
-        //     console.log(` 🧑‍🎤🧑‍🎤🧑‍🎤 multiple directors for ${name}`)
-        // }
-        // const directorText = director.text().trim()
 
         const genreEls = $('#tab-genres a.text-slug')
 
@@ -67,8 +55,6 @@ export const letterboxdScrape = async (
         console.log(`   🎊 Scraped Letterboxd for ${name}`)
         return {
             name,
-            letterboxdDescription: desc,
-            tagline,
             director,
             letterboxdGenres: genres,
             themes,
