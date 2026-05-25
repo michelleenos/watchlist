@@ -1,4 +1,4 @@
-import { MovieTypeFull } from '../movie-type'
+import { type MovieTypeFull } from '../movie-type.js'
 import { getCurrentMovies, updateData } from '../utils.js'
 
 export async function deleteMovie(id: string) {
@@ -8,7 +8,7 @@ export async function deleteMovie(id: string) {
         return m.id === id
     })
 
-    if (movieIndex) {
+    if (movieIndex >= 0) {
         movies.splice(movieIndex, 1)
         await updateData(JSON.stringify(movies, null, 2), 'movies.json')
         return true

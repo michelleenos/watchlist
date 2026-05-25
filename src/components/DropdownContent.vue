@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, useTemplateRef } from 'vue'
-import AppBtn from './AppBtn.vue'
 import { Icon } from '@iconify/vue'
 import { onClickOutside } from '@vueuse/core'
 

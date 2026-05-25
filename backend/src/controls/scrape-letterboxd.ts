@@ -1,6 +1,6 @@
 import axios, { AxiosError } from 'axios'
 import * as cheerio from 'cheerio'
-import type { MovieErrorType, MovieTypeLetterboxd } from '../movie-type'
+import type { MovieErrorType, MovieTypeLetterboxd } from '../movie-type.js'
 
 export const letterboxdScrape = async (
     name: string,

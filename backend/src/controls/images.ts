@@ -2,7 +2,7 @@
 
 import axios from 'axios'
 import fs from 'fs'
-import type { MovieTypeTMDB } from '../movie-type'
+import type { MovieTypeTMDB } from '../movie-type.js'
 // import webp from 'webp-converter'
 import { getDir } from '../utils.js'
 import path from 'path'

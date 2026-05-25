@@ -39,7 +39,9 @@ export const getMovie = async ({
 
     if (getTmdb) {
         tmdbMovie = await getTmdbData(tmdbId || name)
-        if ('errors' in tmdbMovie && tmdbMovie.errors.length > 0) {
+        if (tmdbMovie === null) {
+            console.log(`   🛑 OH NO: TMDB for "${name} is null"`)
+        } else if ('errors' in tmdbMovie && tmdbMovie.errors.length > 0) {
             console.log(`   🛑 OH NO: TMDB errors for "${name}":`, tmdbMovie.errors)
             errors.push(...tmdbMovie.errors)
         }
@@ -47,7 +49,9 @@ export const getMovie = async ({
 
     if (getLetterboxd) {
         lbMovie = await letterboxdScrape(name, letterboxdUrl)
-        if ('errors' in lbMovie && lbMovie.errors.length > 0) {
+        if (lbMovie === null) {
+            console.log(`   🛑 OH NO: Letterboxd returned null for "${name}`)
+        } else if ('errors' in lbMovie && lbMovie.errors.length > 0) {
             console.log(`   🛑 OH NO: Letterboxd errors for "${name}":`, lbMovie.errors)
             errors.push(...lbMovie.errors)
         }

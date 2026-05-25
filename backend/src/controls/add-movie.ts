@@ -19,7 +19,11 @@ export const addMovie = async (name: string, tmdbId?: number) => {
 export const addMovieFromTmdb = async (tmdbId: number) => {
     const movie = await getMovieTmdb(tmdbId)
     const currentMovies = await getCurrentMovies()
-    const newMovies = [...currentMovies, movie]
+    const newMovies = [...currentMovies, movie].sort((a, b) => {
+        return a.name.localeCompare(b.name)
+    })
+
+    console.log('updating movies.json')
 
     await updateData(JSON.stringify(newMovies, null, 2), 'movies.json')
 

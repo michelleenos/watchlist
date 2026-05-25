@@ -52,13 +52,6 @@ fastify.route<{ Querystring: FromSchema<typeof tmdbSearchQuery> }>({
     },
 })
 
-fastify.listen({ port: 3000 }, function (err) {
-    if (err) {
-        fastify.log.error(err)
-        process.exit(1)
-    }
-})
-
 const addMovieBody = {
     type: 'object',
     properties: {
@@ -78,4 +71,11 @@ fastify.route<{ Body: FromSchema<typeof addMovieBody> }>({
         const res = await addMovieFromTmdb(tmdbId)
         reply.send(res)
     },
+})
+
+fastify.listen({ port: 3000 }, function (err) {
+    if (err) {
+        fastify.log.error(err)
+        process.exit(1)
+    }
 })

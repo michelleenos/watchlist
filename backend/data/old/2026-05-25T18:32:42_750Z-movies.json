@@ -1,111 +1,5 @@
 [
   {
-    "name": "12 Years a Slave",
-    "description": "In the pre-Civil War United States, Solomon Northup, a free black man from upstate New York, is abducted and sold into slavery. Facing cruelty as well as unexpected kindnesses Solomon struggles not only to stay alive, but to retain his dignity. In the twelfth year of his unforgettable odyssey, Solomon’s chance meeting with a Canadian abolitionist will forever alter his life.",
-    "tagline": "The extraordinary true story of Solomon Northup.",
-    "genres": [
-      "Drama",
-      "History"
-    ],
-    "letterboxdGenres": [
-      "History",
-      "Drama"
-    ],
-    "letterboxdUrl": "https://letterboxd.com/film/12-years-a-slave",
-    "tmdbId": 76203,
-    "posterPath": "images/12-years-a-slave.webp",
-    "year": 2013,
-    "crew": [
-      {
-        "name": "Steve McQueen",
-        "role": "Directing (Director)"
-      },
-      {
-        "name": "John Ridley",
-        "role": "Writing (Screenplay)"
-      },
-      {
-        "name": "Dede Gardner",
-        "role": "Production (Producer)"
-      },
-      {
-        "name": "Jeremy Kleiner",
-        "role": "Production (Producer)"
-      },
-      {
-        "name": "Hans Zimmer",
-        "role": "Sound (Original Music Composer)"
-      },
-      {
-        "name": "Brad Pitt",
-        "role": "Production (Producer)"
-      },
-      {
-        "name": "Patricia Norris",
-        "role": "Costume & Make-Up (Costume Design)"
-      },
-      {
-        "name": "Sean Bobbitt",
-        "role": "Camera (Director of Photography)"
-      },
-      {
-        "name": "Solomon Northup",
-        "role": "Writing (Novel)"
-      },
-      {
-        "name": "Anthony Katagas",
-        "role": "Production (Producer)"
-      }
-    ],
-    "cast": [
-      {
-        "name": "Chiwetel Ejiofor",
-        "role": "Solomon Northup"
-      },
-      {
-        "name": "Michael Fassbender",
-        "role": "Edwin Epps"
-      },
-      {
-        "name": "Lupita Nyong'o",
-        "role": "Patsey"
-      },
-      {
-        "name": "Benedict Cumberbatch",
-        "role": "William Ford"
-      },
-      {
-        "name": "Paul Dano",
-        "role": "John Tibeats"
-      }
-    ],
-    "language": "en",
-    "errors": [],
-    "letterboxdDescription": "In the pre-Civil War United States, Solomon Northup, a free black man from upstate New York, is abducted and sold into slavery. Facing cruelty as well as unexpected kindnesses Solomon struggles not only to stay alive, but to retain his dignity. In the twelfth year of his unforgettable odyssey, Solomon’s chance meeting with a Canadian abolitionist will forever alter his life.",
-    "tmdbPopularity": 6.0542,
-    "tmdbVoteAverage": 7.939,
-    "tmdbVoteCount": 11585,
-    "tmdbPosterPath": "/xdANQijuNrJaw1HA61rDccME4Tm.jpg",
-    "tmdbOverview": "In the pre-Civil War United States, Solomon Northup, a free black man from upstate New York, is abducted and sold into slavery. Facing cruelty as well as unexpected kindnesses Solomon struggles not only to stay alive, but to retain his dignity. In the twelfth year of his unforgettable odyssey, Solomon’s chance meeting with a Canadian abolitionist will forever alter his life.",
-    "genresMore": [],
-    "director": "Steve McQueen",
-    "themes": [
-      "Humanity and the world around us",
-      "Moving relationship stories",
-      "Intense violence and sexual transgression",
-      "Racism and the powerful fight for justice",
-      "Powerful stories of heartbreak and suffering",
-      "Gripping, intense violent crime",
-      "Graphic violence and brutal revenge",
-      "Tragic sadness and captivating beauty"
-    ],
-    "tmdbGenres": [
-      "Drama",
-      "History"
-    ],
-    "id": "1memWFSykyB0ympcw_3MI"
-  },
-  {
     "name": "2001: A Space Odyssey",
     "description": "Humanity finds a mysterious object buried beneath the lunar surface and sets off to find its origins with the help of HAL 9000, the world's most advanced super computer.",
     "tagline": "An epic drama of adventure and exploration.",
@@ -13422,5 +13316,178 @@
       "Thriller"
     ],
     "id": "znnQsSpkAN2gcY49xq-Wp"
+  },
+  {
+    "name": "X-Men: First Class",
+    "id": "VnlEnAzLQlI5ZN6LD2cRg",
+    "year": 2011,
+    "language": "en",
+    "tmdbPopularity": 0.3619,
+    "tmdbVoteAverage": 7.298,
+    "tmdbVoteCount": 13235,
+    "tmdbPosterPath": "/hNEokmUke0dazoBhttFN0o3L7Xv.jpg",
+    "tagline": "Witness the moment that will change our world.",
+    "tmdbGenres": [
+      "Action",
+      "Science Fiction",
+      "Adventure"
+    ],
+    "tmdbOverview": "Before Charles Xavier and Erik Lensherr took the names Professor X and Magneto, they were two young men discovering their powers for the first time. Before they were arch-enemies, they were closest of friends, working together with other mutants (some familiar, some new), to stop the greatest threat the world has ever known.",
+    "tmdbId": 49538,
+    "cast": [
+      {
+        "name": "James McAvoy",
+        "role": "Charles Xavier"
+      },
+      {
+        "name": "Michael Fassbender",
+        "role": "Erik Lehnsherr"
+      },
+      {
+        "name": "Jennifer Lawrence",
+        "role": "Raven / Mystique"
+      },
+      {
+        "name": "Rose Byrne",
+        "role": "Moira MacTaggert"
+      },
+      {
+        "name": "Kevin Bacon",
+        "role": "Sebastian Shaw"
+      }
+    ],
+    "crew": [
+      {
+        "name": "Matthew Vaughn",
+        "role": "Directing (Director)"
+      },
+      {
+        "name": "Simon Kinberg",
+        "role": "Production (Producer)"
+      },
+      {
+        "name": "Lauren Shuler Donner",
+        "role": "Production (Producer)"
+      },
+      {
+        "name": "Bryan Singer",
+        "role": "Production (Producer)"
+      },
+      {
+        "name": "Steve Burgess",
+        "role": "Camera (First Assistant Camera)"
+      },
+      {
+        "name": "Sian Milne",
+        "role": "Crew (Stunt Double)"
+      },
+      {
+        "name": "Gregory Goodman",
+        "role": "Production (Unit Production Manager)"
+      },
+      {
+        "name": "Janine Modder",
+        "role": "Production (Unit Production Manager)"
+      },
+      {
+        "name": "Kim H. Winther",
+        "role": "Directing (First Assistant Director)"
+      },
+      {
+        "name": "Josh Robertson",
+        "role": "Directing (First Assistant Director)"
+      }
+    ],
+    "errors": [],
+    "genres": [
+      "Action",
+      "Science Fiction",
+      "Adventure"
+    ],
+    "posterPath": "images/x-men-first-class.webp"
+  },
+  {
+    "name": "X-Men Origins: Wolverine",
+    "year": 2009,
+    "language": "en",
+    "tmdbPopularity": 0.6728,
+    "tmdbVoteAverage": 6.28,
+    "tmdbVoteCount": 10960,
+    "tmdbPosterPath": "/yj8LbTju1p7CUJg7US2unSBk33s.jpg",
+    "tagline": "Witness the origin.",
+    "tmdbGenres": [
+      "Adventure",
+      "Action",
+      "Science Fiction"
+    ],
+    "tmdbOverview": "After seeking to live a normal life, Logan sets out to avenge the death of his girlfriend by undergoing the mutant Weapon X program and becoming Wolverine.",
+    "tmdbId": 2080,
+    "cast": [
+      {
+        "name": "Hugh Jackman",
+        "role": "Logan / Wolverine"
+      },
+      {
+        "name": "Liev Schreiber",
+        "role": "Victor Creed"
+      },
+      {
+        "name": "Danny Huston",
+        "role": "Stryker"
+      },
+      {
+        "name": "Lynn Collins",
+        "role": "Kayla Silverfox"
+      },
+      {
+        "name": "Kevin Durand",
+        "role": "Fred Dukes"
+      }
+    ],
+    "crew": [
+      {
+        "name": "David Benioff",
+        "role": "Writing (Screenplay)"
+      },
+      {
+        "name": "Hugh Jackman",
+        "role": "Production (Producer)"
+      },
+      {
+        "name": "Lauren Shuler Donner",
+        "role": "Production (Producer)"
+      },
+      {
+        "name": "Gavin Hood",
+        "role": "Directing (Director)"
+      },
+      {
+        "name": "Greg Beaton",
+        "role": "Camera (First Assistant Camera)"
+      },
+      {
+        "name": "Scott Cozens",
+        "role": "Camera (Second Assistant \"B\" Camera)"
+      },
+      {
+        "name": "Cameron Morley",
+        "role": "Camera (First Assistant Camera)"
+      },
+      {
+        "name": "Sasha Proctor",
+        "role": "Camera (Second Assistant \"B\" Camera)"
+      },
+      {
+        "name": "Hans Bjerno",
+        "role": "Camera (Aerial Director of Photography)"
+      },
+      {
+        "name": "Stephen Maier",
+        "role": "Camera (First Assistant \"A\" Camera)"
+      }
+    ],
+    "errors": [],
+    "id": "hzIMdoheAczN0PQrRJjVK",
+    "posterPath": "images/x-men-origins-wolverine.webp"
   }
 ]

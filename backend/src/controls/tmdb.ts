@@ -2,7 +2,7 @@
 
 import 'dotenv/config'
 import { TMDB } from 'tmdb-ts'
-import type { MovieErrorType, MovieTypeTMDB } from '../movie-type'
+import type { MovieErrorType, MovieTypeTMDB } from '../movie-type.js'
 
 const tmdb = new TMDB(process.env.TMDB_API_KEY!)
 
