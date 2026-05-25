@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 
 .env
+.claude
+server/public/images
+client/dist
+server/dist
