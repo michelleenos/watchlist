@@ -1,4 +1,4 @@
-import { getTmdbImage } from './images.js'
+import { getTmdbImage } from '../external/images.js'
 import {
     isLetterboxdMovie,
     isTmdbMovie,
@@ -6,9 +6,9 @@ import {
     type MovieTypeFull,
     type MovieTypeLetterboxd,
     type MovieTypeTMDB,
-} from '../movie-type.js'
-import { letterboxdScrape } from './scrape-letterboxd.js'
-import { getTmdbData } from './tmdb.js'
+} from './types-with-letterboxd.js'
+import { letterboxdScrape } from '../letterboxd/scrape-letterboxd.js'
+import { getTmdbData } from '../external/tmdb.js'
 import { nanoid } from 'nanoid'
 
 export interface GetMovieOptions {
@@ -95,26 +95,4 @@ export const getMovie = async ({
     }
 
     return movieFull
-}
-
-export const getMovieTmdb = async (tmdbId: number, { replaceImage = false } = {}) => {
-    const tmdbMovie = await getTmdbData(tmdbId)
-
-    if (!isTmdbMovie(tmdbMovie)) {
-        throw new Error(`issue retrieving tmdb movie: ${tmdbMovie.errors.join(', ')}`)
-    }
-
-    const newMovieData: MovieTypeFull = {
-        ...tmdbMovie,
-        id: nanoid(),
-    }
-
-    const getPosterResult = await getTmdbImage(tmdbMovie, replaceImage)
-    if ('error' in getPosterResult) {
-        newMovieData.errors.push(getPosterResult.error)
-    } else {
-        newMovieData.posterPath = getPosterResult.path
-    }
-
-    return newMovieData
 }

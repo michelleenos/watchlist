@@ -1,3 +1,13 @@
+export interface MovieTypeLetterboxd {
+    name: string
+    letterboxdUrl: string
+    // letterboxdDescription?: string
+    letterboxdGenres?: string[]
+    themes?: string[]
+    director?: string
+    errors: string[]
+}
+
 export interface MovieTypeTMDB {
     name: string
     year?: number
@@ -23,7 +33,9 @@ export interface MovieErrorType {
 
 type MakeOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
-export interface MovieTypeFull extends MakeOptional<MovieTypeTMDB, 'tmdbId'> {
+export interface MovieTypeFull
+    extends MakeOptional<MovieTypeTMDB, 'tmdbId'>,
+        MakeOptional<MovieTypeLetterboxd, 'letterboxdUrl'> {
     id: string
     errors: string[]
     genres?: string[]
@@ -37,4 +49,11 @@ export const isTmdbMovie = (
     if (typeof (movie as MovieTypeTMDB).tmdbId !== 'number') return false
     if (typeof (movie as MovieTypeTMDB).name !== 'string') return false
     return true
+}
+
+export const isLetterboxdMovie = (
+    movie: MovieTypeLetterboxd | MovieErrorType | null,
+): movie is MovieTypeLetterboxd => {
+    if (!movie) return false
+    return (movie as MovieTypeLetterboxd).letterboxdUrl !== undefined
 }

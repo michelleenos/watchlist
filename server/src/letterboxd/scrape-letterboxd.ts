@@ -1,15 +1,13 @@
 import axios, { AxiosError } from 'axios'
 import * as cheerio from 'cheerio'
-import type { MovieErrorType, MovieTypeLetterboxd } from '../movie-type.js'
+import type { MovieErrorType, MovieTypeLetterboxd } from './types-with-letterboxd.js'
+import { toFilename } from '../utils.js'
 
 export const letterboxdScrape = async (
     name: string,
     url?: string,
 ): Promise<MovieTypeLetterboxd | MovieErrorType> => {
-    const urlName = name
-        .replace(/[^\w\s-]|_/g, '')
-        .replace(/\s+/g, '-')
-        .toLowerCase()
+    const urlName = toFilename(name)
 
     if (!url) {
         url = `https://letterboxd.com/film/${urlName}`
