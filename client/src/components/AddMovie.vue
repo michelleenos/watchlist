@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, useTemplateRef } from 'vue'
 import AppBtn from './AppBtn.vue'
-import { type TMDBSearchReturn } from '../../backend/src/controls/tmdb-search'
+import { type TMDBSearchReturn } from '../../../server/src/external/tmdb.ts'
 
 const dialog = useTemplateRef<HTMLDialogElement>('dialog')
 

@@ -113,14 +113,6 @@ const deleteMovie = () => {
                     :maxWidth="20" />
             </ul>
 
-            <ul v-if="displayOptions.themes && movie.themes" class="taglist my-1">
-                <TagItem
-                    v-for="(theme, j) in movie.themes"
-                    :key="j"
-                    tagName="li"
-                    :content="theme" />
-            </ul>
-
             <div
                 v-if="displayOptions.errors && movie.errors.length > 0"
                 class="text-red-800 text-sm">

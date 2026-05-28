@@ -27,38 +27,8 @@ defineProps<{ movie: MovieTypeFull }>()
                 </td>
             </tr>
             <tr>
-                <th>Director</th>
-                <td>{{ movie.director }}</td>
-            </tr>
-            <tr>
                 <th>TMDB ID</th>
                 <td>{{ movie.tmdbId }}</td>
-            </tr>
-            <tr>
-                <th>Letterboxd URL</th>
-                <td>
-                    <a :href="movie.letterboxdUrl" target="_blank" rel="noopener">{{
-                        movie.letterboxdUrl
-                    }}</a>
-                </td>
-            </tr>
-
-            <tr>
-                <th>Letterboxd Description</th>
-                <td>{{ (movie as any).letterboxdDescription }}</td>
-            </tr>
-            <tr v-if="movie.letterboxdGenres && movie.letterboxdGenres.length > 0">
-                <th>Letterboxd Genres</th>
-                <td>
-                    <TagItem
-                        v-for="(genre, i) in movie.letterboxdGenres"
-                        :key="i"
-                        :content="genre" />
-                </td>
-            </tr>
-            <tr v-if="movie.themes && movie.themes.length > 0">
-                <th>Themes</th>
-                <td>{{ movie.themes.join(', ') }}</td>
             </tr>
             <tr>
                 <th>Tagline</th>
