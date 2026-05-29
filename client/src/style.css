@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,200..800;1,200..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:ital,wght@0,100..900;1,100..900&family=Geist:ital,wght@0,100..900;1,100..900&family=Instrument+Serif:ital@0;1&family=Noto+Serif:ital,wght@0,100..900;1,100..900&display=swap');
+
 @import 'tailwindcss';
 
 :root {
@@ -10,18 +11,6 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-
-    /* --blue-50: #eff2fe;
-    --blue-100: #e2e7fc;
-    --blue-200: #c9d2fb;
-    --blue-300: #a7b3fb;
-    --blue-400: #7d8af8;
-    --blue-500: #6066f3;
-    --blue-600: #4c46e7;
-    --blue-700: #443fcf;
-    --blue-800: #3430a4;
-    --blue-900: #2e327a;
-    --blue-950: #1a1d4b; */
 
     /*
     --teal-50: #f1fdfc;
@@ -54,7 +43,9 @@
 }
 
 @theme {
-    --font-sans: 'Karla', sans-serif;
+    --font-sans: 'Geist', sans-serif;
+    --font-mono: 'Geist Mono', monospace;
+    --font-serif: 'Noto Serif', serif;
 
     --color-bluegray-50: #fafafb;
     --color-bluegray-100: #f4f4f5;
@@ -67,11 +58,54 @@
     --color-bluegray-800: #26272d;
     --color-bluegray-900: #17181c;
     --color-bluegray-950: #08090d;
+
+    --color-brown-50: oklch(0.957 0.002 18);
+    --color-brown-100: oklch(0.924 0.004 56.5);
+    --color-brown-200: oklch(0.837 0.015 50.81);
+    --color-brown-300: oklch(0.761 0.028 54.46);
+    --color-brown-400: oklch(0.674 0.028 52.06);
+    --color-brown-500: oklch(0.597 0.029 51.97);
+    --color-brown-600: oklch(0.51 0.027 52.33);
+    --color-brown-700: oklch(0.433 0.025 52.8);
+    --color-brown-800: oklch(0.347 0.022 55.56);
+    --color-brown-900: oklch(0.269 0.017 55.53);
+    --color-brown-950: oklch(0.226 0.016 53.71);
+
+    --color-brown-darkest: #16100c;
+
+    --color-brass: #d8a24a;
+
+    --text-xs: 0.625rem;
+    --text-xs--line-height: calc(1 / 0.75);
+    --text-sm: 0.8125rem;
+    --text-sm--line-height: calc(1.25 / 0.875);
+    --text-base: 0.875rem;
+    --text-base--line-height: calc(1.5 / 1);
+    --text-lg: 1rem;
+    --text-lg--line-height: calc(1.75 / 1.125);
+    --text-xl: 1.125rem;
+    --text-xl--line-height: calc(1.75 / 1.25);
+    --text-2xl: 1.25rem;
+    --text-2xl--line-height: calc(1.75 / 1.5);
+    --text-3xl: 1.5rem;
+    --text-3xl--line-height: calc(1.75 / 1.5);
+    --text-4xl: 2rem;
+    --text-4xl--line-height: calc(2.5 / 2);
+    --text-5xl: 2.5rem;
+    --text-5xl--line-height: 1;
+    --text-6xl: 3rem;
+    --text-6xl--line-height: 1;
+    --text-7xl: 3.75rem;
+    --text-7xl--line-height: 1;
+    --text-8xl: 4.5rem;
+    --text-8xl--line-height: 1;
+    --text-9xl: 6rem;
+    --text-9xl--line-height: 1;
 }
 
 @layer components {
     .tag {
-        @apply bg-gray-200 text-gray-900 text-sm leading-none relative flex items-center justify-center rounded-sm px-3 py-0.5;
+        @apply relative flex items-center justify-center rounded-sm bg-gray-200 px-3 py-0.5 text-sm leading-none text-gray-900;
     }
 
     .taglist {
@@ -82,34 +116,39 @@
         align-items: start;
     }
 
-    .btn {
-        @apply bg-blue-800 text-sm leading-none py-1 px-3 rounded-sm font-semibold text-gray-50 cursor-pointer;
-        @apply transition-all duration-200 border-2 border-transparent;
-        @apply hover:bg-blue-700 focus:bg-blue-700;
+    .focus-outline {
+        @apply focus:outline-amber-400 focus:not-focus-visible:outline-none focus-visible:outline-amber-400;
+    }
 
-        &.btn--text {
-            @apply bg-transparent text-blue-700;
-            @apply hover:bg-blue-100 focus:bg-blue-100;
+    .btn {
+        @apply inline-flex cursor-pointer items-center justify-center rounded-full border px-3 py-1 text-sm leading-tight font-medium transition-colors;
+        @apply border-brass bg-brass text-brown-950;
+        @apply outline-offset-2 hover:brightness-110 focus-visible:brightness-110;
+        @apply focus-visible:outline-brass focus:not-focus-visible:outline-none focus-visible:outline-2;
+
+        &.btn--large {
+            @apply px-8 py-2 pl-6 text-base;
         }
 
         &.btn--outline {
-            @apply bg-transparent border-blue-700 text-blue-700;
-            @apply hover:bg-blue-100 focus:bg-blue-100;
+            @apply border-brown-700 text-brown-300 bg-transparent;
+            @apply hover:border-brown-500 hover:text-brown-100;
+            @apply focus-visible:border-brass focus-visible:text-brass;
         }
 
         &.btn--soft {
-            @apply bg-blue-100 text-blue-800;
-
-            @apply hover:bg-blue-200 focus:bg-blue-200;
+            @apply bg-brass/15 text-brass border-transparent;
+            @apply hover:bg-brass/25;
+            @apply focus-visible:bg-brass/25;
         }
+    }
+
+    .label {
+        @apply text-brown-300 font-mono text-[10px] tracking-widest uppercase lg:text-[11px];
     }
 
     .debg {
         /* @apply outline-2 outline-amber-200; */
         @apply ring-2 ring-orange-400/50;
-    }
-
-    .focus-outline {
-        @apply focus:outline-orange-400 focus:not-focus-visible:outline-none focus-visible:outline-orange-400;
     }
 }

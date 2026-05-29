@@ -3,6 +3,7 @@ import Fastify from 'fastify'
 import path from 'path'
 import { moviesRoutes } from './routes/movies.js'
 import { tmdbRoutes } from './routes/tmdb.js'
+import { genresRoutes } from './routes/genres.js'
 
 const fastify = Fastify({ logger: true })
 
@@ -11,6 +12,7 @@ fastify.register(fastifyStatic, {
     prefix: '/',
 })
 
+fastify.register(genresRoutes, { prefix: '/genres'})
 fastify.register(moviesRoutes, { prefix: '/movies' })
 fastify.register(tmdbRoutes, { prefix: '/tmdb' })
 

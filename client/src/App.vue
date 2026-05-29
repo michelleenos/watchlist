@@ -1,65 +1,57 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
-import moviesData from '../../server/data/movies.json'
-import { type MovieTypeFull } from '../../server/src/movie-type.ts'
-import AddMovie from './components/AddMovie.vue'
+// import { computed, reactive, ref } from 'vue'
+// import moviesData from '../../server/data/movies.json'
+// import { type MovieTypeFull } from '../../server/src/movie-type.ts'
 
-import TagsFilter from './components/TagsFilter.vue'
-import MovieCard from './components/MovieCard.vue'
-import { defaultDisplayOptions, type MovieDisplayOptions } from './display-options.ts'
-import DisplayOptions from './components/DisplayOptions.vue'
+// import TagsFilter from './components/TagsFilter.vue'
+// import { defaultDisplayOptions, type MovieDisplayOptions } from './display-options.ts'
 
-const typedMovies: MovieTypeFull[] = moviesData
+// const typedMovies: MovieTypeFull[] = moviesData
 
-const genresListSet = new Set<string>()
-typedMovies.forEach((movie) => {
-    movie.genres?.forEach((genre) => {
-        genresListSet.add(genre)
-    })
-})
+// const genresListSet = new Set<string>()
+// typedMovies.forEach((movie) => {
+//     movie.genres?.forEach((genre) => {
+//         genresListSet.add(genre)
+//     })
+// })
 
-const genresList = [...genresListSet].sort()
+// const genresList = [...genresListSet].sort()
 
-const selectedGenres = ref<string[]>([])
+// const selectedGenres = ref<string[]>([])
 
-const shownMovies = computed(() => {
-    const filtered = typedMovies.filter((movie) => {
-        let selected = true
-        if (selectedGenres.value.length > 0) {
-            if (!movie.genres) selected = false
-            if (!selectedGenres.value.some((genre) => movie.genres?.includes(genre))) {
-                selected = false
-            }
-        }
+// const shownMovies = computed(() => {
+//     const filtered = typedMovies.filter((movie) => {
+//         let selected = true
+//         if (selectedGenres.value.length > 0) {
+//             if (!movie.genres) selected = false
+//             if (!selectedGenres.value.some((genre) => movie.genres?.includes(genre))) {
+//                 selected = false
+//             }
+//         }
 
-        // if (selectedGenres.value.length === 0) return true
-        // return selectedGenres.value.some((genre) => movie.genres?.includes(genre))
-        return selected
-    })
+//         // if (selectedGenres.value.length === 0) return true
+//         // return selectedGenres.value.some((genre) => movie.genres?.includes(genre))
+//         return selected
+//     })
 
-    return filtered
-})
+//     return filtered
+// })
 
-const moviesDisplay = reactive<MovieDisplayOptions>({
-    ...defaultDisplayOptions,
-})
+// const moviesDisplay = reactive<MovieDisplayOptions>({
+//     ...defaultDisplayOptions,
+// })
 </script>
 
 <template>
-    <div
-        class="grid h-screen grid-cols-[30%_1fr] xl:grid-cols-[25%_1fr] relative overflow-y-hidden">
-        <div
-            class="sidebar h-screen p-8 overflow-y-auto border-r border-bluegray-200 row-start-1 row-end-3">
+    <div class="bg-brown-darkest relative min-h-screen overflow-y-hidden text-amber-50">
+        <RouterView />
+        <!-- <div class="px-4 py-4">
+            <h1 class="serif text-brass text-lg font-semibold">watchlist</h1>
             <DisplayOptions v-model="moviesDisplay" />
 
-            <TagsFilter
-                :selectedItems="selectedGenres"
-                :items="genresList"
-                label="Genre"
-                @update="(value) => (selectedGenres = value)" />
-        </div>
-        <div
-            class="movies-topbar h-10 border-b border-bluegray-200 px-5 flex items-center justify-between">
+
+        </div> -->
+        <!-- <div class="flex h-10 items-center justify-between border-b px-5">
             <div class="font-semibold">
                 Showing {{ shownMovies.length }} movie{{ shownMovies.length !== 1 ? 's' : '' }}
             </div>
@@ -73,19 +65,6 @@ const moviesDisplay = reactive<MovieDisplayOptions>({
                 :key="movie.name"
                 :movie="movie"
                 :displayOptions="moviesDisplay" />
-        </div>
+        </div> -->
     </div>
 </template>
-
-<style scoped lang="scss">
-// .displayopts {
-//     &__item {
-//         display: flex;
-//         align-items: baseline;
-//         gap: 5px;
-//         font-size: 1rem;
-//         line-height: 1.2;
-//         margin-bottom: 5px;
-//     }
-// }
-</style>
