@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { type MovieTypeFull } from '../../../server/src/movie-type.ts'
-import TagItem from './TagItem.vue'
+import PillItem from './PillItem.vue'
 
 defineProps<{ movie: MovieTypeFull }>()
 </script>
@@ -23,7 +23,7 @@ defineProps<{ movie: MovieTypeFull }>()
             <tr v-if="movie.genres && movie.genres.length > 0">
                 <th>Genres</th>
                 <td>
-                    <TagItem v-for="(genre, i) in movie.genres" :key="i" :content="genre" />
+                    <PillItem v-for="(genre, i) in movie.genres" :key="i" :content="genre" />
                 </td>
             </tr>
             <tr>
@@ -62,7 +62,7 @@ defineProps<{ movie: MovieTypeFull }>()
             <tr>
                 <th>TMDB Genres</th>
                 <td>
-                    <TagItem v-for="(genre, i) in movie.tmdbGenres" :key="i" :content="genre" />
+                    <PillItem v-for="(genre, i) in movie.tmdbGenres" :key="i" :content="genre" />
                 </td>
             </tr>
 
