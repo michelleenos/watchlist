@@ -4,8 +4,17 @@ import tseslint from 'typescript-eslint'
 import pluginVue from 'eslint-plugin-vue'
 import { defineConfig } from 'eslint/config'
 import eslintConfigPrettier from 'eslint-config-prettier'
+// import tailwind from 'eslint-plugin-tailwindcss'
 
 export default defineConfig([
+    // ...tailwind.configs['flat/recommended'],
+    // {
+    //     settings: {
+    //         tailwindcss: {
+    //             cssFiles: ['./src/style.css'],
+    //         },
+    //     },
+    // },
     {
         files: ['**/*.{js,mjs,cjs,ts,mts,cts,vue}'],
         plugins: { js },
