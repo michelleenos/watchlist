@@ -1,12 +1,23 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="TValue extends string | number">
 import { computed } from 'vue'
 
+type FilterOptionObject = { value: TValue; label: string }
+type FilterOption = TValue | FilterOptionObject
+
+function optionValue(o: FilterOption): TValue {
+    return typeof o === 'object' ? (o as FilterOptionObject).value : (o as TValue)
+}
+
+function optionLabel(o: FilterOption): string {
+    return typeof o === 'object' ? (o as FilterOptionObject).label : String(o)
+}
+
 defineProps<{
-    options: string[]
+    options: FilterOption[]
     label: string
 }>()
 
-const selectedOptions = defineModel<string[]>({ required: true })
+const selectedOptions = defineModel<TValue[]>({ required: true })
 
 const isAll = computed(() => selectedOptions.value.length === 0)
 
@@ -17,7 +28,7 @@ function selectAll() {
 
 <template>
     <fieldset>
-        <legend class="text-brown-600 font-mono text-sm">
+        <legend class="font-mono text-sm text-brown-600">
             {{ label }}
         </legend>
         <div class="mt-2 flex flex-wrap gap-2">
@@ -29,17 +40,17 @@ function selectAll() {
                 @click="selectAll">
                 All
             </button>
-            <div v-for="(option, i) in options" :key="option">
+            <div v-for="option in options" :key="optionValue(option)">
                 <input
-                    :id="`option-${i}`"
+                    :id="`option-${optionValue(option)}`"
                     v-model="selectedOptions"
                     type="checkbox"
-                    :value="option"
+                    :value="optionValue(option)"
                     class="peer sr-only" />
                 <label
-                    :for="`option-${i}`"
-                    class="btn btn--outline peer-checked:bg-brass peer-checked:border-brass peer-checked:text-brown-950 peer-focus-visible:outline-brass peer-focus-visible:outline-2">
-                    {{ option }}
+                    :for="`option-${optionValue(option)}`"
+                    class="btn btn--outline peer-checked:border-brass peer-checked:bg-brass peer-checked:text-brown-950 peer-focus-visible:outline-2 peer-focus-visible:outline-brass">
+                    {{ optionLabel(option) }}
                 </label>
             </div>
         </div>

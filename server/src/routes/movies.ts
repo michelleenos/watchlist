@@ -1,17 +1,17 @@
 import type { FastifyInstance } from 'fastify'
 import { addMovieFromTmdb } from '../services/add-movie.js'
 import { Type, Static } from 'typebox'
-import { getMovies, deleteMovie } from '../repositories/movies.js'
+import { getMovies, deleteMovie, getMovie } from '../repositories/movies.js'
 
 const AddMovieBody = Type.Object({
     tmdbId: Type.Number(),
 })
 type AddMovieBodyType = Static<typeof AddMovieBody>
 
-const DeleteMovieParams = Type.Object({
+const MovieIdParams = Type.Object({
     id: Type.String(),
 })
-type DeleteMovieParamsType = Static<typeof DeleteMovieParams>
+type MovieIdParamsType = Static<typeof MovieIdParams>
 
 export async function moviesRoutes(fastify: FastifyInstance) {
     fastify.get('/', async (_request, reply) => {
@@ -27,8 +27,20 @@ export async function moviesRoutes(fastify: FastifyInstance) {
         },
     })
 
-    fastify.delete<{ Params: DeleteMovieParamsType }>('/:id', {
-        schema: { params: DeleteMovieParams },
+    fastify.get<{ Params: MovieIdParamsType }>('/:id', {
+        schema: { params: MovieIdParams },
+        handler: async function (request, reply) {
+            const movie = await getMovie(request.params.id)
+            if (movie) {
+                reply.send(movie)
+            } else {
+                reply.code(404)
+            }
+        },
+    })
+
+    fastify.delete<{ Params: MovieIdParamsType }>('/:id', {
+        schema: { params: MovieIdParams },
         handler: async function (request, reply) {
             const found = await deleteMovie(request.params.id)
             if (!found) {

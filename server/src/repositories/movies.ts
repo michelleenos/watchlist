@@ -25,6 +25,13 @@ export async function getMovies() {
     return JSON.parse(await getMoviesString()) as MovieTypeFull[]
 }
 
+export async function getMovie(id: string) {
+    const movies = await getMovies()
+    const movieIndex = movies.findIndex((m) => m.id === id)
+    if (movieIndex >= 0) return movies[movieIndex]
+    return false
+}
+
 export async function deleteMovie(id: string) {
     const movies = await getMovies()
     const movieIndex = movies.findIndex((m) => m.id === id)

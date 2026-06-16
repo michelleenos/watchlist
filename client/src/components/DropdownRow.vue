@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
 type DropdownButtonProps = {
     href?: string
@@ -34,7 +34,7 @@ const external = computed(() => isLink.value && props.href?.startsWith('http'))
         :target="newTab ? '_blank' : undefined"
         :href="isLink && external ? href : null"
         :class="[
-            'bg-slate-800 w-full  font-medium text-left px-2 py-1  hover:bg-cyan-800 cursor-pointer focus-outline',
+            'focus-outline w-full cursor-pointer bg-slate-800 px-2 py-1 text-left font-medium hover:bg-cyan-800',
         ]">
         <slot></slot>
     </component>
