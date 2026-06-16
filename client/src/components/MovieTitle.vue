@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
+import AppTypography from './AppTypography.vue'
 
 withDefaults(
     defineProps<{
@@ -14,10 +15,10 @@ withDefaults(
 </script>
 
 <template>
-    <component
-        :is="tag"
-        class="flex flex-wrap items-baseline gap-x-4 font-serif leading-tight"
-        :class="size === 'base' ? 'text-xl lg:text-2xl' : 'text-4xl font-semibold'">
+    <AppTypography
+        :tag="tag"
+        :variant="size === 'base' ? 'serif-sm' : 'serif-lg'"
+        class="flex flex-wrap items-baseline gap-x-4">
         <RouterLink v-if="link" :to="link">
             {{ title }}
             <span v-if="originalTitle" :class="size === 'base' ? 'text-lg' : 'text-2xl'">
@@ -30,5 +31,5 @@ withDefaults(
                 ({{ originalTitle }})
             </span>
         </template>
-    </component>
+    </AppTypography>
 </template>

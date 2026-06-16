@@ -6,6 +6,7 @@ import MovieTitle from './MovieTitle.vue'
 import PillItem from './PillItem.vue'
 import MovieMetaDl from './MovieMetaDl.vue'
 import { RouterLink } from 'vue-router'
+import AppTypography from './AppTypography.vue'
 
 const props = defineProps<{ movie: MovieTypeFull }>()
 const { movie } = props
@@ -28,9 +29,12 @@ const { movie } = props
                     </MovieTagline>
                 </header>
                 <MovieMetaDl :movie="movie" />
-                <p v-if="movie.tmdbOverview" class="line-clamp-3 self-start text-sm text-taupe-300">
+                <AppTypography
+                    v-if="movie.tmdbOverview"
+                    variant="body-muted-sm"
+                    class="line-clamp-3 self-start">
                     {{ movie.tmdbOverview }}
-                </p>
+                </AppTypography>
                 <ul v-if="movie.tmdbGenres" class="flex flex-wrap gap-x-2 gap-y-1">
                     <PillItem v-for="(genre, i) in movie.tmdbGenres" :key="i" tag="li">{{
                         genre

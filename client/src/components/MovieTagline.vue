@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import AppTypography from './AppTypography.vue'
+
 withDefaults(defineProps<{ size?: 'base' | 'lg'; tag?: string }>(), {
     size: 'base',
     tag: 'p',
@@ -6,10 +8,7 @@ withDefaults(defineProps<{ size?: 'base' | 'lg'; tag?: string }>(), {
 </script>
 
 <template>
-    <component
-        :is="tag"
-        class="text-brass font-serif leading-tight italic"
-        :class="size === 'base' ? 'text-base' : 'text-lg lg:text-xl'">
-        <slot />
-    </component>
+    <AppTypography :tag="tag" :variant="size === 'base' ? 'tagline' : 'tagline-lg'">
+        <slot></slot>
+    </AppTypography>
 </template>

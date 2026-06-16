@@ -9,6 +9,7 @@ import LoadingSpinner from '../components/LoadingSpinner.vue'
 import MovieTitle from '../components/MovieTitle.vue'
 import MovieMetaDl from '../components/MovieMetaDl.vue'
 import PillItem from '../components/PillItem.vue'
+import AppTypography from '../components/AppTypography.vue'
 
 const route = useRoute()
 const movie = ref<MovieTypeFull>()
@@ -82,13 +83,13 @@ watch(
                         <MovieTagline size="lg" class="mt-2">{{ movie.tagline }}</MovieTagline>
                     </header>
                     <MovieMetaDl :movie="movie" />
-                    <p v-if="movie.tmdbOverview" class="text-brown-300">
+                    <AppTypography v-if="movie.tmdbOverview" variant="body-muted">
                         {{ movie.tmdbOverview }}
-                    </p>
+                    </AppTypography>
                     <ul v-if="movie.tmdbGenres" class="flex flex-wrap gap-x-2 gap-y-1">
-                        <PillItem v-for="(genre, i) in movie.tmdbGenres" :key="i" tag="li">{{
-                            genre
-                        }}</PillItem>
+                        <PillItem v-for="(genre, i) in movie.tmdbGenres" :key="i" tag="li">
+                            {{ genre }}
+                        </PillItem>
                     </ul>
                 </div>
             </div>

@@ -1,5 +1,6 @@
 <script setup lang="ts" generic="TValue extends string | number">
 import { computed } from 'vue'
+import PillItem from './PillItem.vue'
 
 type FilterOptionObject = { value: TValue; label: string }
 type FilterOption = TValue | FilterOptionObject
@@ -47,11 +48,9 @@ function selectAll() {
                     type="checkbox"
                     :value="optionValue(option)"
                     class="peer sr-only" />
-                <label
-                    :for="`option-${optionValue(option)}`"
-                    class="btn btn--outline peer-checked:border-brass peer-checked:bg-brass peer-checked:text-brown-950 peer-focus-visible:outline-2 peer-focus-visible:outline-brass">
+                <PillItem tag="label" :for="`option-${optionValue(option)}`" selectable>
                     {{ optionLabel(option) }}
-                </label>
+                </PillItem>
             </div>
         </div>
     </fieldset>

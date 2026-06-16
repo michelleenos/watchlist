@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import AppTypography from './AppTypography.vue'
+
 defineProps<{
     title: string
     description: string
@@ -7,7 +9,7 @@ defineProps<{
 
 <template>
     <div>
-        <dt class="label">{{ title }}</dt>
+        <AppTypography tag="dt" variant="caps">{{ title }}</AppTypography>
         <dd class="text-sm">{{ description }}</dd>
     </div>
 </template>
