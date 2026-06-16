@@ -2,7 +2,7 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { type MovieTypeFull } from '../../../server/src/movie-type'
 import { Icon } from '@iconify/vue'
-import MovieCard from '../components/MovieCard/MovieCard.vue'
+import MovieCard from '../components/MovieCard.vue'
 import FilterItems from '../components/FilterItems.vue'
 
 const loading = ref(true)

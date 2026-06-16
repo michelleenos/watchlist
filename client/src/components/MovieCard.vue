@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { MovieTypeFull } from '../../../../server/src/movie-type'
-import MoviePoster from '../MoviePoster.vue'
-import MovieTagline from '../MovieTagline.vue'
-import MovieTitle from '../MovieTitle.vue'
-import PillItem from '../PillItem.vue'
-import MovieMetaDl from '../MovieMetaDl.vue'
+import type { MovieTypeFull } from '../../../server/src/movie-type.ts'
+import MoviePoster from './MoviePoster.vue'
+import MovieTagline from './MovieTagline.vue'
+import MovieTitle from './MovieTitle.vue'
+import PillItem from './PillItem.vue'
+import MovieMetaDl from './MovieMetaDl.vue'
 import { RouterLink } from 'vue-router'
 
 const props = defineProps<{ movie: MovieTypeFull }>()
