@@ -33,14 +33,14 @@ function selectAll() {
             {{ label }}
         </legend>
         <div class="mt-2 flex flex-wrap gap-2">
-            <button
-                type="button"
+            <PillItem
+                tag="button"
                 :aria-pressed="isAll"
-                class="btn"
-                :class="isAll ? '' : 'btn--outline'"
+                selectable
+                :active="isAll"
                 @click="selectAll">
                 All
-            </button>
+            </PillItem>
             <div v-for="option in options" :key="optionValue(option)">
                 <input
                     :id="`option-${optionValue(option)}`"
