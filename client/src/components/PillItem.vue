@@ -12,11 +12,13 @@ withDefaults(
 <template>
     <component
         :is="tag"
-        class="inline-flex items-center justify-center rounded-full border border-brown-700 px-3 py-1 text-sm leading-tight font-medium text-brown-200"
+        class="font-500 inline-flex items-center justify-center rounded-full border px-3 py-1 text-sm leading-tight text-brown-300 transition-[filter,background-color,border-color,color]"
         :class="[
             selectable &&
-                'cursor-pointer peer-checked:border-brass peer-checked:bg-brass peer-checked:text-taupe-950 peer-focus-visible:outline-2 peer-focus-visible:outline-brass hover:bg-brass/15 peer-checked:hover:bg-brass',
-            active && 'border-brass bg-brass text-taupe-950 hover:bg-brass',
+                'cursor-pointer peer-checked:border-brass peer-checked:bg-brass peer-checked:text-brown-950 peer-focus-visible:outline-2 peer-focus-visible:outline-brass peer-checked:hover:bg-brass peer-checked:hover:brightness-110',
+            selectable && !active && 'hover:bg-brass/15',
+            active && 'border-brass bg-brass text-brown-950 hover:brightness-110',
+            !active && 'border-brown-700',
         ]"
         v-bind="$attrs">
         <slot />

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { type MovieTypeFull } from '../../../server/src/movie-type'
-import { Icon } from '@iconify/vue'
 import MovieCard from '../components/MovieCard.vue'
 import FilterItems from '../components/FilterItems.vue'
+import AddMovie from '../components/AddMovie.vue'
 
 const loading = ref(true)
 const error = ref(false)
@@ -79,12 +79,9 @@ onMounted(() => {
 
 <template>
     <div class="mx-auto max-w-11/12 2xl:max-w-352">
-        <div class="flex items-center justify-between border-b border-b-taupe-700 pt-12 pb-8">
+        <div class="flex items-center justify-between border-b border-b-brown-700 pt-12 pb-8">
             <h1 class="text-2xl text-brass">watchlist</h1>
-            <a href="#" class="btn btn--large">
-                <Icon icon="ri:add-line" :inline="true" class="mr-2"></Icon>
-                Add Movie
-            </a>
+            <AddMovie :movies="movies" @added="fetchMovies" />
         </div>
         <div v-if="loading">LOADING</div>
         <div v-else>

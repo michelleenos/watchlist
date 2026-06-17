@@ -1,135 +1,205 @@
 <script setup lang="ts">
-import { ref, useTemplateRef } from 'vue'
-import AppBtn from './AppBtn.vue'
+import { computed, ref, useTemplateRef } from 'vue'
 import { type TMDBSearchReturn } from '../../../server/src/external/tmdb.ts'
+import { type MovieTypeFull } from '../../../server/src/movie-type.ts'
+import { Icon } from '@iconify/vue'
+import AppBtn from './AppBtn.vue'
+import AppTypography from './AppTypography.vue'
+import LoadingSpinner from './LoadingSpinner.vue'
+import AppDialog from './AppDialog.vue'
+import { useToast } from '../composables/useToast.ts'
 
-const dialog = useTemplateRef<HTMLDialogElement>('dialog')
+const props = defineProps<{ movies: MovieTypeFull[] }>()
+const emit = defineEmits<{ added: [] }>()
 
+const existingTmdbIds = computed(() => new Set(props.movies.map((m) => m.tmdbId)))
+
+const dialog = useTemplateRef('dialog')
+const searchInput = ref('')
 const searchName = ref('')
+const searchResults = ref<TMDBSearchReturn[] | null>(null)
+const searching = ref(false)
+const searchError = ref(false)
+const adding = ref<number | null>(null)
 
-const onDialogClick = (e: MouseEvent) => {
-    if (!dialog.value) return
-    if (e.target === dialog.value) {
-        dialog.value.close()
+const toasts = useToast()
+
+const open = () => {
+    dialog.value?.open()
+    document.body.classList.add('overflow-hidden')
+}
+
+const close = () => {
+    dialog.value?.close()
+    document.body.classList.remove('overflow-hidden')
+    clearResults()
+}
+
+const search = async () => {
+    if (!searchInput.value.trim()) return
+    searchName.value = searchInput.value
+    searching.value = true
+    searchError.value = false
+    try {
+        const res = await fetch(`/api/tmdb/search?name=${encodeURIComponent(searchName.value)}`)
+        if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`)
+        searchResults.value = await res.json()
+    } catch (err) {
+        console.error(err)
+        searchError.value = true
+    } finally {
+        searching.value = false
     }
 }
 
-const searchResults = ref<TMDBSearchReturn[] | null>(null)
-
-const search = async () => {
-    fetch(`/api/search-tmdb?name=${encodeURIComponent(searchName.value)}`)
-        .then((res) => {
-            if (!res.ok || res.status !== 200) {
-                throw new Error(`Error searching TMDB: ${res.status}: ${res.statusText}`)
-            }
-            return res.json()
+const addMovie = async (tmdbId: number) => {
+    adding.value = tmdbId
+    try {
+        const res = await fetch(`/api/movies`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tmdbId }),
         })
-        .then((json: TMDBSearchReturn[]) => {
-            searchResults.value = json
-        })
-        .catch((err) => {
-            console.error(err)
-        })
-}
-
-const addMovie = (tmdbId: number) => {
-    fetch(`/api/movie`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ tmdbId }),
-    })
-        .then((res) => {
-            if (!res.ok || res.status !== 200) {
-                throw new Error(`Error adding movie: ${res.status}: ${res.statusText}`)
-            }
-            return res.json()
-        })
-        .then((json) => {
-            console.log(json)
-            clearResults()
-            searchName.value = ''
-            dialog.value?.close()
-        })
-        .catch((err) => {
-            console.error(err)
-        })
+        if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`)
+        const movie = (await res.json()) as MovieTypeFull
+        emit('added')
+        toasts.add({ html: `added movie <strong>${movie.name}</strong>` })
+        close()
+    } catch (err) {
+        console.error(err)
+        toasts.add('error adding movie', 'error')
+    } finally {
+        adding.value = null
+    }
 }
 
 const clearResults = () => {
     searchResults.value = null
+    searchInput.value = ''
     searchName.value = ''
+    searchError.value = false
 }
 </script>
 
 <template>
-    <AppBtn @click="() => dialog && dialog.showModal()">Add New Movie</AppBtn>
-    <dialog
-        ref="dialog"
-        class="w-11/12 max-h-[80vh] max-w-[900px] bg-gray-50 backdrop:bg-gray-200/50 backdrop:backdrop-blur-md mx-auto my-[10vh]"
-        @click="onDialogClick">
-        <div class="px-8 pt-10 pb-14">
-            <h1 class="border-b-gray-400 border-b-1 pb-3 mb-4 text-3xl">Add Movie</h1>
+    <AppBtn class="flex items-center gap-1" size="lg" @click="open">
+        <Icon icon="ri:add-line" />
+        Add Movie
+    </AppBtn>
 
-            <div v-if="searchResults" class="">
-                <div class="flex justify-between mb-2">
-                    <h2 class="text-lg">
-                        You searched for <strong>{{ searchName }}</strong
-                        >. Click on a result below to add to the list!
-                    </h2>
-                    <AppBtn variant="text" @click="clearResults">Clear results</AppBtn>
+    <AppDialog ref="dialog">
+        <div class="flex max-h-[80vh] flex-col">
+            <div class="shrink-0 px-8 pt-8 pb-6">
+                <div class="mb-6 flex items-center justify-between">
+                    <AppTypography variant="caps">Add Movie</AppTypography>
                 </div>
-                <div class="border-t-1 border-t-slate-300">
-                    <div
-                        v-for="(movie, i) in searchResults"
-                        :key="i"
-                        class="relative py-3 cursor-pointer border-y-2 border-slate-300 border-t-transparent hover:bg-cyan-50 hover:border-b-cyan-600 hover:border-t-cyan-600 group"
-                        @click="() => addMovie(movie.id)">
-                        <div
-                            class="grid grid-cols-[70px_1fr] gap-x-4 max-h-[120px] overflow-hidden">
-                            <img
-                                class="w-70px h-120px object-cover"
-                                :src="`https://image.tmdb.org/t/p/w500/${movie.posterPath}`"
-                                :alt="`${movie.title} poster`" />
-                            <div>
-                                <h3 class="text-xl font-bold group-hover:text-cyan-800">
-                                    {{ movie.title }}
-                                </h3>
-                                <div class="text-sm flex gap-x-3">
-                                    <p><strong>Language</strong>: {{ movie.originalLanguage }}</p>
-                                    <p>
-                                        <strong>Year</strong>: {{ movie.releaseDate.split('-')[0] }}
+
+                <!-- Search input -->
+                <div class="relative flex items-center">
+                    <input
+                        v-model="searchInput"
+                        type="text"
+                        placeholder="Search for a movie..."
+                        class="w-full min-w-0 rounded-lg border border-brown-700 bg-brown-900 py-3 pr-12 pl-4 text-sm text-brown-100 placeholder:text-brown-600 focus:border-brass focus:outline-none"
+                        @keydown.enter="search" />
+                    <button
+                        :disabled="searching"
+                        class="absolute right-2 cursor-pointer rounded-sm p-2 text-brown-500 transition-colors hover:text-brass focus:text-brass focus:not-focus-visible:outline-none focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brass disabled:opacity-40"
+                        aria-label="Search"
+                        @click="search">
+                        <Icon icon="ri:search-line" class="size-4" />
+                    </button>
+                </div>
+            </div>
+
+            <div class="min-h-0 flex-1 overflow-y-auto px-8 pb-8">
+                <!-- Searching -->
+                <div v-if="searching" class="flex justify-center py-12">
+                    <LoadingSpinner />
+                </div>
+
+                <!-- Search error -->
+                <p v-if="searchError" class="text-sm text-brown-400">
+                    Something went wrong. Try again.
+                </p>
+
+                <!-- Results -->
+                <div v-if="searchResults" class="mt-2">
+                    <div class="mb-3 flex items-baseline justify-between">
+                        <AppTypography variant="body-muted-sm">
+                            Results for "{{ searchName }}"
+                        </AppTypography>
+                        <button
+                            class="cursor-pointer text-xs text-brown-500 transition-colors hover:text-brown-300"
+                            @click="clearResults">
+                            Clear
+                        </button>
+                    </div>
+
+                    <p v-if="searchResults.length === 0" class="py-4 text-sm text-brown-400">
+                        No results found.
+                    </p>
+
+                    <ul class="divide-y divide-brown-900">
+                        <li v-for="movie in searchResults" :key="movie.id">
+                            <button
+                                type="button"
+                                :disabled="existingTmdbIds.has(movie.id) || adding === movie.id"
+                                class="group -mx-4 -my-px flex w-[calc(100%+2rem)] gap-4 rounded px-4 py-4 text-left transition-colors focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brass enabled:cursor-pointer enabled:hover:bg-brown-900 enabled:focus-visible:bg-brown-900 disabled:opacity-60"
+                                @click="() => addMovie(movie.id)">
+                                <div class="w-12 shrink-0">
+                                    <img
+                                        v-if="movie.posterPath"
+                                        :src="`https://image.tmdb.org/t/p/w92/${movie.posterPath}`"
+                                        :alt="`${movie.title} poster`"
+                                        class="w-full rounded object-cover" />
+                                    <div
+                                        v-else
+                                        class="flex aspect-2/3 w-full items-center justify-center rounded bg-brown-800">
+                                        <span class="text-xs text-brown-600">?</span>
+                                    </div>
+                                </div>
+
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-baseline gap-2">
+                                        <span
+                                            class="leading-tight font-semibold text-brown-100 transition-colors group-hover:enabled:text-brass">
+                                            {{ movie.title }}
+                                        </span>
+                                        <span class="shrink-0 text-xs text-brown-500">
+                                            {{ movie.releaseDate?.split('-')[0] }}
+                                        </span>
+                                    </div>
+                                    <p class="mt-0.5 mb-1 text-xs text-brown-500">
+                                        {{ movie.originalLanguage?.toUpperCase() }}
+                                    </p>
+                                    <p class="line-clamp-2 text-sm leading-snug text-brown-400">
+                                        {{ movie.overview }}
                                     </p>
                                 </div>
-                                <p class="text-sm line-clamp-3">{{ movie.overview }}</p>
-                            </div>
-                        </div>
-                        <div
-                            class="absolute bottom-0 left-0 w-full h-3/4 hidden group-hover:block bg-gradient-to-t from-white from-10% to-transparent">
-                            <div
-                                class="absolute bottom-2 left-1/2 -translate-x-1/2 text-cyan-600 font-bold hover:text-indigo-600">
-                                Add this movie
-                            </div>
-                        </div>
-                    </div>
+
+                                <div class="flex shrink-0 items-center">
+                                    <span v-if="adding === movie.id" class="text-xs text-brown-500">
+                                        Adding…
+                                    </span>
+                                    <span
+                                        v-else-if="existingTmdbIds.has(movie.id)"
+                                        class="text-xs text-brown-500">
+                                        Already added
+                                    </span>
+                                    <span
+                                        v-else
+                                        class="text-xs text-brass opacity-0 transition-opacity group-hover:opacity-100">
+                                        Add →
+                                    </span>
+                                </div>
+                            </button>
+                        </li>
+                    </ul>
                 </div>
             </div>
-            <div v-else class="grid grid-cols-[1fr_auto] gap-x-1">
-                <label for="search" class="col-start-1 col-end-3 font-medium">
-                    What movie are you looking for?
-                </label>
-                <input
-                    id="search"
-                    v-model="searchName"
-                    name="search"
-                    class="border-1 border-gray-500 rounded-sm w-full px-2 focus:outline-2 focus:outline-cyan-500"
-                    @keydown.enter="search" />
-
-                <AppBtn class="self-stretch" @click="search">Search</AppBtn>
-            </div>
         </div>
-    </dialog>
+    </AppDialog>
 </template>
 
 <style scoped lang="scss"></style>

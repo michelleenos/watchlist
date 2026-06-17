@@ -9,7 +9,8 @@ type TypeVariant =
     | 'tagline'
     | 'tagline-lg'
     | 'caps'
-    | 'base'
+    | 'body'
+    | 'body-sm'
 
 const tagDefaults: Record<TypeVariant, string> = {
     'serif-lg': 'h2',
@@ -18,7 +19,8 @@ const tagDefaults: Record<TypeVariant, string> = {
     'body-muted-sm': 'p',
     tagline: 'p',
     'tagline-lg': 'p',
-    base: 'p',
+    body: 'p',
+    'body-sm': 'p',
     caps: 'div',
 }
 
@@ -26,16 +28,17 @@ const VARIANT_CLASSES = {
     'serif-lg': 'text-4xl font-semibold font-serif leading-tight',
     'serif-sm': 'text-xl lg:text-2xl font-serif leading-tight',
     'body-muted': 'text-brown-300',
-    'body-muted-sm': 'text-sm text-taupe-400',
-    tagline: 'text-base font-serif leading-tight italic text-brass',
+    'body-muted-sm': 'text-sm text-brown-300',
+    tagline: 'text-body font-serif leading-tight italic text-brass',
     'tagline-lg': 'text-lg lg:text-xl font-serif leading-tight italic text-brass',
-    caps: 'text-taupe-300 font-mono text-[10px] tracking-widest uppercase lg:text-[11px]',
-    base: '',
+    caps: 'text-brown-300 font-mono text-[10px] tracking-widest uppercase lg:text-[11px]',
+    'body-sm': 'text-sm',
+    body: '',
 } satisfies Record<TypeVariant, string>
 
 const props = withDefaults(defineProps<{ variant?: TypeVariant; tag?: string }>(), {
     tag: undefined,
-    variant: 'base',
+    variant: 'body',
 })
 
 const resolvedTag = computed(() => props.tag ?? tagDefaults[props.variant])
