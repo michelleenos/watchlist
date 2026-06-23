@@ -19,7 +19,7 @@ export const getTmdbImage = async (
         const url = `https://image.tmdb.org/t/p/w500/${movie.tmdbPosterPath}`
         const filename = toFilename(movie.name)
         const localPath = `${IMAGES_DIR}/${filename}.webp`
-        const frontendPath = `images/${filename}.webp`
+        const frontendPath = `/images/${filename}.webp`
 
         if (fs.existsSync(localPath) && !replace) {
             console.log('File exists, skipping:', localPath)

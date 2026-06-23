@@ -28,3 +28,5 @@ dist-ssr
 server/public/images
 client/dist
 server/dist
+
+server/data/old/*.json

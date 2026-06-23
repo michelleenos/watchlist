@@ -12,6 +12,7 @@ import AppTypography from '../components/AppTypography.vue'
 import AppDialog from '../components/AppDialog.vue'
 import AppBtn from '../components/AppBtn.vue'
 import { useToast } from '../composables/useToast.ts'
+import { useMovies } from '../composables/useMovies.ts'
 
 const route = useRoute()
 const router = useRouter()
@@ -22,8 +23,7 @@ const dialog = useTemplateRef('dialog')
 const confirmingDelete = ref(false)
 const deleting = ref(false)
 const toasts = useToast()
-
-onMounted(() => dialog.value?.dialog?.showModal())
+const { refresh } = useMovies()
 
 async function fetchMovie(id: string) {
     try {
@@ -39,6 +39,7 @@ async function fetchMovie(id: string) {
 }
 
 onMounted(() => {
+    dialog.value?.open()
     fetchMovie(route.params.id as string)
 })
 
@@ -55,17 +56,17 @@ async function deleteMovie() {
         const res = await fetch(`/api/movies/${movie.value.id}`, { method: 'DELETE' })
         if (!res.ok) {
             console.error(`error deleting movie: ${res.status}: ${res.statusText}`)
-            toasts.add('error deleting movie', 'error')
-            // throw new Error(`${res.status}: ${res.statusText}`)
+            throw new Error(`${res.status}: ${res.statusText}`)
         }
         toasts.add({ html: `deleted movie <strong>${movieName}</strong>` })
+        refresh()
         router.back()
     } catch (err) {
         console.error(err)
         toasts.add('error deleting movie', 'error')
-        deleting.value = false
-        confirmingDelete.value = false
     }
+    deleting.value = false
+    confirmingDelete.value = false
 }
 </script>
 

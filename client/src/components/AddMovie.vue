@@ -8,11 +8,11 @@ import AppTypography from './AppTypography.vue'
 import LoadingSpinner from './LoadingSpinner.vue'
 import AppDialog from './AppDialog.vue'
 import { useToast } from '../composables/useToast.ts'
+import { useMovies } from '../composables/useMovies.ts'
 
-const props = defineProps<{ movies: MovieTypeFull[] }>()
-const emit = defineEmits<{ added: [] }>()
+const { moviesData, refresh } = useMovies()
 
-const existingTmdbIds = computed(() => new Set(props.movies.map((m) => m.tmdbId)))
+const existingTmdbIds = computed(() => new Set(moviesData.movies.map((m) => m.tmdbId)))
 
 const dialog = useTemplateRef('dialog')
 const searchInput = ref('')
@@ -24,16 +24,10 @@ const adding = ref<number | null>(null)
 
 const toasts = useToast()
 
-const open = () => {
-    dialog.value?.open()
-    document.body.classList.add('overflow-hidden')
-}
+const open = () => dialog.value?.open()
+const close = () => dialog.value?.close()
 
-const close = () => {
-    dialog.value?.close()
-    document.body.classList.remove('overflow-hidden')
-    clearResults()
-}
+const onClose = () => clearResults()
 
 const search = async () => {
     if (!searchInput.value.trim()) return
@@ -62,7 +56,7 @@ const addMovie = async (tmdbId: number) => {
         })
         if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`)
         const movie = (await res.json()) as MovieTypeFull
-        emit('added')
+        refresh()
         toasts.add({ html: `added movie <strong>${movie.name}</strong>` })
         close()
     } catch (err) {
@@ -87,7 +81,7 @@ const clearResults = () => {
         Add Movie
     </AppBtn>
 
-    <AppDialog ref="dialog">
+    <AppDialog ref="dialog" @close="onClose">
         <div class="flex max-h-[80vh] flex-col">
             <div class="shrink-0 px-8 pt-8 pb-6">
                 <div class="mb-6 flex items-center justify-between">
