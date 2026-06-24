@@ -54,6 +54,14 @@ Two passes, deliberately sequenced so only one thing changes at a time:
 - Treat the Pydantic model as the schema source of truth (the role `movie-type.ts` plays now), but don't finalize it yet — the movie shape may firm up during the DB pass.
 - The JSON-backed repository here is throwaway code (replaced in Pass 2). Keep it minimal.
 
+**Pass 1 progress (as of 2026-06-23):** The Python backend lives in `api/` (uv-managed, `app/` package: `config.py`, `models.py`, `routes/`, `repositories/`).
+
+- **Done — read/delete routes (JSON-backed):** `GET /movies`, `GET /movies/{id}` (404 if missing), `DELETE /movies/{id}`, `GET /genres`, `GET /decades`, `GET /languages`. All registered in `app/main.py` with Node-matching prefixes; verified against the JSON data (counts, distinct lists, camelCase output, 404s). `app/main.py` also has a `/health` route.
+- **Models:** `MovieFull` + `MovieMember` in `app/models.py`. Uses `alias_generator=to_camel` + `validate_by_name`/`validate_by_alias` (not per-field aliases) so snake_case fields round-trip to/from the camelCase JSON. Output is camelCase via response-model aliasing; routes use `response_model_exclude_none=True` to match Node omitting `undefined`. `MovieTMDB`/`TMDBSearchResult` not yet modeled.
+- **Repo:** `app/repositories/movies.py` (`load_movies`, `get_movies`, `get_movie`, `delete_movie`) + `genres.py`/`decades.py`/`languages.py`. `delete_movie` writes back with `by_alias=True, exclude_none=True` and **skips** Node's backup + re-sort (throwaway). Reads/writes the shared `../server/data/movies.json` via `settings.movies_path`.
+- **Deferred (need the external layer):** `POST /movies` and `GET /tmdb/search` — depend on `external/tmdb.py` + `external/images.py` + `services/add_movie.py` (httpx for TMDB REST, Pillow for poster resize→webp). Not built yet.
+- **TODO:** Repo functions are still **sync `def`** — convert to `async` (per the rule above) before the psycopg3 swap; will touch signatures.
+
 **Pass 2 — Swap storage to Postgres.** Only the repository layer changes — bring in psycopg3, define the schema + migrations, finalize the response models. (See "Database setup" below.)
 
 After the shape settles (Pass 2), wire up the client/server type boundary via FastAPI's OpenAPI output + a TS generator (e.g. `openapi-typescript`) instead of the current cross-package TS imports — see "Shared types" below.
