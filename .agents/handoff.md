@@ -60,7 +60,17 @@ Two passes, deliberately sequenced so only one thing changes at a time:
 - **Models:** `MovieFull` + `MovieMember` in `app/models.py`. Uses `alias_generator=to_camel` + `validate_by_name`/`validate_by_alias` (not per-field aliases) so snake_case fields round-trip to/from the camelCase JSON. Output is camelCase via response-model aliasing; routes use `response_model_exclude_none=True` to match Node omitting `undefined`. `MovieTMDB`/`TMDBSearchResult` not yet modeled.
 - **Repo:** `app/repositories/movies.py` (`load_movies`, `get_movies`, `get_movie`, `delete_movie`) + `genres.py`/`decades.py`/`languages.py`. `delete_movie` writes back with `by_alias=True, exclude_none=True` and **skips** Node's backup + re-sort (throwaway). Reads/writes the shared `../server/data/movies.json` via `settings.movies_path`.
 - **Deferred (need the external layer):** `POST /movies` and `GET /tmdb/search` — depend on `external/tmdb.py` + `external/images.py` + `services/add_movie.py` (httpx for TMDB REST, Pillow for poster resize→webp). Not built yet.
-- **TODO:** Repo functions are still **sync `def`** — convert to `async` (per the rule above) before the psycopg3 swap; will touch signatures.
+- **Done — repo functions `async`:** `load_movies`/`get_movie`/`delete_movie` (+ the filter repos) are now `async` using `aiofiles` (commit `45f5e18`), so signatures won't change when psycopg3's async API swaps in.
+- **`extra="allow"` on `MovieFull`:** undeclared JSON keys survive validation **and** are re-emitted on dump, so `delete_movie`'s file rewrite is non-destructive to fields not in the model. (This is why the field cleanup below had to be done deliberately — nothing was being dropped by accident.)
+
+#### Field / schema cleanup (done 2026-06-24)
+
+Settled the movie field shape (the Pydantic model is the schema source of truth heading into Pass 2). Each change was applied across all four places the movie shape lives: `server/data/movies.json` (one-time migration script over the data), `api/app/models.py` (`MovieFull`), the Vue client, and `server/src/movie-type.ts` (the still-running TS server). Both `tsc` (server) and `vue-tsc` (client) typecheck clean afterward.
+
+- **`tmdbOverview` → `description`:** consolidated the old overlapping `description` / `descriptionAlt` / `letterboxdDescription` / `tmdbOverview` fields into a single `description`, sourced from the TMDB overview (131/132 movies have it). `tmdb.ts` add-movie builder now writes `description`.
+- **`tmdbGenres` → `genres`:** collapsed to one `genres` field, backfilled from `tmdbGenres` (which is what the frontend actually displayed and filtered on, so it won where the two diverged on 6 movies). All 132 now have `genres`. This also fixed a latent bug: the genre filter *options* (`/genres` endpoint) were derived from `genres` while the filter *matching* in `MoviesIndex.vue` ran against `tmdbGenres` — now both use `genres`.
+- **Dropped all Letterboxd legacy fields** (decision: don't keep, don't re-source): `letterboxdGenres`, `letterboxdUrl`, `letterboxdDescription`, `themes`, `genresMore`, `descriptionAlt`, and **`director`** (was Letterboxd-scraped). Director will be re-sourced from TMDB instead — see the crew plan in Notes below.
+- Cosmetic: Prettier's `objectWrap` default expanded the JSON's crew/cast objects to multi-line. Harmless, left as-is; `prettier --object-wrap collapse --write server/data/movies.json` re-collapses them if it ever bugs you.
 
 **Pass 2 — Swap storage to Postgres.** Only the repository layer changes — bring in psycopg3, define the schema + migrations, finalize the response models. (See "Database setup" below.)
 
@@ -111,9 +121,34 @@ Don't wire up the generator until the movie response shape settles (post-DB migr
 
 ## Notes for Future Sessions
 
-### Director field — missing from MovieTypeFull
+### Crew / credits restructuring (planned — not yet implemented)
 
-- `director` is not currently retrieved from TMDB and is absent from `MovieTypeFull`. It used to come from Letterboxd. It lives in the credits **crew** array (filter for `job === 'Director'`) — and the TMDB fetch already makes a credits call, so wiring it up is mostly just mapping that field through. Low priority, just hasn't been done yet.
+`director` was dropped in the 2026-06-24 cleanup and will be re-sourced from TMDB. While at it, the whole crew-storage approach needs rework.
+
+**Current state (the problem):** `tmdb.ts` stores `cast` = first 5 of `credits.cast` and `crew` = first **10 of `credits.crew`**. Cast is fine (TMDB returns cast pre-sorted by billing `order`). Crew is **broken**: `credits.crew` is large and **unordered** (verified live — Parasite has 170 crew entries, dominated by 70 Visual Effects), so "first 10" is an essentially random slice that frequently doesn't even contain the director. The role label is also redundant (`${department} (${job})` → `"Directing (Director)"`).
+
+**Investigation findings (live TMDB API, 2026-06-24):**
+
+- The reliable signal is the **`job`** field, not `department`. `job === 'Director'` gives exactly the IMDb "Director" credit and handles co-directors (Everything Everywhere returned both Daniels). `department === 'Directing'` is **wrong** — it includes Assistant Director, Script Supervisor, Second Unit Director, etc.
+- Writers: Writing department, jobs **`Screenplay` / `Writer` / `Story`** (plus `Novel`/`Author` for adaptations if wanted).
+- Composer: `job === 'Original Music Composer'`.
+- **Producer is intentionally skipped** — numerous (often 10+ across Producer/Executive/Co/Associate), frequently financiers/vanity credits, mostly noise for a "recognize big names" watchlist. Can resurface in a debug view only.
+- `GET /movie/{id}?append_to_response=credits` returns details **and** credits in **one request** — collapse the current two calls (`movies.details` + `movies.credits`).
+
+**Decided plan (fields to store):**
+
+- `cast` — keep top ~5 (maybe a few more); sort by `order` explicitly to be safe.
+- `directors` — `string[]` from `job === 'Director'`.
+- `writers` — `string[]` from Writing jobs (`Screenplay`/`Writer`/`Story`).
+- `composer` — from `Original Music Composer`.
+- Drop the position-based "first 10 crew" slice; select by job instead. Use `job` as the role label (drop the department prefix).
+
+**Open questions (deferred — user wants to think about these, do NOT decide unilaterally):**
+
+1. **Dedup:** a person can hold multiple credited jobs (e.g. Bong Joon Ho is Director + Writer + Producer). List them once or once per role? Undecided.
+2. **Keep a generic `crew` list at all?** Possibly drop `crew` entirely in favor of just the discrete `directors` / `writers` / `composer` fields. Undecided.
+
+**Touches when implemented:** `tmdb.ts` builder, the new fields in `MovieFull` (`api/app/models.py`) + `movie-type.ts`, and frontend display. Rationale for discrete fields over a role-string blob: makes "sort/filter by a big name" a clean column/join in Postgres later rather than parsing strings.
 
 ### Frontend state management
 

@@ -99,11 +99,11 @@ async function deleteMovie() {
                         <MovieTagline size="lg" class="mt-2">{{ movie.tagline }}</MovieTagline>
                     </header>
                     <MovieMetaDl :movie="movie" />
-                    <AppTypography v-if="movie.tmdbOverview" variant="body">
-                        {{ movie.tmdbOverview }}
+                    <AppTypography v-if="movie.description" variant="body">
+                        {{ movie.description }}
                     </AppTypography>
-                    <ul v-if="movie.tmdbGenres" class="flex flex-wrap gap-x-2 gap-y-1">
-                        <PillItem v-for="(genre, i) in movie.tmdbGenres" :key="i" tag="li">
+                    <ul v-if="movie.genres" class="flex flex-wrap gap-x-2 gap-y-1">
+                        <PillItem v-for="(genre, i) in movie.genres" :key="i" tag="li">
                             {{ genre }}
                         </PillItem>
                     </ul>

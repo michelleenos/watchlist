@@ -9,8 +9,8 @@ export interface MovieTypeTMDB {
     tmdbVoteCount?: number
     tmdbPosterPath?: string
     tagline?: string
-    tmdbGenres?: string[]
-    tmdbOverview?: string
+    genres?: string[]
+    description?: string
     originalTitle?: string
     tmdbId: number
     errors: string[]
@@ -26,7 +26,6 @@ type MakeOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 export interface MovieTypeFull extends MakeOptional<MovieTypeTMDB, 'tmdbId'> {
     id: string
     errors: string[]
-    genres?: string[]
     posterPath?: string
 }
 

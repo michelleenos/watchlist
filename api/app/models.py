@@ -9,7 +9,10 @@ class MovieMember(BaseModel):
 
 class MovieFull(BaseModel):
     model_config = ConfigDict(
-        alias_generator=to_camel, validate_by_name=True, validate_by_alias=True
+        alias_generator=to_camel,
+        validate_by_name=True,
+        validate_by_alias=True,
+        extra="allow",
     )
 
     name: str
@@ -22,7 +25,7 @@ class MovieFull(BaseModel):
     tmdb_vote_count: float | None = None
     tagline: str | None = None
     genres: list[str] | None = None
-    tmdb_overview: str | None = None
+    description: str | None = None
     original_title: str | None = None
     tmdb_id: int | None = None
     errors: list[str] = []

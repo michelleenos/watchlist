@@ -33,9 +33,9 @@ const shownMovies = computed(() => {
             if (!languages.some((lang) => movie.language === lang)) return false
         }
         if (genres.length > 0) {
-            if (!movie.tmdbGenres) return false
+            if (!movie.genres) return false
             if (
-                !movie.tmdbGenres.some((movieGenre) =>
+                !movie.genres.some((movieGenre) =>
                     filters.genres.includes(movieGenre.toLowerCase()),
                 )
             )

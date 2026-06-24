@@ -46,8 +46,8 @@ defineProps<{ movie: MovieTypeFull }>()
             </tr>
 
             <tr>
-                <th>TMDB Overview</th>
-                <td>{{ movie.tmdbOverview }}</td>
+                <th>Description</th>
+                <td>{{ movie.description }}</td>
             </tr>
             <tr>
                 <th>TMDB Reviews</th>
@@ -59,13 +59,6 @@ defineProps<{ movie: MovieTypeFull }>()
                     votes)
                 </td>
             </tr>
-            <tr>
-                <th>TMDB Genres</th>
-                <td>
-                    <PillItem v-for="(genre, i) in movie.tmdbGenres" :key="i" :content="genre" />
-                </td>
-            </tr>
-
             <tr>
                 <th>Errors</th>
                 <td>
