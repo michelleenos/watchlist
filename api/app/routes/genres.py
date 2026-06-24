@@ -7,4 +7,4 @@ router = APIRouter()
 
 @router.get("", response_model=list[str])
 async def list_genres():
-    return get_genres()
+    return await get_genres()

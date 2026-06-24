@@ -7,4 +7,4 @@ router = APIRouter()
 
 @router.get("", response_model=list[int])
 async def list_decades():
-    return get_decades()
+    return await get_decades()

@@ -7,4 +7,4 @@ router = APIRouter()
 
 @router.get("", response_model=list[str])
 async def list_languages():
-    return get_languages()
+    return await get_languages()
