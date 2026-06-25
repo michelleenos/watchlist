@@ -1,13 +1,23 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 
-from app.routes import decades, genres, languages, movies
+from app.exceptions import TMDBError
+from app.routes import decades, genres, languages, movies, tmdb
 
 app = FastAPI()
+
+
+@app.exception_handler(TMDBError)
+async def tmdb_error_handler(request: Request, exc: TMDBError):
+    status = 404 if exc.status_code == 404 else 502
+    return JSONResponse(status_code=status, content={"detail": str(exc)})
+
 
 app.include_router(movies.router, prefix="/movies", tags=["movies"])
 app.include_router(genres.router, prefix="/genres", tags=["genres"])
 app.include_router(decades.router, prefix="/decades", tags=["decades"])
 app.include_router(languages.router, prefix="/languages", tags=["languages"])
+app.include_router(tmdb.router, prefix="/tmdb", tags=["tmdb"])
 
 
 @app.get("/health")
