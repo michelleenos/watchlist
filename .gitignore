@@ -39,5 +39,6 @@ client/dist
 server/dist
 
 server/data/old/*.json
+server/data/movies.json
 
 api/app/scratchpad
