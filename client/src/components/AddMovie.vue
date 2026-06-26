@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, useTemplateRef } from 'vue'
-import { type TMDBSearchReturn } from '../../../server/src/external/tmdb.ts'
-import { type MovieTypeFull } from '../../../server/src/movie-type.ts'
+import type { TMDBSearchReturn } from '../../../server/src/external/tmdb.ts'
+import type { MovieTypeFull } from '../../../server/src/movie-type.ts'
 import { Icon } from '@iconify/vue'
 import AppBtn from './AppBtn.vue'
 import AppTypography from './AppTypography.vue'

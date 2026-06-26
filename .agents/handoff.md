@@ -36,7 +36,15 @@ Settled — don't relitigate.
 Full plan: `~/.claude/plans/outline-how-i-should-jolly-nebula.md`. Dev orchestration target: **Docker Compose** (`client` + `api`; `db` in Pass 2).
 
 - **A1 — DONE:** relocated `movies.json` + images into `api/`; backend is self-contained.
-- **A2 — TODO:** Docker Compose, `client` + `api` (two containers, shared network). **Gotcha:** in compose the Vite proxy can't use `localhost:3001` — target the service name (`http://api:8000`); make it an env var so it works in/out of Docker. HMR may need `usePolling`.
+- **A2 — DONE:** Docker Compose (`docker-compose.yml` at repo root), `client` + `api`, each built from its own `Dockerfile.dev`. Live reload via bind mounts; `docker compose up --build` runs both. Key details/gotchas learned:
+    - **Proxy is env-driven:** `client/vite.config.ts` reads `API_PROXY_TARGET` (default `http://localhost:3001` for bare-metal), compose sets it to `http://api:8000` (service name = hostname on the compose network). `localhost` inside the client container is the client, not api.
+    - **Vite dev port = 5173** (changed from 8080); `ports: "5173:5173"`. api on `8000:8000`.
+    - **Bind-mount masking** (the recurring trap): `- ./api:/app` / `- ./client:/app` shadow the image-built deps. Fixed with anonymous volumes `- /app/.venv` (api, venv kept at uv default `/app/.venv`) and `- /app/node_modules` (client). Bind-mounting `./api` also persists `public/images` + `data/movies.json` writes to the host.
+    - **Client type imports must be `import type { … }`** (top-level form), not inline `import { type … }`. esbuild fully erases the former; the latter leaves a side-effect `import '…/server/…'` that fails to resolve in the container (no `server/`). Converted the offending files.
+    - **pnpm build-script approval:** `client/pnpm-workspace.yaml` `allowBuilds:` must list native-build deps (`esbuild`, `@tailwindcss/oxide`, `@parcel/watcher`) or pnpm 10 errors on install. `@parcel/watcher` arrived with the Tailwind 4.1.13→4.3.x bump.
+    - **Tailwind bumped to ^4.3** (was 4.1.13) so `mauve` default color exists in-container — lockfile had pinned the old version. Bump both `tailwindcss` + `@tailwindcss/vite`.
+    - **Healthcheck** (api `/health` → `client: condition: service_healthy`) was added then commented out — it fixed the startup-race ECONNREFUSED noise but the polling log lines were annoying. `depends_on: [api]` only waits for container start, not app-ready, so the race can recur; revisit if it bothers you. **HMR** may still need Vite `usePolling`.
+    - **`client/.pnpm-store/`** appeared (project-local pnpm store fallback) — add to `.gitignore`, it's a cache.
 - **A3 — TODO:** stop running Fastify (root `pnpm dev` = `pnpm --parallel -r dev`) → `docker compose up`; remove `server` from `pnpm-workspace.yaml` (client imports `server/src` by relative path, not as a package — safe, but keep files on disk until B1).
 - **B (with the DB pass):** **B1** cut the client→server type cord via `openapi-typescript` (FastAPI serves `/openapi.json`; gen `client/src/types/api.d.ts`, repoint imports) → **B2** delete `server/src` etc. → **B3** Postgres into compose. Don't wire B1 until the response shape settles post-DB.
 
@@ -77,6 +85,6 @@ Full plan: `~/.claude/plans/outline-how-i-should-jolly-nebula.md`. Dev orchestra
 
 - **Monorepo:** pnpm workspace `client/` + `server/` (root `dev`/`build`); `api/` (uv Python) is separate and is the active backend.
 - **`client/`:** Vue 3 + Vite + Tailwind. Router: `/` → `MoviesIndex.vue`, child `/movie/:id` → `MovieSingle.vue`. Composables use a module-scope shared-ref pattern (`useToast`, `useMovies`). Component details in `AGENTS.md`.
-- **Proxy:** client calls `/api/...`; Vite strips `/api` → Python `:3001`. `/images/*` → same server (no rewrite).
+- **Proxy:** client calls `/api/...`; Vite strips `/api` → proxy target. Target is `API_PROXY_TARGET` env var (default `http://localhost:3001` bare-metal, `http://api:8000` in compose). `/images/*` → same target (no rewrite).
 - **`server/` (legacy TS):** Fastify, kept only for the type imports the client still uses (until B1). Leftover `server/data/movies-new.json` + `old/` unused.
 - **Prettier:** per-package. **ESLint:** client-only.

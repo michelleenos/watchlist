@@ -1,5 +1,5 @@
 import { reactive, ref } from 'vue'
-import { type MovieTypeFull } from '../../../server/src/movie-type'
+import type { MovieTypeFull } from '../../../server/src/movie-type'
 
 const moviesData = reactive<{
     movies: MovieTypeFull[]

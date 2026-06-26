@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type MovieTypeFull } from '../../../server/src/movie-type.ts'
+import type { MovieTypeFull } from '../../../server/src/movie-type.ts'
 import PillItem from './PillItem.vue'
 
 defineProps<{ movie: MovieTypeFull }>()

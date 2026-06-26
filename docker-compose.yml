@@ -1,0 +1,42 @@
+services:
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile.dev
+    env_file: ./api/.env
+    ports:
+      - '8000:8000'
+    volumes:
+      - ./api:/app
+      - /app/.venv
+    # healthcheck - so we can wait for /health to return ok before starting client
+    # (not essential but avoids extra errors when client starts before fastapi is ready)
+    # note i am removing this bc the logs from the polling request annoy me
+    # healthcheck:
+    #   test:
+    #     [
+    #       'CMD',
+    #       'python',
+    #       '-c',
+    #       "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')",
+    #     ]
+    #   interval: 5s
+    #   timeout: 3s
+    #   retries: 5
+    #   start_period: 5s
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    environment:
+      - API_PROXY_TARGET=http://api:8000
+    volumes:
+      - ./client:/app
+      - /app/node_modules # keep image's node_modules
+    ports:
+      - '5173:5173'
+    depends_on:
+      - api
+      # api:
+      # condition: service_healthy
