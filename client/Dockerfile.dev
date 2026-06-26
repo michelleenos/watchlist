@@ -2,6 +2,7 @@ FROM node:23-alpine
 
 WORKDIR /app 
 
+ENV CI=true
 
 RUN --mount=type=cache,target=/root/.npm \
 	npm install -g pnpm@${PNPM_VERSION}
