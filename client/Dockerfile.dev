@@ -4,13 +4,14 @@ WORKDIR /app
 
 ENV CI=true
 
-RUN --mount=type=cache,target=/root/.npm \
-	npm install -g pnpm@${PNPM_VERSION}
+# corepack reads the pnpm version from package.json's "packageManager" field
+RUN corepack enable
 
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-COPY package.json  pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN corepack install
 
-RUN pnpm install 
+RUN pnpm install
 
 COPY . . 
 
