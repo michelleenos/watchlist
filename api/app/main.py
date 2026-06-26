@@ -1,6 +1,8 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
+from app.config import settings
 from app.exceptions import TMDBError
 from app.routes import decades, genres, languages, movies, tmdb
 
@@ -23,3 +25,6 @@ app.include_router(tmdb.router, prefix="/tmdb", tags=["tmdb"])
 @app.get("/health")
 async def health():
     return {"ok": True}
+
+
+app.mount("/images", StaticFiles(directory=settings.images_dir))

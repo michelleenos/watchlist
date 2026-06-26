@@ -31,3 +31,13 @@ async def delete_movie(id: str) -> bool:
     with open(settings.movies_path, "wb") as f:
         f.write(data)
     return True
+
+
+async def add_movie(movie: MovieFull):
+    movies = await load_movies()
+    new_movies = sorted([*movies, movie], key=lambda m: m.name)
+
+    data = movies_adapter.dump_json(new_movies, by_alias=True, exclude_none=True)
+    with open(settings.movies_path, "wb") as f:
+        f.write(data)
+    return True
