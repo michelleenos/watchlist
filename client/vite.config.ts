@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
 
-const API_PROXY_TARGET = process.env.API_PROXY_TARGET || 'http://localhost:3001'
+const API_PROXY_TARGET = process.env.API_PROXY_TARGET || 'http://localhost:3000'
 
 // https://vite.dev/config/
 export default defineConfig({

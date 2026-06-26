@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { MovieTypeFull } from '../../../server/src/movie-type'
+import type { MovieFull } from '../types'
 import MovieMetaDt from './MovieMetaDt.vue'
 
-defineProps<{ movie: MovieTypeFull }>()
+defineProps<{ movie: MovieFull }>()
 </script>
 
 <template>

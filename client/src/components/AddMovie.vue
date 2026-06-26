@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { computed, ref, useTemplateRef } from 'vue'
-import type { TMDBSearchReturn } from '../../../server/src/external/tmdb.ts'
-import type { MovieTypeFull } from '../../../server/src/movie-type.ts'
+import type { MovieFull, TMDBSearchResult } from '../types'
 import { Icon } from '@iconify/vue'
 import AppBtn from './AppBtn.vue'
 import AppTypography from './AppTypography.vue'
 import LoadingSpinner from './LoadingSpinner.vue'
 import AppDialog from './AppDialog.vue'
-import { useToast } from '../composables/useToast.ts'
-import { useMovies } from '../composables/useMovies.ts'
+import { useToast } from '../composables/useToast'
+import { useMovies } from '../composables/useMovies'
 
 const { moviesData, refresh } = useMovies()
 
@@ -17,7 +16,7 @@ const existingTmdbIds = computed(() => new Set(moviesData.movies.map((m) => m.tm
 const dialog = useTemplateRef('dialog')
 const searchInput = ref('')
 const searchName = ref('')
-const searchResults = ref<TMDBSearchReturn[] | null>(null)
+const searchResults = ref<TMDBSearchResult[] | null>(null)
 const searching = ref(false)
 const searchError = ref(false)
 const adding = ref<number | null>(null)
@@ -55,7 +54,7 @@ const addMovie = async (tmdbId: number) => {
             body: JSON.stringify({ tmdbId }),
         })
         if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`)
-        const movie = (await res.json()) as MovieTypeFull
+        const movie = (await res.json()) as MovieFull
         refresh()
         toasts.add({ html: `added movie <strong>${movie.name}</strong>` })
         close()

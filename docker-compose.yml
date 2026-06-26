@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile.dev
     env_file: ./api/.env
     ports:
-      - '8000:8000'
+      - '3000:3000'
     volumes:
       - ./api:/app
       - /app/.venv
@@ -18,7 +18,7 @@ services:
     #       'CMD',
     #       'python',
     #       '-c',
-    #       "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')",
+    #       "import urllib.request; urllib.request.urlopen('http://localhost:3000/health')",
     #     ]
     #   interval: 5s
     #   timeout: 3s
@@ -30,7 +30,7 @@ services:
       context: ./client
       dockerfile: Dockerfile.dev
     environment:
-      - API_PROXY_TARGET=http://api:8000
+      - API_PROXY_TARGET=http://api:3000
     volumes:
       - ./client:/app
       - /app/node_modules # keep image's node_modules

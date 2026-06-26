@@ -1,6 +1,6 @@
 # Project Handoff
 
-A movie tracking/display app. Frontend is Vue. The backend has been rewritten in Python (FastAPI) — **Pass 1 is complete**; the FastAPI server (`api/`) is now the active dev backend (Vite proxies to it). The old Fastify/TS server (`server/`) is being retired. Work is on the **`python-migration`** branch. Stable frontend component/page details live in `AGENTS.md`.
+A movie tracking/display app. Frontend is Vue. The backend has been rewritten in Python (FastAPI) — **Pass 1 is complete**; the FastAPI server (`api/`) is now the active dev backend (Vite proxies to it). The old Fastify/TS server (`server/`) has been removed. Work is on the **`python-migration`** branch. Stable frontend component/page details live in `AGENTS.md`.
 
 ---
 
@@ -11,7 +11,7 @@ Settled — don't relitigate.
 - **Backend:** Python + **FastAPI**, models via **Pydantic** (replaced Fastify/TypeBox). Rationale: Python practice + do the DB migration once, in Python.
 - **Python tooling:** **uv** (env, deps, `uv.lock`). Backend in `api/` with its own `pyproject.toml`, not in the pnpm workspace.
 - **Database:** migrate JSON → **PostgreSQL**, driver **psycopg3** (`psycopg[binary]`), raw SQL, no ORM.
-- **Poster images:** store only the filename in the DB. Files live at `api/public/images/` (gitignored), served by FastAPI `StaticFiles` at `/images`; dev Vite proxies `/images` → `http://localhost:3001`. Prod → object storage (R2), set `VITE_POSTER_BASE_URL` to the CDN base.
+- **Poster images:** store only the filename in the DB. Files live at `api/public/images/` (gitignored), served by FastAPI `StaticFiles` at `/images`; dev Vite proxies `/images` → `http://localhost:3000`. Prod → object storage (R2), set `VITE_POSTER_BASE_URL` to the CDN base.
 
 ---
 
@@ -37,20 +37,20 @@ Full plan: `~/.claude/plans/outline-how-i-should-jolly-nebula.md`. Dev orchestra
 
 - **A1 — DONE:** relocated `movies.json` + images into `api/`; backend is self-contained.
 - **A2 — DONE:** Docker Compose (`docker-compose.yml` at repo root), `client` + `api`, each built from its own `Dockerfile.dev`. Live reload via bind mounts; `docker compose up --build` runs both. Key details/gotchas learned:
-    - **Proxy is env-driven:** `client/vite.config.ts` reads `API_PROXY_TARGET` (default `http://localhost:3001` for bare-metal), compose sets it to `http://api:8000` (service name = hostname on the compose network). `localhost` inside the client container is the client, not api.
-    - **Vite dev port = 5173** (changed from 8080); `ports: "5173:5173"`. api on `8000:8000`.
+    - **Proxy is env-driven:** `client/vite.config.ts` reads `API_PROXY_TARGET` (default `http://localhost:3000` for bare-metal), compose sets it to `http://api:3000` (service name = hostname on the compose network). `localhost` inside the client container is the client, not api.
+    - **Vite dev port = 5173** (changed from 8080); `ports: "5173:5173"`. api on `3000:3000` (unified — was split 3001 bare-metal / 8000 compose).
     - **Bind-mount masking** (the recurring trap): `- ./api:/app` / `- ./client:/app` shadow the image-built deps. Fixed with anonymous volumes `- /app/.venv` (api, venv kept at uv default `/app/.venv`) and `- /app/node_modules` (client). Bind-mounting `./api` also persists `public/images` + `data/movies.json` writes to the host.
     - **Client type imports must be `import type { … }`** (top-level form), not inline `import { type … }`. esbuild fully erases the former; the latter leaves a side-effect `import '…/server/…'` that fails to resolve in the container (no `server/`). Converted the offending files.
     - **pnpm build-script approval:** `client/pnpm-workspace.yaml` `allowBuilds:` lists native-build deps (`esbuild`, `@tailwindcss/oxide`, `@parcel/watcher`). Note `allowBuilds` needs pnpm ≥10.26 — only honored since the v11 pin (see A3). `@parcel/watcher` arrived with the Tailwind 4.1.13→4.3.x bump.
     - **Tailwind bumped to ^4.3** (was 4.1.13) so `mauve` default color exists in-container — lockfile had pinned the old version. Bump both `tailwindcss` + `@tailwindcss/vite`.
     - **Healthcheck** (api `/health` → `client: condition: service_healthy`) was added then commented out — it fixed the startup-race ECONNREFUSED noise but the polling log lines were annoying. `depends_on: [api]` only waits for container start, not app-ready, so the race can recur; revisit if it bothers you. **HMR** may still need Vite `usePolling`.
     - **`client/.pnpm-store/`** appeared (project-local pnpm store fallback) — add to `.gitignore`, it's a cache.
-- **A3 — DONE:** root pnpm layer removed entirely (`pnpm-workspace.yaml`, `pnpm-lock.yaml`, `package.json`, `node_modules`). `client/` is now a standalone pnpm project (its own `pnpm-workspace.yaml` holds `allowBuilds`); `packageManager` + a `format` script moved into `client/package.json`. `server/` files kept on disk until B1 (client still imports its types). ⚠️ **`pnpm build` is red until B1** — `vue-tsc` typechecks the 6 `server/src` imports, whose deps no longer resolve; `vite`/`docker compose up` are unaffected (esbuild erases type-only imports).
+- **A3 — DONE:** root pnpm layer removed entirely (`pnpm-workspace.yaml`, `pnpm-lock.yaml`, `package.json`, `node_modules`). `client/` is now a standalone pnpm project (its own `pnpm-workspace.yaml` holds `allowBuilds`); `packageManager` + a `format` script moved into `client/package.json`. `server/` files kept on disk until B2 (B1 cut the type imports, so it's now dead weight).
     - **pnpm pinned to `11.9.0`** (was 10.6.3): the `allowBuilds` key only exists in pnpm ≥10.26, so the old pin silently ignored it. v11 also adds a `minimumReleaseAge` cooldown (~24h) — `client/pnpm-workspace.yaml` carries `minimumReleaseAgeExclude: [prettier@3.8.5]` to unblock a same-day prettier release.
     - **Docker:** `client/Dockerfile.dev` has `ENV CI=true` (non-interactive modules purge) and uses corepack, so the container runs the pnpm version from `packageManager` in `package.json`.
-- **B (with the DB pass):** **B1** cut the client→server type cord via `openapi-typescript` (FastAPI serves `/openapi.json`; gen `client/src/types/api.d.ts`, repoint imports) → **B2** delete `server/src` etc. → **B3** Postgres into compose. Don't wire B1 until the response shape settles post-DB.
-
-**Blocker for deleting `server/`:** client still imports `MovieTypeFull` (`server/src/movie-type.ts`) + `TMDBSearchReturn` (`server/src/external/tmdb.ts`) across 6 files — B1 cuts this. Also: `GET /tmdb/search` has no `response_model` (works via `to_camel`); add `response_model=list[TMDBSearchResult]` when wiring B1.
+- **B1 — DONE:** client→server type cord cut via `openapi-typescript`. `client/src/types/api.d.ts` is generated from the FastAPI schema; `client/src/types/index.ts` re-exports clean names (`MovieFull`, `MovieMember`, `TMDBSearchResult`). All 6 imports repointed `server/src/...` → `../types`. Regen with `pnpm gen:types` (script hits `http://localhost:3000/openapi.json` — run the api first). Added `response_model=list[TMDBSearchResult]` to `GET /tmdb/search`. **Gotcha:** Pydantic `str | None` generates as `string | null` (the old hand-written types used optional `string`/undefined) — widened `MovieTitle`'s `originalTitle` prop to `string | null`; watch for similar null-vs-undefined mismatches.
+- **B2 — DONE:** `server/` deleted entirely (+ orphaned `.gitignore` lines removed). The TS server is gone; client builds green against the generated types. → **B3** Postgres into compose (Pass 2).
+- ⚠️ **Caveat:** the generated types reflect the *current* movie response shape. The DB pass + crew/credits restructuring will change it — rerun `pnpm gen:types` after, and expect a fresh `api.d.ts` diff.
 
 ---
 
@@ -85,8 +85,7 @@ Full plan: `~/.claude/plans/outline-how-i-should-jolly-nebula.md`. Dev orchestra
 
 ## Current State (quick map)
 
-- **Repo:** no root pnpm workspace anymore. `client/` is a standalone pnpm project (pnpm 11), `api/` (uv Python) is the active backend, `server/` (legacy TS) is dead weight kept only for type imports until B1. `docker compose up` runs `client` + `api`.
+- **Repo:** no root pnpm workspace anymore. `client/` is a standalone pnpm project (pnpm 11), `api/` (uv Python) is the active backend. `docker compose up` runs `client` + `api` (api on `:3000`).
 - **`client/`:** Vue 3 + Vite + Tailwind. Router: `/` → `MoviesIndex.vue`, child `/movie/:id` → `MovieSingle.vue`. Composables use a module-scope shared-ref pattern (`useToast`, `useMovies`). Component details in `AGENTS.md`.
-- **Proxy:** client calls `/api/...`; Vite strips `/api` → proxy target. Target is `API_PROXY_TARGET` env var (default `http://localhost:3001` bare-metal, `http://api:8000` in compose). `/images/*` → same target (no rewrite).
-- **`server/` (legacy TS):** Fastify, kept only for the type imports the client still uses (until B1). Leftover `server/data/movies-new.json` + `old/` unused.
-- **Prettier:** per-package. **ESLint:** client-only.
+- **Proxy:** client calls `/api/...`; Vite strips `/api` → proxy target. Target is `API_PROXY_TARGET` env var (default `http://localhost:3000` bare-metal, `http://api:3000` in compose). `/images/*` → same target (no rewrite).
+- **Prettier:** `client/` only (`pnpm format`). **ESLint:** client-only.

@@ -1,11 +1,12 @@
 from fastapi import APIRouter
 
 from app.external.tmdb import get_tmdb_data, tmdb_search
+from app.models import TMDBSearchResult
 
 router = APIRouter()
 
 
-@router.get("/search")
+@router.get("/search", response_model=list[TMDBSearchResult])
 async def search(name: str):
     return await tmdb_search(name)
 
