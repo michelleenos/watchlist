@@ -18,11 +18,11 @@ class MovieFull(BaseModel):
     name: str
     year: int | None = None
     language: str | None = None
-    crew: list[MovieMember] | None = None
+    # crew: list[MovieMember] | None = None
     cast: list[MovieMember] | None = None
-    tmdb_popularity: float | None = None
-    tmdb_vote_average: float | None = None
-    tmdb_vote_count: float | None = None
+    # tmdb_popularity: float | None = None
+    # tmdb_vote_average: float | None = None
+    # tmdb_vote_count: float | None = None
     tagline: str | None = None
     genres: list[str] | None = None
     description: str | None = None
@@ -30,6 +30,7 @@ class MovieFull(BaseModel):
     tmdb_id: int | None = None
     errors: list[str] = []
     poster_path: str | None = None
+    tmdb_poster_path: str | None = None
     id: str
 
 

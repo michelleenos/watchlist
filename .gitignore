@@ -34,10 +34,10 @@ __pycache__/
 
 .env
 .claude
-server/public/images
+api/public/images
 client/dist
-server/dist
+.pnpm-store
 
-server/data/old/*.json
+api/data/movies.json
 
 api/app/scratchpad

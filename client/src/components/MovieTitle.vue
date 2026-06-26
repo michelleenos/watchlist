@@ -5,7 +5,7 @@ import AppTypography from './AppTypography.vue'
 withDefaults(
     defineProps<{
         title: string
-        originalTitle?: string
+        originalTitle?: string | null
         link?: string
         size?: 'base' | 'lg'
         tag?: string

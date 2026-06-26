@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import type { MovieTypeFull } from '../../../server/src/movie-type'
+import type { MovieFull } from '../types'
 import MoviePoster from '../components/MoviePoster.vue'
 import MovieTagline from '../components/MovieTagline.vue'
 import LoadingSpinner from '../components/LoadingSpinner.vue'
@@ -16,7 +16,7 @@ import { useMovies } from '../composables/useMovies.ts'
 
 const route = useRoute()
 const router = useRouter()
-const movie = ref<MovieTypeFull>()
+const movie = ref<MovieFull>()
 const loading = ref(true)
 const error = ref(false)
 const dialog = useTemplateRef('dialog')

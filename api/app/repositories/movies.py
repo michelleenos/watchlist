@@ -22,12 +22,25 @@ async def get_movie(id: str):
     return next((m for m in movies if m.id == id), None)
 
 
+def save_movies(movies: list[MovieFull]) -> None:
+    data = movies_adapter.dump_json(
+        movies, by_alias=True, exclude_none=True, indent=4
+    )
+    with open(settings.movies_path, "wb") as f:
+        f.write(data + b"\n")
+
+
 async def delete_movie(id: str) -> bool:
     movies = await load_movies()
     remaining = [m for m in movies if m.id != id]
     if len(remaining) == len(movies):
         return False
-    data = movies_adapter.dump_json(remaining, by_alias=True, exclude_none=True)
-    with open(settings.movies_path, "wb") as f:
-        f.write(data)
+    save_movies(remaining)
+    return True
+
+
+async def add_movie(movie: MovieFull):
+    movies = await load_movies()
+    new_movies = sorted([*movies, movie], key=lambda m: m.name)
+    save_movies(new_movies)
     return True

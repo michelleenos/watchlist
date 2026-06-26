@@ -5,7 +5,6 @@ import ToastNotifications from './components/ToastNotifications.vue'
 
 <template>
     <div class="relative min-h-screen overflow-y-hidden bg-mauve-950 text-brown-100">
-        <!-- <ToastTest /> -->
         <ToastNotifications />
         <RouterView />
     </div>
