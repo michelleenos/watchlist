@@ -1,15 +1,13 @@
-import nanoid
-
 from app.exceptions import ImageError
 from app.external.images import download_poster
 from app.external.tmdb import get_tmdb_data
-from app.models import MovieFull, MovieMember, TMDBMovieDetails
+from app.models import MovieBase, MovieMember, TMDBMovieDetails
 from app.repositories.movies import add_movie
 
 
-def tmdb_movie_transform(data: TMDBMovieDetails) -> MovieFull:
+def tmdb_movie_transform(data: TMDBMovieDetails) -> MovieBase:
     cast_data = data.credits.cast
-    cast: list[MovieMember] = [
+    cast_members: list[MovieMember] = [
         MovieMember(name=c.name, role=c.character) for c in cast_data[:5]
     ]
 
@@ -22,18 +20,17 @@ def tmdb_movie_transform(data: TMDBMovieDetails) -> MovieFull:
     if data.original_title != data.title:
         original_title = data.original_title
 
-    return MovieFull(
+    return MovieBase(
         name=data.title,
         year=year,
         language=data.original_language,
-        cast=cast,
+        cast_members=cast_members,
         tagline=data.tagline,
         genres=[g.name for g in data.genres],
         description=data.overview,
         original_title=original_title,
         tmdb_id=data.id,
         tmdb_poster_path=data.poster_path,
-        id=nanoid.generate(),
     )
 
 
@@ -46,6 +43,5 @@ async def add_movie_from_tmdb(tmdb_id: int):
                 transformed.name, transformed.tmdb_poster_path
             )
         except ImageError as e:
-            transformed.errors.append(str(e))
-    await add_movie(transformed)
-    return transformed
+            transformed.issues.append(str(e))
+    return await add_movie(transformed)

@@ -1,6 +1,6 @@
 # Project Handoff
 
-A movie tracking/display app. Frontend is Vue. The backend has been rewritten in Python (FastAPI) — **Pass 1 is complete**; the FastAPI server (`api/`) is now the active dev backend (Vite proxies to it). The old Fastify/TS server (`server/`) has been removed. Work is on the **`python-migration`** branch. Stable frontend component/page details live in `AGENTS.md`.
+A movie tracking/display app. Frontend is Vue. The backend has been rewritten in Python (FastAPI) — **Pass 1 is complete**; the FastAPI server (`api/`) is now the active dev backend (Vite proxies to it). The old Fastify/TS server (`server/`) has been removed. **Pass 2 (Postgres) is in progress** on the **`postgres-experiments`** branch — repositories now read/write Postgres, not JSON. Stable frontend component/page details live in `AGENTS.md`.
 
 ---
 
@@ -27,7 +27,7 @@ Settled — don't relitigate.
 - **`movies.json` is gitignored/untracked** (throwaway, replaced by Postgres; recoverable from git history). Lives at `api/data/movies.json`, `config.py` paths are relative to `api/` (run the server from `api/`).
 - **Gotcha:** collection routes use `""` (`@router.get("")`+`@router.post("")` → `/movies`) so GET/POST share one path; a mismatched `"/"` → 405.
 
-**Pass 2 (swap storage to Postgres) — TODO.** Only `repositories/movies.py` changes — all JSON reads/writes are consolidated there. See Database setup + the people-table slice below.
+**Pass 2 (swap storage to Postgres) — IN PROGRESS (movies-only slice ~done).** All repositories now hit Postgres via the connection pool. See "Database setup" below for what landed today; the people-table slice is still future work.
 
 ---
 
@@ -56,10 +56,27 @@ Full plan: `~/.claude/plans/outline-how-i-should-jolly-nebula.md`. Dev orchestra
 
 ## Database setup (Pass 2)
 
-- Docker Compose for local Postgres; `.env` connection string (read via `pydantic-settings`).
-- Migration strategy: numbered SQL + runner, or `yoyo-migrations`/`dbmate` — undecided.
+**Done (movies-only slice):**
+
+- **Postgres in Compose:** `db` service (postgres image, healthcheck, `pgdata` volume). `api` reads `database_url` via `pydantic-settings` (`config.py`); host is `db` in compose (not `localhost`).
+- **Connection pool:** `app/db.py` holds a module-level `AsyncConnectionPool(database_url, open=False)`; opened/closed in the FastAPI `lifespan`. ⚠️ Standalone scripts (e.g. the importer) must `await pool.open()` themselves *before* `pool.connection()` — the lifespan doesn't run for them. Repos use `async with pool.connection() as conn` + `async with conn.cursor(...) as cur`; **never `conn.execute()`** (sync, blocks the loop) — always go through the cursor.
+- **Migrations — manual numbered SQL** (decided; not yoyo/dbmate). `api/migrations/*.sql` + `migrate.py` runner: ensures a `schema_migrations(id, applied_at)` table, runs un-applied files in filename order, records each. Run with `docker compose exec api python -m migrations.migrate` (from a running `db`). Not auto-run on container start — deliberate.
+- **`001_init.sql` (movies table) — schema decisions:**
+    - `id` is now a **DB-generated identity** (`BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY`), replacing the old nanoid `TEXT` id. Model `id` is `int` (not `str`).
+    - `tmdb_id INT UNIQUE` — guards against duplicate adds (the frontend check is just UX). Nullable; multiple NULLs are fine under `UNIQUE`. ⚠️ Was initially added *without* the UNIQUE constraint, which let dup imports through — re-add via truncate + re-import if it recurs.
+    - `genres TEXT[]` (scalar array); **`cast_members JSONB`** — renamed from `cast` (reserved word) **and** the model field `cast` → `cast_members` to match. jsonb chosen over array because cast entries are `{name, role}` objects, not scalars. Temporary — replaced by the `people`/`movie_people` tables later.
+    - `errors` renamed to **`issues`** (column + Pydantic field + the source JSON). Watch for stale `errors` refs (model, `add_movie` service, client after `gen:types`).
+- **Models split:** `MovieBase` (all fields, **no `id`**) + `MovieFull(MovieBase)` (adds required `id: int`) — the Pydantic equivalent of `Omit<MovieFull,'id'>` (build up, don't subtract). `tmdb_movie_transform` returns `MovieBase`; `add_movie` INSERTs and returns a `MovieFull` with the new id (via `RETURNING id`). `MovieFullJson` exists for the one-off import. Named SQL params (`%(name)s`) used so column order can't silently misalign.
+- **One-off import:** `migrations/port-json.py` loads `movies.json` (validated through `MovieFullJson`), wraps cast in `Jsonb(...)`, bulk-INSERTs with `ON CONFLICT DO NOTHING`. The `db.py` pool must be opened manually (see above).
+- **Repositories migrated:** `movies` (load/get/add/delete), `genres` (`SELECT DISTINCT unnest(genres)`), `decades` (`year - year % 10`), `languages` (`SELECT DISTINCT language`). Flat-list repos return `[r[0] for r in rows]` from plain (non-`dict_row`) cursors and skip Pydantic validation (trusted own columns); movie reads use `dict_row` + validate into `MovieFull`. ⚠️ `get_movie` must guard `None` before `model_validate` (returns `None` for a missing id → route 404s).
+
+**Still open:**
+
+- **Language lookup table** (next up): seed `languages(iso_639_1 PK, english_name, name)` from TMDB `GET /configuration/languages` (187 rows), FK `movies.language → iso_639_1`, `/languages` → `SELECT DISTINCT … JOIN` returning `english_name`. Currently `/languages` returns raw 2-char codes.
+- **Genres normalization** (planned): move `genres TEXT[]` → a `genres` table + `movie_genres` join table, same shape as the people slice below. Additive; `/genres` becomes a join instead of `unnest(genres)`.
+- **People/credits normalization** — the additive slice below, still future. Want to add `director` (+ maybe a couple other crew roles) when it lands.
+- **Cleanup — connection boilerplate:** the `async with pool.connection() as conn: / async with conn.cursor(...) as cur:` pair is now repeated across every repo function. Investigate factoring it out (a helper / context manager / small `fetch_all`/`fetch_one`/`execute` wrappers) to cut the repetition.
 - Hosting in prod — later.
-- `/decades`, `/languages`, `/genres` each scan all movies now; not worth optimizing — they become trivial `SELECT DISTINCT` / `EXTRACT(DECADE …)` post-migration.
 
 ---
 
@@ -69,7 +86,9 @@ Full plan: `~/.claude/plans/outline-how-i-should-jolly-nebula.md`. Dev orchestra
 
 **Selection (verified live, 2026-06-24):** select by **`job`**, not `department`. `cast` = top ~5 by `order`; `directors` = `job=='Director'` (handles co-directors); maybe `writers` (Writing jobs `Screenplay`/`Writer`/`Story`) + `composer` (`Original Music Composer`); producers skipped (noise).
 
-**Storage — decided: normalize into a `people` table** (rejected a jsonb cast blob — discrete rows make "filter by a big name" a clean join). Sequenced as its own additive slice **after** the movies-only Postgres migration: `people (id, tmdb_id, name)` + `movie_people (movie_id, person_id, role/job, billing_order)` + a TMDB backfill. Nothing on the `movies` table changes when it lands; additive DDL is trivial at ~132 rows. **Cheap hedge: keep `tmdb_id` on `movies` from the start** (enables the backfill). Normalizing resolves the old dedup question (one person row, one join row per job). **Still open:** store `writers`/`composer` at all, vs. directors + cast only.
+**Storage — decided: normalize into a `people` table** (discrete rows make "filter by a big name" a clean join). Sequenced as its own additive slice; the movies-only Postgres migration is now **done**, so this is next-ish. Target: `people (id, tmdb_id, name)` + `movie_people (movie_id, person_id, role/job, billing_order)` + a TMDB backfill. Additive — nothing on the `movies` table changes (trivial at ~132 rows). **`tmdb_id` is already on `movies`** (the planned hedge — enables the backfill). Normalizing resolves the old dedup question (one person row, one join row per job).
+
+**Current state:** cast is stored *temporarily* as `cast_members JSONB` on `movies` (the deliberately-rejected-long-term blob, used as a stopgap for the movies-only slice). `director`/crew aren't stored at all yet. When this slice lands, cast moves out of jsonb into `movie_people`. **Still open:** store `writers`/`composer` at all, vs. directors + cast only.
 
 ---
 

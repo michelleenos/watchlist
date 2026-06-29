@@ -1,7 +1,16 @@
-from app.repositories.movies import load_movies
+from app.db import pool
 
 
 async def get_decades() -> list[int]:
-    movies = await load_movies()
-    decades = {m.year - m.year % 10 for m in movies if m.year}
-    return sorted(decades)
+    async with pool.connection() as conn:
+        async with conn.cursor() as cur:
+            await cur.execute(
+                """
+                SELECT
+                    DISTINCT year - year % 10 AS decade
+                FROM movies
+                ORDER BY decade;
+                """
+            )
+            rows = await cur.fetchall()
+    return [r[0] for r in rows if r[0] is not None]

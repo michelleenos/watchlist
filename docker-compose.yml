@@ -1,4 +1,21 @@
 services:
+  db:
+    image: postgres:latest
+    container_name: movies_db
+    environment:
+      POSTGRES_USER: movies_user
+      POSTGRES_PASSWORD: movies_pw
+      POSTGRES_DB: movies
+    volumes:
+      - movies_postgres:/var/lib/postgresql
+    ports:
+      - '5432:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U movies_user -d movies']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   api:
     build:
       context: ./api
@@ -9,6 +26,9 @@ services:
     volumes:
       - ./api:/app
       - /app/.venv
+    depends_on:
+      - db
+
     # healthcheck - so we can wait for /health to return ok before starting client
     # (not essential but avoids extra errors when client starts before fastapi is ready)
     # note i am removing this bc the logs from the polling request annoy me
@@ -40,3 +60,6 @@ services:
       - api
       # api:
       # condition: service_healthy
+
+volumes:
+  movies_postgres:

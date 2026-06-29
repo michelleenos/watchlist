@@ -7,7 +7,33 @@ class MovieMember(BaseModel):
     role: str
 
 
-class MovieFull(BaseModel):
+class MovieBase(BaseModel):
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        validate_by_name=True,
+        validate_by_alias=True,
+        extra="allow",
+    )
+
+    name: str
+    year: int | None = None
+    language: str | None = None
+    cast_members: list[MovieMember] | None = None
+    tagline: str | None = None
+    genres: list[str] | None = None
+    description: str | None = None
+    original_title: str | None = None
+    tmdb_id: int | None = None
+    issues: list[str] = []
+    poster_path: str | None = None
+    tmdb_poster_path: str | None = None
+
+
+class MovieFull(MovieBase):
+    id: int
+
+
+class MovieFullJson(BaseModel):
     model_config = ConfigDict(
         alias_generator=to_camel,
         validate_by_name=True,
@@ -28,7 +54,7 @@ class MovieFull(BaseModel):
     description: str | None = None
     original_title: str | None = None
     tmdb_id: int | None = None
-    errors: list[str] = []
+    issues: list[str] = []
     poster_path: str | None = None
     tmdb_poster_path: str | None = None
     id: str

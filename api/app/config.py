@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     tmdb_api_key: str
     movies_path: str = "data/movies.json"
     images_dir: str = "public/images"
+    database_url: str
 
 
 settings = Settings()  # pyright: ignore[reportCallIssue]

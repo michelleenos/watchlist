@@ -164,8 +164,8 @@ export interface components {
             year?: number | null;
             /** Language */
             language?: string | null;
-            /** Cast */
-            cast?: components["schemas"]["MovieMember"][] | null;
+            /** Castmembers */
+            castMembers?: components["schemas"]["MovieMember"][] | null;
             /** Tagline */
             tagline?: string | null;
             /** Genres */
@@ -177,16 +177,16 @@ export interface components {
             /** Tmdbid */
             tmdbId?: number | null;
             /**
-             * Errors
+             * Issues
              * @default []
              */
-            errors: string[];
+            issues: string[];
             /** Posterpath */
             posterPath?: string | null;
             /** Tmdbposterpath */
             tmdbPosterPath?: string | null;
             /** Id */
-            id: string;
+            id: number;
         } & {
             [key: string]: unknown;
         };
