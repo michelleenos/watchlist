@@ -34,7 +34,7 @@ async def delete_movie(id: int) -> bool:
 
 async def add_movie(movie: MovieBase):
     params = movie.model_dump()
-    params["cast_members"] = Jsonb(movie.cast_members)
+    params["cast_members"] = Jsonb(params["cast_members"])
     async with pool.connection() as conn:
         async with conn.cursor() as cur:
             await cur.execute(

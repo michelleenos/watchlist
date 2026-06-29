@@ -75,6 +75,10 @@ Full plan: `~/.claude/plans/outline-how-i-should-jolly-nebula.md`. Dev orchestra
 - **Language lookup table** (next up): seed `languages(iso_639_1 PK, english_name, name)` from TMDB `GET /configuration/languages` (187 rows), FK `movies.language → iso_639_1`, `/languages` → `SELECT DISTINCT … JOIN` returning `english_name`. Currently `/languages` returns raw 2-char codes.
 - **Genres normalization** (planned): move `genres TEXT[]` → a `genres` table + `movie_genres` join table, same shape as the people slice below. Additive; `/genres` becomes a join instead of `unnest(genres)`.
 - **People/credits normalization** — the additive slice below, still future. Want to add `director` (+ maybe a couple other crew roles) when it lands.
+- **Error handling — three pieces:**
+    - **Writes:** routes like `add_movie` have no failure feedback — a `tmdb_id` `UniqueViolation` etc. surfaces as an unhandled 500. Catch and map (dup → 409).
+    - **Not-found (reads):** double-check `GET /movies/{id}` actually 404s for a missing id (`get_movie` returns `None` now — confirm the route turns that into a 404, not a `null` 200).
+    - **Infrastructure failures** (DB down/connection drop, affects reads + writes alike): add a global handler (like the existing `TMDBError` one) mapping DB/connection errors → a sensible 5xx.
 - **Cleanup — connection boilerplate:** the `async with pool.connection() as conn: / async with conn.cursor(...) as cur:` pair is now repeated across every repo function. Investigate factoring it out (a helper / context manager / small `fetch_all`/`fetch_one`/`execute` wrappers) to cut the repetition.
 - Hosting in prod — later.
 
