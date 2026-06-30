@@ -13,5 +13,12 @@ dependencies = [
 	"psycopg[binary,pool]>=3.3.4",
 ]
 
+[tool.uv]
+package=true
+
+[tool.setuptools]
+packages = ["app", "migrations"]
+
 [project.scripts]
 migrate = "migrations.migrate:main"
+
