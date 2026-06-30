@@ -2,14 +2,26 @@
 
 ## Movie Tracking Project
 
-A movie tracking/display app.
+A movie tracking/display app. Two parts:
 
-pnpm workspace monorepo:
+- `client/` — Vue 3 + Vite + Tailwind. Standalone pnpm project (pnpm 11; no root workspace).
+- `api/` — FastAPI + Python, uv-managed. The active backend (the old Fastify/TS `server/` has been removed).
 
-- `client/` (Vue 3 + Vite + Tailwind)
-- `server/` (Fastify + TypeScript)
-- `api/` (FastAPI + Python, uv-managed — in-progress rewrite of `server/`)
-    - A database migration from the current JSON file storage to PostgreSQL is planned — see `.agents/handoff.md` for current state, decisions, and in-progress work.
+`docker compose up` runs the dev stack: `client` (`:5173`) + `api` (`:3000`) + `db` (Postgres). The client calls `/api/...`; Vite strips `/api` and proxies to `API_PROXY_TARGET` (default `http://localhost:3000` bare-metal, `http://api:3000` in compose). `/images/*` proxies to the same target (no rewrite).
+
+A JSON-file → PostgreSQL migration is in progress — see `.agents/handoff.md` for current state, decisions, and in-progress work.
+
+## Backend (`api/`)
+
+FastAPI + **Pydantic** for models (settled — see Frozen Decisions in `.agents/handoff.md`). Python tooling is **uv** (env, deps, `uv.lock`); `api/` has its own `pyproject.toml` and is not part of any pnpm setup. Database is **PostgreSQL** via **psycopg3**, raw SQL, no ORM.
+
+Stable layout (`api/app/`): `config.py`, `models.py`, `exceptions.py`, `main.py`, `utils.py`, plus `routes/`, `repositories/`, `external/`, `services/`. Routes: `GET/POST /movies`, `GET/DELETE /movies/{id}`, `GET /tmdb/search`, `GET /genres|decades|languages`, `/health`, and the `/images` static mount.
+
+- **`MovieFull` (`models.py`) is the schema source of truth.** `MovieBase` holds all fields without `id`; `MovieFull(MovieBase)` adds the DB-generated `id: int`. `alias_generator=to_camel` + `validate_by_name/alias` round-trips snake_case (Python) ↔ camelCase (JSON); routes use `response_model_exclude_none=True`.
+- **DB access:** module-level `AsyncConnectionPool` in `app/db.py`, opened/closed in the FastAPI `lifespan`. Repos go through an explicit cursor (`row_factory` is per-cursor: `dict_row` for movie reads, plain tuples for flat-list repos).
+- **Migrations:** manual numbered SQL in `api/migrations/*.sql` + a `migrate.py` runner (tracks applied files in `schema_migrations`). Run via `uv run migrate` (or `docker compose exec api python -m migrations.migrate`); not auto-run on container start.
+
+**Convention:** backend changes that alter the API response shape require re-running `pnpm gen:types` from `client/` (regenerates `client/src/types/api.d.ts` from the FastAPI OpenAPI schema — run the api first). `client/src/types/index.ts` re-exports clean names (`MovieFull`, `MovieMember`, `TMDBSearchResult`).
 
 ## Frontend
 
