@@ -4,5 +4,10 @@ class TMDBError(Exception):
         self.status_code = status_code
 
 
+class DuplicateMovieError(Exception):
+    def __init__(self, tmdb_id: int):
+        super().__init__(f"Movie with tmdb_id {tmdb_id} already exists")
+
+
 class ImageError(Exception):
     pass

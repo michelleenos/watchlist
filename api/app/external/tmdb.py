@@ -25,7 +25,7 @@ async def tmdb_search(name: str) -> list[TMDBSearchResult]:
             data = response.json()
     except httpx.HTTPStatusError as e:
         raise TMDBError(
-            f"TMDB search for {name!r} returnd {e.response.status_code}",
+            f"TMDB search for {name!r} returned {e.response.status_code}",
             status_code=e.response.status_code,
         ) from e
     except httpx.HTTPError as e:

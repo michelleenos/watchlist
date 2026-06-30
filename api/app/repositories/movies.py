@@ -1,8 +1,11 @@
+# from psycopg import errors
+import psycopg
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 from pydantic import TypeAdapter
 
 from app.db import pool
+from app.exceptions import DuplicateMovieError
 from app.models import MovieBase, MovieFull
 
 movies_adapter = TypeAdapter(list[MovieFull])
@@ -35,24 +38,31 @@ async def delete_movie(id: int) -> bool:
 async def add_movie(movie: MovieBase):
     params = movie.model_dump()
     params["cast_members"] = Jsonb(params["cast_members"])
-    async with pool.connection() as conn:
-        async with conn.cursor() as cur:
-            await cur.execute(
-                """
-                INSERT INTO movies (
-                    name, year, language, tagline, genres, description,
-                    original_title, tmdb_id, issues, poster_path,
-                    tmdb_poster_path, cast_members
-                ) VALUES (
-                    %(name)s, %(year)s, %(language)s, %(tagline)s, %(genres)s, %(description)s,
-                    %(original_title)s, %(tmdb_id)s, %(issues)s, %(poster_path)s,
-                    %(tmdb_poster_path)s, %(cast_members)s
+    try:
+        async with pool.connection() as conn:
+            async with conn.cursor() as cur:
+                await cur.execute(
+                    """
+                    INSERT INTO movies (
+                        name, year, language, tagline, genres, description,
+                        original_title, tmdb_id, issues, poster_path,
+                        tmdb_poster_path, cast_members
+                    ) VALUES (
+                        %(name)s, %(year)s, %(language)s, %(tagline)s, %(genres)s, %(description)s,
+                        %(original_title)s, %(tmdb_id)s, %(issues)s, %(poster_path)s,
+                        %(tmdb_poster_path)s, %(cast_members)s
+                    )
+                    RETURNING id
+                    """,
+                    params,
                 )
-                RETURNING id
-                """,
-                params,
-            )
-            row = await cur.fetchone()
+                row = await cur.fetchone()
+    except psycopg.errors.UniqueViolation as e:
+        if e.diag.constraint_name == "movies_tmdb_id_key":
+            # i don't think this would ever happen in this case but we have to assert here for the linter to not complain
+            assert movie.tmdb_id is not None
+            raise DuplicateMovieError(movie.tmdb_id) from e
+        raise
 
     assert row is not None
     # model_construct does not re-validate - ok here since we already have the MovieBase type passed

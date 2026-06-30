@@ -175,7 +175,7 @@ export interface components {
             /** Originaltitle */
             originalTitle?: string | null;
             /** Tmdbid */
-            tmdbId?: number | null;
+            tmdbId: number;
             /**
              * Issues
              * @default []
@@ -278,6 +278,13 @@ export interface operations {
                     "application/json": components["schemas"]["MovieFull"];
                 };
             };
+            /** @description Movie with tmdb_id already exists */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -294,7 +301,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                movie_id: string;
+                movie_id: number;
             };
             cookie?: never;
         };
@@ -308,6 +315,13 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["MovieFull"];
                 };
+            };
+            /** @description Movie not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {
@@ -325,7 +339,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                movie_id: string;
+                movie_id: number;
             };
             cookie?: never;
         };
