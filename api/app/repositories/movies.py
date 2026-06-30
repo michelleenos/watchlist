@@ -1,4 +1,3 @@
-# from psycopg import errors
 import psycopg
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
@@ -11,10 +10,18 @@ from app.models import MovieBase, MovieFull
 movies_adapter = TypeAdapter(list[MovieFull])
 
 
-async def load_movies() -> list[MovieFull]:
+async def get_movies() -> list[MovieFull]:
     async with pool.connection() as conn:
         async with conn.cursor(row_factory=dict_row) as cur:
-            await cur.execute("SELECT * FROM movies ORDER BY name;")
+            await cur.execute("""
+                SELECT
+                    name, year, tagline, genres, description, original_title, poster_path, tmdb_id, id,
+                    languages.english_name AS language
+                FROM movies
+                JOIN languages
+                    ON movies.language = languages.code
+                ORDER BY name;
+            """)
             rows = await cur.fetchall()
     return movies_adapter.validate_python(rows)
 
