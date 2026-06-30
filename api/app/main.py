@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 
 import psycopg
@@ -8,7 +9,14 @@ from fastapi.staticfiles import StaticFiles
 from app.config import settings
 from app.db import pool
 from app.exceptions import DuplicateMovieError, TMDBError
+from app.logging_config import configure_logging
 from app.routes import decades, genres, languages, movies, tmdb
+
+# logging.basicConfig(
+#     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+# )
+configure_logging()
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -44,6 +52,7 @@ async def db_error_handler(request: Request, exc: psycopg.OperationalError):
 @app.exception_handler(Exception)
 async def catchall_exception_handler(request: Request, exc: Exception):
     # if we have logging we can log str(exc) here
+    logger.exception(f"Unexpected error: {str(exc)}")
     return JSONResponse(
         status_code=500,
         content={"detail": "An unexpected error occurred", "path": request.url.path},

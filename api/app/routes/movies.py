@@ -3,7 +3,7 @@ from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
 from app.models import MovieFull
-from app.repositories.movies import delete_movie, get_movie, load_movies
+from app.repositories.movies import delete_movie, get_movie, get_movies
 from app.services.add_movie import add_movie_from_tmdb
 
 router = APIRouter()
@@ -11,7 +11,7 @@ router = APIRouter()
 
 @router.get("", response_model=list[MovieFull], response_model_exclude_none=True)
 async def list_movies():
-    return await load_movies()
+    return await get_movies()
 
 
 @router.get(
