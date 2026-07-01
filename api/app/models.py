@@ -7,6 +7,20 @@ class MovieMember(BaseModel):
     role: str
 
 
+class MoviePerson(BaseModel):
+    """A person credited on a movie, ready to write to people/movie_people.
+
+    `role` is the coarse credit category ('cast' | 'director' | 'writer' |
+    'source'), not TMDB's raw job. character/billing_order are cast-only.
+    """
+
+    tmdb_id: int
+    name: str
+    role: str
+    character: str | None = None
+    billing_order: int | None = None
+
+
 class MovieBase(BaseModel):
     model_config = ConfigDict(
         alias_generator=to_camel,
@@ -19,6 +33,9 @@ class MovieBase(BaseModel):
     year: int | None = None
     language: str | None = None
     cast_members: list[MovieMember] | None = None
+    directors: list[str] | None = None
+    writers: list[str] | None = None
+    source_authors: list[str] | None = None
     tagline: str | None = None
     genres: list[str] | None = None
     description: str | None = None
@@ -33,6 +50,7 @@ class MovieFull(MovieBase):
     id: int
 
 
+# old model from before db migration
 class MovieFullJson(BaseModel):
     model_config = ConfigDict(
         alias_generator=to_camel,
@@ -44,11 +62,7 @@ class MovieFullJson(BaseModel):
     name: str
     year: int | None = None
     language: str | None = None
-    # crew: list[MovieMember] | None = None
     cast: list[MovieMember] | None = None
-    # tmdb_popularity: float | None = None
-    # tmdb_vote_average: float | None = None
-    # tmdb_vote_count: float | None = None
     tagline: str | None = None
     genres: list[str] | None = None
     description: str | None = None
@@ -75,6 +89,7 @@ class TMDBCreditCast(BaseModel):
     cast_id: int
     character: str
     credit_id: str
+    order: int  # billing order (0 = top-billed)
     gender: int  # 1 seems to be female, 2 is male
 
 

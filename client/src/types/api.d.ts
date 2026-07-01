@@ -166,6 +166,12 @@ export interface components {
             language?: string | null;
             /** Castmembers */
             castMembers?: components["schemas"]["MovieMember"][] | null;
+            /** Directors */
+            directors?: string[] | null;
+            /** Writers */
+            writers?: string[] | null;
+            /** Sourceauthors */
+            sourceAuthors?: string[] | null;
             /** Tagline */
             tagline?: string | null;
             /** Genres */
@@ -175,7 +181,7 @@ export interface components {
             /** Originaltitle */
             originalTitle?: string | null;
             /** Tmdbid */
-            tmdbId: number;
+            tmdbId?: number | null;
             /**
              * Issues
              * @default []

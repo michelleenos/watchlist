@@ -5,9 +5,44 @@ from pydantic import TypeAdapter
 
 from app.db import pool
 from app.exceptions import DuplicateMovieError
-from app.models import MovieBase, MovieFull
+from app.models import MovieBase, MovieFull, MoviePerson
 
 movies_adapter = TypeAdapter(list[MovieFull])
+
+
+async def insert_movie_people(cur, movie_id: int, people: list[MoviePerson]) -> None:
+    """Upsert people (by tmdb_id) and link them to a movie via movie_people.
+
+    Runs on a caller-provided cursor so it can share the caller's transaction
+    (used by both add_movie and the backfill script). ON CONFLICT DO UPDATE on
+    people so the RETURNING id comes back even for an already-known person.
+    """
+    for p in people:
+        await cur.execute(
+            """
+            INSERT INTO people (tmdb_id, name)
+            VALUES (%(tmdb_id)s, %(name)s)
+            ON CONFLICT (tmdb_id) DO UPDATE SET name = EXCLUDED.name
+            RETURNING id
+            """,
+            {"tmdb_id": p.tmdb_id, "name": p.name},
+        )
+        row = await cur.fetchone()
+        assert row is not None
+        await cur.execute(
+            """
+            INSERT INTO movie_people (movie_id, person_id, role, character_name, billing_order)
+            VALUES (%(movie_id)s, %(person_id)s, %(role)s, %(character_name)s, %(billing_order)s)
+            ON CONFLICT (movie_id, person_id, role) DO NOTHING
+            """,
+            {
+                "movie_id": movie_id,
+                "person_id": row[0],
+                "role": p.role,
+                "character_name": p.character,
+                "billing_order": p.billing_order,
+            },
+        )
 
 
 async def get_movies() -> list[MovieFull]:
@@ -40,14 +75,40 @@ async def get_movie(id: int):
                 """
                 SELECT
                     id, name, year, tagline, description, original_title, tmdb_id,
-                    poster_path, tmdb_poster_path, issues, cast_members,
+                    poster_path, tmdb_poster_path, issues,
                     languages.english_name AS language,
                     ARRAY(
                         SELECT g.name
                         FROM movie_genres mg JOIN genres g ON g.id = mg.genre_id
                         WHERE mg.movie_id = movies.id
                         ORDER BY g.name
-                    ) AS genres
+                    ) AS genres,
+                    (
+                        SELECT json_agg(
+                            json_build_object('name', p.name, 'role', mp.character_name)
+                            ORDER BY mp.billing_order
+                        )
+                        FROM movie_people mp JOIN people p ON p.id = mp.person_id
+                        WHERE mp.movie_id = movies.id AND mp.role = 'cast'
+                    ) AS cast_members,
+                    ARRAY(
+                        SELECT p.name
+                        FROM movie_people mp JOIN people p ON p.id = mp.person_id
+                        WHERE mp.movie_id = movies.id AND mp.role = 'director'
+                        ORDER BY p.name
+                    ) AS directors,
+                    ARRAY(
+                        SELECT p.name
+                        FROM movie_people mp JOIN people p ON p.id = mp.person_id
+                        WHERE mp.movie_id = movies.id AND mp.role = 'writer'
+                        ORDER BY p.name
+                    ) AS writers,
+                    ARRAY(
+                        SELECT p.name
+                        FROM movie_people mp JOIN people p ON p.id = mp.person_id
+                        WHERE mp.movie_id = movies.id AND mp.role = 'source'
+                        ORDER BY p.name
+                    ) AS source_authors
                 FROM movies
                 LEFT JOIN languages ON movies.language = languages.code
                 WHERE movies.id = %s
@@ -66,7 +127,7 @@ async def delete_movie(id: int) -> bool:
     return result is not None
 
 
-async def add_movie(movie: MovieBase):
+async def add_movie(movie: MovieBase, people: list[MoviePerson] | None = None):
     params = movie.model_dump()
     params["cast_members"] = Jsonb(params["cast_members"])
     try:
@@ -108,6 +169,12 @@ async def add_movie(movie: MovieBase):
                         """,
                         params,
                     )
+
+                # normalize cast + curated crew into people/movie_people
+                # (same transaction). cast is still dual-written to the
+                # cast_members JSONB blob above as a safety net.
+                if people:
+                    await insert_movie_people(cur, row[0], people)
     except psycopg.errors.UniqueViolation as e:
         if e.diag.constraint_name == "movies_tmdb_id_key":
             # i don't think this would ever happen in this case but we have to assert here for the linter to not complain
