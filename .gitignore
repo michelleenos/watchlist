@@ -42,3 +42,5 @@ client/dist
 api/data/movies.json
 
 api/app/scratchpad
+*storybook.log
+storybook-static

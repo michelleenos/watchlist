@@ -4,7 +4,7 @@ import ToastNotifications from './components/ToastNotifications.vue'
 </script>
 
 <template>
-    <div class="relative min-h-screen overflow-y-hidden bg-mauve-950 text-brown-100">
+    <div class="relative min-h-screen bg-mauve-950 text-brown-100">
         <ToastNotifications />
         <RouterView />
     </div>

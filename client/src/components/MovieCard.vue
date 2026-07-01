@@ -15,7 +15,7 @@ const { movie } = props
 <template>
     <RouterLink
         :to="`/movie/${movie.id}`"
-        class="overflow-hidden rounded-lg border border-brown-900 bg-brown-950/50 p-4 outline-0 transition-all hover:-translate-y-0.5 hover:bg-brown-950 focus:-translate-y-0.5 focus:border-brass focus:bg-brown-950">
+        class="block overflow-hidden rounded-lg border border-brown-900 bg-brown-950/50 p-4 outline-0 transition-all hover:-translate-y-0.5 hover:bg-brown-950 focus:-translate-y-0.5 focus:border-brass focus:bg-brown-950">
         <article class="relative grid grid-cols-[auto_1fr] gap-5">
             <MoviePoster
                 v-if="movie.posterPath"

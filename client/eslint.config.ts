@@ -1,20 +1,14 @@
+// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
+import storybook from 'eslint-plugin-storybook'
+
 import js from '@eslint/js'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
 import pluginVue from 'eslint-plugin-vue'
 import { defineConfig } from 'eslint/config'
 import eslintConfigPrettier from 'eslint-config-prettier'
-// import tailwind from 'eslint-plugin-tailwindcss'
 
 export default defineConfig([
-    // ...tailwind.configs['flat/recommended'],
-    // {
-    //     settings: {
-    //         tailwindcss: {
-    //             cssFiles: ['./src/style.css'],
-    //         },
-    //     },
-    // },
     {
         files: ['**/*.{js,mjs,cjs,ts,mts,cts,vue}'],
         plugins: { js },
@@ -28,8 +22,9 @@ export default defineConfig([
         languageOptions: { parserOptions: { parser: tseslint.parser } },
         rules: {
             'vue/attribute-hyphenation': 'off',
-            // 'vue/require-default-props': 'off',
         },
     },
     eslintConfigPrettier,
+    // @ts-expect-error type mismatch, this works fine
+    ...storybook.configs['flat/recommended'],
 ])

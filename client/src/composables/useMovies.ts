@@ -39,6 +39,12 @@ async function fetchMovies() {
     }
 }
 
+let initialized = false
+
 export function useMovies() {
+    if (!initialized) {
+        initialized = true
+        fetchMovies()
+    }
     return { moviesData, refresh: fetchMovies, error, loading }
 }

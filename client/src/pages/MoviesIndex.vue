@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive } from 'vue'
+import { computed, reactive } from 'vue'
 import MovieCard from '../components/MovieCard.vue'
-import FilterItems from '../components/FilterItems.vue'
+// import FilterItems from '../components/FilterItems.vue'
 import AddMovie from '../components/AddMovie.vue'
 import { useMovies } from '../composables/useMovies.ts'
+import FilterBar from '../components/FilterBar.vue'
 
 const filters = reactive<{ genres: string[]; decades: number[]; languages: string[] }>({
     genres: [],
@@ -11,7 +12,7 @@ const filters = reactive<{ genres: string[]; decades: number[]; languages: strin
     languages: [],
 })
 
-const { moviesData, refresh, loading } = useMovies()
+const { moviesData, loading } = useMovies()
 
 const shownMovies = computed(() => {
     const { genres, decades, languages } = filters
@@ -34,20 +35,16 @@ const shownMovies = computed(() => {
         }
         if (genres.length > 0) {
             if (!movie.genres) return false
-            if (
-                !movie.genres.some((movieGenre) =>
-                    filters.genres.includes(movieGenre.toLowerCase()),
-                )
-            )
+            if (!movie.genres.some((movieGenre) => filters.genres.includes(movieGenre)))
                 return false
         }
         return true
     })
 })
 
-onMounted(() => {
-    refresh()
-})
+// onMounted(() => {
+//     refresh()
+// })
 </script>
 
 <template>
@@ -58,8 +55,9 @@ onMounted(() => {
         </div>
         <div v-if="loading">LOADING</div>
         <div v-else>
-            <div class="my-4 flex gap-4">
-                <FilterItems v-model="filters.genres" :options="moviesData.genres" label="Genres" />
+            <div class="sticky top-2 z-99 my-4">
+                <FilterBar v-model="filters" />
+                <!-- <FilterItems v-model="filters.genres" :options="moviesData.genres" label="Genres" />
                 <FilterItems
                     v-model="filters.decades"
                     :options="moviesData.decades"
@@ -67,7 +65,7 @@ onMounted(() => {
                 <FilterItems
                     v-model="filters.languages"
                     :options="moviesData.languages"
-                    label="Languages" />
+                    label="Languages" /> -->
             </div>
 
             <div class="grid gap-6 py-8 lg:grid-cols-2">
