@@ -5,7 +5,11 @@ async def get_genres() -> list[str]:
     async with pool.connection() as conn:
         async with conn.cursor() as cur:
             await cur.execute(
-                "SELECT DISTINCT unnest(genres) AS genre FROM movies ORDER BY genre;"
+                """
+                SELECT DISTINCT g.name
+                FROM genres g JOIN movie_genres mg ON mg.genre_id = g.id
+                ORDER BY g.name;
+                """
             )
             rows = await cur.fetchall()
     return [r[0] for r in rows]

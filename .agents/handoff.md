@@ -6,11 +6,11 @@ A movie tracking/display app. Frontend is Vue. The backend has been rewritten in
 
 ## Frozen Decisions
 
-Settled — don't relitigate. (The library/tooling choices themselves now live in `AGENTS.md`; this section keeps the *why*, so we don't re-propose rejected alternatives.)
+Settled — don't relitigate. (The library/tooling choices themselves now live in `AGENTS.md`; this section keeps the _why_, so we don't re-propose rejected alternatives.)
 
 - **Backend = FastAPI + Pydantic, tooling = uv** (replaced Fastify/TypeBox). Rationale: Python practice + do the DB migration once, in Python.
 - **Database:** migrate JSON → **PostgreSQL**, driver **psycopg3** (`psycopg[binary]`), raw SQL, **no ORM** (deliberate).
-- **Poster images:** store only the filename in the DB. Files live at `api/public/images/` (gitignored), served by FastAPI `StaticFiles` at `/images`; dev Vite proxies `/images` → `http://localhost:3000`. Prod → object storage (R2), set `VITE_POSTER_BASE_URL` to the CDN base. *(Still a bit in flux — kept here rather than AGENTS.md for now.)*
+- **Poster images:** store only the filename in the DB. Files live at `api/public/images/` (gitignored), served by FastAPI `StaticFiles` at `/images`; dev Vite proxies `/images` → `http://localhost:3000`. Prod → object storage (R2), set `VITE_POSTER_BASE_URL` to the CDN base. _(Still a bit in flux — kept here rather than AGENTS.md for now.)_
 
 ---
 
@@ -20,7 +20,7 @@ Settled — don't relitigate. (The library/tooling choices themselves now live i
 
 - **`MovieFull` carries both `tmdb_poster_path`** (raw) **and `poster_path`** (local `/images/...`).
 - **`extra="allow"` on `MovieFull`** keeps undeclared JSON keys through validation+dump (non-destructive rewrites). ⚠️ Side effect: a mistyped kwarg to `MovieFull(...)` is silently absorbed as an extra field, not an error.
-- **`POST /movies`** (`services/add_movie.py`): TMDB fetch → map → `download_poster` (httpx + Pillow resize 400w→webp, skip-if-exists, `ImageError`) → `repo.add_movie`. **Poster failure is non-fatal** — caught, appended to the movie's `errors`, saved anyway. Poster is downloaded server-side *before* POST returns, so the response already has `poster_path`.
+- **`POST /movies`** (`services/add_movie.py`): TMDB fetch → map → `download_poster` (httpx + Pillow resize 400w→webp, skip-if-exists, `ImageError`) → `repo.add_movie`. **Poster failure is non-fatal** — caught, appended to the movie's `errors`, saved anyway. Poster is downloaded server-side _before_ POST returns, so the response already has `poster_path`.
 - **Repo writes** consolidated in `repositories/movies.py` (`save_movies` helper, `indent=4`). Reads are `async` (`aiofiles`); writes still sync (fine for throwaway JSON, becomes psycopg3 async in Pass 2).
 - **TMDB client** (`external/tmdb.py`): per-call `httpx.AsyncClient`, Bearer auth, `append_to_response=credits` (now parsed → `cast` populated, top-5). Errors → `TMDBError` (kw `status_code`), global handler maps 404→404 else→502; routes have no try/except.
 - **`movies.json` is gitignored/untracked** (throwaway, replaced by Postgres; recoverable from git history). Lives at `api/data/movies.json`, `config.py` paths are relative to `api/` (run the server from `api/`).
@@ -48,16 +48,18 @@ The TS server is gone and dev runs on Docker Compose. What's worth keeping:
 **Done (movies-only slice):**
 
 - **Postgres in Compose:** `db` service (postgres image, healthcheck, `pgdata` volume). `api` reads `database_url` via `pydantic-settings` (`config.py`); host is `db` in compose (not `localhost`).
-- **Connection pool** (basics in `AGENTS.md`). ⚠️ Standalone scripts (e.g. the importer) must `await pool.open()` themselves *before* `pool.connection()` — the lifespan doesn't run for them. **Always go through an explicit cursor** — not for blocking reasons (`await conn.execute()` is genuinely async here), but because `row_factory` is set *per cursor*: movie reads need `dict_row` (validate into Pydantic by column name), flat-list repos want plain tuples. `conn.execute()` only uses the connection's default factory, so there's no per-call place to pass `row_factory`.
-- **Migrations — manual numbered SQL** (decided; *not* yoyo/dbmate). Runner + run command in `AGENTS.md`. The `schema_migrations` table records applied files; un-applied files run in filename order.
+- **Connection pool** (basics in `AGENTS.md`). ⚠️ Standalone scripts (e.g. the importer) must `await pool.open()` themselves _before_ `pool.connection()` — the lifespan doesn't run for them. **Always go through an explicit cursor** — not for blocking reasons (`await conn.execute()` is genuinely async here), but because `row_factory` is set _per cursor_: movie reads need `dict_row` (validate into Pydantic by column name), flat-list repos want plain tuples. `conn.execute()` only uses the connection's default factory, so there's no per-call place to pass `row_factory`.
+- **Migrations — manual numbered SQL** (decided; _not_ yoyo/dbmate). Runner + run command in `AGENTS.md`. The `schema_migrations` table records applied files; un-applied files run in filename order.
 - **`001_init.sql` (movies table) — non-obvious decisions** (column types are in the schema):
-    - `tmdb_id INT UNIQUE` guards against duplicate adds (frontend check is just UX). ⚠️ Once existed *without* the UNIQUE constraint, which let dup imports through.
+    - `tmdb_id INT UNIQUE` guards against duplicate adds (frontend check is just UX).
     - **`cast_members JSONB` is temporary** — replaced by the `people`/`movie_people` tables later. (Renamed from `cast` — reserved word — model field too.)
     - `errors` was renamed to **`issues`** (column + Pydantic field + source JSON) — watch for stale `errors` refs.
 - **Models split:** `MovieBase` (all fields, **no `id`**) + `MovieFull(MovieBase)` (adds required `id: int`) — the Pydantic equivalent of `Omit<MovieFull,'id'>` (build up, don't subtract). `tmdb_movie_transform` returns `MovieBase`; `add_movie` INSERTs and returns a `MovieFull` with the new id (via `RETURNING id`). `MovieFullJson` exists for the one-off import. Named SQL params (`%(name)s`) used so column order can't silently misalign.
 - **One-off import:** `migrations/port-json.py` loads `movies.json` (validated through `MovieFullJson`), wraps cast in `Jsonb(...)`, bulk-INSERTs with `ON CONFLICT DO NOTHING`. The `db.py` pool must be opened manually (see above).
-- **Repositories migrated:** `movies` (get/add/delete), `genres` (`SELECT DISTINCT unnest(genres)`), `decades` (`year - year % 10`), `languages` (queries `languages` table). Flat-list repos return `[r[0] for r in rows]` from plain (non-`dict_row`) cursors and skip Pydantic validation (trusted own columns); movie reads use `dict_row` + validate into `MovieFull`. ⚠️ `get_movie` must guard `None` before `model_validate` (returns `None` for a missing id → route 404s).
+- **Repositories migrated:** `movies` (get/add/delete), `genres` (joins `movie_genres` — see Genres normalization below), `decades` (`year - year % 10`), `languages` (queries `languages` table). Flat-list repos return `[r[0] for r in rows]` from plain (non-`dict_row`) cursors and skip Pydantic validation (trusted own columns); movie reads use `dict_row` + validate into `MovieFull`. ⚠️ `get_movie` must guard `None` before `model_validate` (returns `None` for a missing id → route 404s).
 - **Language lookup table — DONE.** `languages(code TEXT PK, english_name TEXT)` + FK `movies.language → languages(code)`. Seeded from TMDB `GET /configuration/languages` via `002_add_languages.py` (run manually between `002` create and `003` FK migration). Movies query JOINs to return english name; languages repo queries the table directly.
+    - Movie reads now use **`LEFT JOIN languages`** (both `get_movies`/`get_movie`) — INNER dropped the one `NULL`-language movie (id 56) from the list and 404'd its detail.
+- **Genres normalization — DONE.** `004_add_genres_tables.sql`: `genres(id PK, name UNIQUE)` + `movie_genres(movie_id → movies ON DELETE CASCADE, genre_id)`. Keyed by name, **no TMDB seed** — genres populated from `unnest(movies.genres)`, join backfilled by name. Reads use a correlated `ARRAY(…) AS genres` subquery; `add_movie` **dual-writes** the join alongside the still-present `genres TEXT[]` column (`unnest(%(genres)s::text[])` cast needed).
 - **`uv` packaging:** `[tool.uv] package=true` + `[tool.setuptools]` in `pyproject.toml` so `uv run migrate` entry point works. `*.egg-info/` gitignored.
 - **Logging:** `app/logging_config.py` (dictConfig, `settings.log_level`), catch-all handler logs exceptions.
 - **Error handling** (mirrors the `TMDBError` pattern, global handlers in `main.py`):
@@ -67,8 +69,8 @@ The TS server is gone and dev runs on Docker Compose. What's worth keeping:
 
 **Still open:**
 
-- **Genres normalization** (planned): move `genres TEXT[]` → a `genres` table + `movie_genres` join table, same shape as the people slice below. Additive; `/genres` becomes a join instead of `unnest(genres)`.
-- **People/credits normalization** — the additive slice below, still future. Want to add `director` (+ maybe a couple other crew roles) when it lands.
+- **Genres — drop the `TEXT[]` column** (cleanup): normalization is done, but `movies.genres` is still dual-written as a safety net. Later: drop it + the dual-write in `add_movie`.
+- **People/credits normalization** — the additive slice below, still future. Want to add `director` (+ maybe a couple other crew roles) when it lands; genres is the template.
 - **Cleanup — connection boilerplate:** the `async with pool.connection() as conn: / async with conn.cursor(...) as cur:` pair is now repeated across every repo function. Investigate factoring it out (a helper / context manager / small `fetch_all`/`fetch_one`/`execute` wrappers) to cut the repetition.
 - Hosting in prod — later.
 
@@ -82,7 +84,7 @@ The TS server is gone and dev runs on Docker Compose. What's worth keeping:
 
 **Storage — decided: normalize into a `people` table** (discrete rows make "filter by a big name" a clean join). Sequenced as its own additive slice; the movies-only Postgres migration is now **done**, so this is next-ish. Target: `people (id, tmdb_id, name)` + `movie_people (movie_id, person_id, role/job, billing_order)` + a TMDB backfill. Additive — nothing on the `movies` table changes (trivial at ~132 rows). **`tmdb_id` is already on `movies`** (the planned hedge — enables the backfill). Normalizing resolves the old dedup question (one person row, one join row per job).
 
-**Current state:** cast is stored *temporarily* as `cast_members JSONB` on `movies` (the deliberately-rejected-long-term blob, used as a stopgap for the movies-only slice). `director`/crew aren't stored at all yet. When this slice lands, cast moves out of jsonb into `movie_people`. **Still open:** store `writers`/`composer` at all, vs. directors + cast only.
+**Current state:** cast is stored _temporarily_ as `cast_members JSONB` on `movies` (the deliberately-rejected-long-term blob, used as a stopgap for the movies-only slice). `director`/crew aren't stored at all yet. When this slice lands, cast moves out of jsonb into `movie_people`. **Still open:** store `writers`/`composer` at all, vs. directors + cast only.
 
 ---
 
