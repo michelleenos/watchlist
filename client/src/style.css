@@ -73,7 +73,8 @@
 
     --color-brown-darkest: #16100c;
 
-    --color-brass: #d8a24a;
+    /* --color-brass: #d8a24a; */
+    --color-brass: #f0a731;
 
     --text-xs: 0.625rem;
     --text-xs--line-height: calc(1 / 0.75);
@@ -115,25 +116,48 @@
     }
 }
 
+@utility border-subtle {
+    border-color: var(--color-brown-900);
+}
+
 @layer components {
-    .tag {
-        @apply relative flex items-center justify-center rounded-sm bg-gray-200 px-3 py-0.5 text-sm leading-none text-gray-900;
-    }
-
-    .taglist {
-        display: flex;
-        flex-wrap: wrap;
-        column-gap: 0.5rem;
-        row-gap: 0.4rem;
-        align-items: start;
-    }
-
     .focus-outline {
-        @apply focus:outline-amber-400 focus:not-focus-visible:outline-none focus-visible:outline-amber-400;
+        @apply focus:outline-brass focus-visible:outline-brass;
     }
 
-    .debg {
-        /* @apply outline-2 outline-amber-200; */
-        @apply ring-2 ring-orange-400/50;
+    .focus-visible-outline {
+        @apply focus:outline-brass focus:not-focus-visible:outline-none focus-visible:outline-brass;
+    }
+
+    .text-input {
+        @apply w-full min-w-0;
+        @apply rounded-lg border border-brown-700 bg-brown-900 px-4 py-3;
+        @apply text-sm text-brown-100;
+        @apply placeholder:text-brown-600;
+        @apply focus:border-brass focus:outline-none;
+    }
+
+    .dialog {
+        @apply border-subtle;
+        @apply bg-transparent bg-linear-to-tr from-taupe-950/50 to-brown-950;
+        @apply backdrop:bg-black/60 backdrop:backdrop-blur-sm;
+        @apply text-brown-100;
+    }
+
+    .card {
+        @apply rounded-lg border border-subtle bg-brown-950/50;
     }
 }
+
+/* 
+
+
+
+
+AddMovie list: 
+- divide-brown-900
+- diff varietires of text brown
+
+MovieSingle 
+- divider is border-brown-800
+*/

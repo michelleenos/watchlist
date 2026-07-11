@@ -6,7 +6,7 @@ defineProps<{ movie: MovieFull }>()
 </script>
 
 <template>
-    <dl class="flex gap-8 border-b border-b-brown-800 pb-2">
+    <dl class="flex gap-8 border-b border-subtle pb-2">
         <MovieMetaDt v-if="movie.year" title="Year" :description="`${movie.year}`" />
         <MovieMetaDt v-if="movie.language" title="Language" :description="movie.language" />
     </dl>

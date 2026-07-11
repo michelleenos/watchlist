@@ -62,9 +62,9 @@ defineProps<{ movie: MovieFull }>()
             <tr>
                 <th>Errors</th>
                 <td>
-                    <div v-if="movie.errors.length === 0">None</div>
+                    <div v-if="movie.issues.length === 0">None</div>
                     <ul v-else>
-                        <li v-for="(error, i) in movie.errors" :key="i">{{ error }}</li>
+                        <li v-for="(error, i) in movie.issues" :key="i">{{ error }}</li>
                     </ul>
                 </td>
             </tr>
@@ -76,10 +76,5 @@ defineProps<{ movie: MovieFull }>()
 table {
     border-collapse: collapse;
     margin-bottom: 50px;
-
-    td,
-    th {
-        border: 1px solid var(--bluegray-400);
-    }
 }
 </style>

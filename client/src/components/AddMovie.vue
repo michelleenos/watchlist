@@ -93,7 +93,7 @@ const clearResults = () => {
                         v-model="searchInput"
                         type="text"
                         placeholder="Search for a movie..."
-                        class="w-full min-w-0 rounded-lg border border-brown-700 bg-brown-900 py-3 pr-12 pl-4 text-sm text-brown-100 placeholder:text-brown-600 focus:border-brass focus:outline-none"
+                        class="text-input pr-12 pl-4"
                         @keydown.enter="search" />
                     <button
                         :disabled="searching"

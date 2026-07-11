@@ -49,5 +49,3 @@ const external = computed(() => isLink.value && props.href?.startsWith('http'))
         <slot></slot
     ></component>
 </template>
-
-<style scoped lang="scss"></style>

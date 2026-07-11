@@ -6,14 +6,13 @@ import { Icon } from '@iconify/vue'
 import { computed, ref } from 'vue'
 import AppTypography from './AppTypography.vue'
 import PillItem from './PillItem.vue'
+import type { MovieFilters } from '../types/index.ts'
 
 const { moviesData } = useMovies()
 
-export interface MovieFilters {
-    genres: string[]
-    decades: number[]
-    languages: string[]
-}
+defineProps<{
+    shownCounts?: string
+}>()
 
 const filters = defineModel<MovieFilters>({ required: true })
 
@@ -72,10 +71,7 @@ const onLeave = (el: Element) => {
 </script>
 
 <template>
-    <div
-        class="rounded-2xl border border-brown-800 bg-mauve-900/80 backdrop-blur-sm"
-        role="region"
-        aria-label="Filters">
+    <div class="card bg-brown-950/80 backdrop-blur-sm" role="region" aria-label="Filters">
         <div class="flex items-baseline gap-4 px-4 py-4">
             <AppBtn
                 class="flex items-center gap-1"
@@ -92,7 +88,7 @@ const onLeave = (el: Element) => {
                     class="transition-transform duration-200"
                     :class="{ 'rotate-180': isOpen }" />
             </AppBtn>
-            <AppTypography v-if="!hasActiveFilters" variant="caps">
+            <AppTypography v-if="!hasActiveFilters" variant="caps" class="grow">
                 No Active Filters
             </AppTypography>
             <div v-else class="flex grow justify-between gap-4">
@@ -137,6 +133,7 @@ const onLeave = (el: Element) => {
                     Clear All
                 </AppTypography>
             </div>
+            <AppTypography v-if="shownCounts" variant="body-sm">{{ shownCounts }}</AppTypography>
         </div>
         <Transition
             name="filter-expand"
@@ -144,7 +141,7 @@ const onLeave = (el: Element) => {
             @after-enter="onAfterEnter"
             @leave="onLeave">
             <div v-show="isOpen" id="filter-bar-contents">
-                <div class="flex gap-4 border-t border-t-brown-800 px-4 py-4">
+                <div class="flex gap-4 border-t border-subtle px-4 py-4">
                     <FilterItems
                         v-model="filters.genres"
                         :options="moviesData.genres"

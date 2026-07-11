@@ -39,11 +39,11 @@ defineExpose({ open, close })
 <template>
     <dialog
         ref="dialog"
-        class="border-brown-900 bg-transparent bg-linear-to-tr from-taupe-950/50 to-brown-950 text-brown-100 backdrop:bg-black/60 backdrop:backdrop-blur-sm"
+        class="dialog"
         :class="
             pageSide ?
                 'fixed top-0 right-0 bottom-0 ml-auto h-screen max-h-screen w-full max-w-150 md:w-8/12 md:border-l lg:w-6/12'
-            :   'mx-auto my-[10vh] w-11/12 max-w-2xl rounded-lg border border-brown-800'
+            :   'mx-auto my-[10vh] w-11/12 max-w-2xl rounded-lg border'
         "
         @close="onClose"
         @click="

@@ -1,12 +1,7 @@
 import { reactive, ref } from 'vue'
-import type { User, UserAuthenticated, UserUnauthenticated } from '../types'
+import type { UserAuthenticated, UserUnauthenticated, AuthStatus } from '../types'
 
-type AuthStatus = UserAuthenticated | UserUnauthenticated
-
-const authState = reactive<{
-    authenticated: boolean
-    user: User | null
-}>({
+const authState = reactive<AuthStatus>({
     authenticated: false,
     user: null,
 })
@@ -46,6 +41,7 @@ async function login(username: string, password: string): Promise<boolean> {
         return true
     } catch (err) {
         console.error(err)
+        error.value = true
         return false
     } finally {
         loading.value = false
@@ -60,6 +56,7 @@ async function logout() {
         setAuthState((await res.json()) as UserUnauthenticated)
     } catch (err) {
         console.error(err)
+        error.value = true
     } finally {
         loading.value = false
     }

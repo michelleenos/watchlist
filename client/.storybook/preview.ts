@@ -7,6 +7,7 @@ import '../src/style.css'
 import { sb } from 'storybook/test'
 
 sb.mock(import('../src/composables/useMovies.ts'))
+sb.mock(import('../src/composables/useAuth.ts'))
 
 const router = createRouter({
     history: createMemoryHistory(),
@@ -21,16 +22,19 @@ setup((app) => {
 })
 
 const preview: Preview = {
-    // Wrap every story in the app's root shell (see App.vue) so components
-    // render on the dark background with light text, as in the real app.
     decorators: [
         () => ({
+            // base/root styles
             template: '<div class="bg-mauve-950 text-brown-100 p-6"><story /></div>',
         }),
     ],
     parameters: {
-        // Let the decorator own the background instead of Storybook's white default.
-        backgrounds: { disable: true },
+        backgrounds: {
+            options: {
+                dark: { name: 'Dark (default)', value: 'var(--color-mauve-950)' },
+            },
+        },
+        // backgrounds: { disable: true },
         controls: {
             matchers: {
                 color: /(background|color)$/i,
@@ -44,6 +48,9 @@ const preview: Preview = {
             // 'off' - skip a11y checks entirely
             test: 'todo',
         },
+    },
+    initialGlobals: {
+        backgrounds: { value: 'dark' },
     },
 }
 

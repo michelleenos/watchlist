@@ -8,14 +8,13 @@ import MovieMetaDl from './MovieMetaDl.vue'
 import { RouterLink } from 'vue-router'
 import AppTypography from './AppTypography.vue'
 
-const props = defineProps<{ movie: MovieFull }>()
-const { movie } = props
+defineProps<{ movie: MovieFull }>()
 </script>
 
 <template>
     <RouterLink
         :to="`/movie/${movie.id}`"
-        class="block overflow-hidden rounded-lg border border-brown-900 bg-brown-950/50 p-4 outline-0 transition-all hover:-translate-y-0.5 hover:bg-brown-950 focus:-translate-y-0.5 focus:border-brass focus:bg-brown-950">
+        class="card block overflow-hidden p-4 outline-0 transition-all hover:-translate-y-0.5 hover:bg-brown-950/70 focus:-translate-y-0.5 focus:border-brass focus:bg-brown-950/70">
         <article class="relative grid grid-cols-[auto_1fr] gap-5">
             <MoviePoster
                 v-if="movie.posterPath"

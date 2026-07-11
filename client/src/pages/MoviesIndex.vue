@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { computed, reactive } from 'vue'
-import MovieCard from '../components/MovieCard.vue'
+
 // import FilterItems from '../components/FilterItems.vue'
 import AddMovie from '../components/AddMovie.vue'
 import { useMovies } from '../composables/useMovies.ts'
 import { useAuth } from '../composables/useAuth.ts'
 import FilterBar from '../components/FilterBar.vue'
+import MoviesList from '../components/MoviesList.vue'
 
-const filters = reactive<{ genres: string[]; decades: number[]; languages: string[] }>({
+let filters = reactive<{ genres: string[]; decades: number[]; languages: string[] }>({
     genres: [],
     decades: [],
     languages: [],
@@ -43,10 +44,6 @@ const shownMovies = computed(() => {
         return true
     })
 })
-
-// onMounted(() => {
-//     refresh()
-// })
 </script>
 
 <template>
@@ -58,26 +55,21 @@ const shownMovies = computed(() => {
         <div v-if="loading">LOADING</div>
         <div v-else>
             <div class="sticky top-2 z-99 my-4">
-                <FilterBar v-model="filters" />
-                <!-- <FilterItems v-model="filters.genres" :options="moviesData.genres" label="Genres" />
-                <FilterItems
-                    v-model="filters.decades"
-                    :options="moviesData.decades"
-                    label="Decades" />
-                <FilterItems
-                    v-model="filters.languages"
-                    :options="moviesData.languages"
-                    label="Languages" /> -->
+                <FilterBar
+                    v-model="filters"
+                    :barText="`${shownMovies.length} / ${moviesData.movies.length}`" />
             </div>
 
-            <div class="grid gap-6 py-8 lg:grid-cols-2">
-                <div class="col-start-1 -col-end-1">
-                    Showing <span class="font-semibold">{{ shownMovies.length }}</span> of
-                    <span class="font-semibold">{{ moviesData.movies.length }}</span>
-                </div>
+            <div class="col-start-1 -col-end-1">
+                Showing <span class="font-semibold">{{ shownMovies.length }}</span> of
+                <span class="font-semibold">{{ moviesData.movies.length }}</span>
+            </div>
+            <MoviesList :movies="shownMovies" :filters="filters" />
+
+            <!-- <div class="grid gap-6 py-8 lg:grid-cols-2">
 
                 <MovieCard v-for="movie in shownMovies" :key="movie.name" :movie="movie" />
-            </div>
+            </div> -->
         </div>
 
         <RouterView />

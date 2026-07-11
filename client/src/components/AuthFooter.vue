@@ -42,7 +42,7 @@ async function onLogout() {
 
 <template>
     <footer
-        class="mx-auto w-full max-w-11/12 border-t border-brown-900 py-6 text-xs text-brown-600 2xl:max-w-352">
+        class="mx-auto w-full max-w-11/12 border-t border-subtle py-6 text-xs text-brown-500 2xl:max-w-352">
         <div class="flex items-center justify-end gap-2">
             <template v-if="authState.authenticated">
                 <span>
@@ -76,7 +76,7 @@ async function onLogout() {
                     type="text"
                     name="username"
                     autocomplete="username"
-                    class="w-full min-w-0 rounded-lg border border-brown-700 bg-brown-900 px-4 py-3 text-sm text-brown-100 placeholder:text-brown-600 focus:border-brass focus:outline-none" />
+                    class="text-input" />
             </label>
 
             <label class="flex flex-col gap-2 text-sm text-brown-400">
@@ -86,7 +86,7 @@ async function onLogout() {
                     type="password"
                     name="password"
                     autocomplete="current-password"
-                    class="w-full min-w-0 rounded-lg border border-brown-700 bg-brown-900 px-4 py-3 text-sm text-brown-100 placeholder:text-brown-600 focus:border-brass focus:outline-none" />
+                    class="text-input w-full min-w-0" />
             </label>
 
             <div class="flex justify-end">

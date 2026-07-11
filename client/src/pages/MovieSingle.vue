@@ -112,7 +112,7 @@ async function deleteMovie() {
 
                     <div
                         v-if="authState.authenticated"
-                        class="flex w-full items-center justify-end gap-3 border-t border-brown-800 pt-4">
+                        class="flex w-full items-center justify-end gap-3 border-t border-subtle pt-4">
                         <template v-if="confirmingDelete">
                             <span class="text-sm font-bold">Really remove?</span>
                             <button

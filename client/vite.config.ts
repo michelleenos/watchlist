@@ -15,6 +15,11 @@ const API_PROXY_TARGET = process.env.API_PROXY_TARGET || 'http://localhost:3000'
 // https://vite.dev/config/
 export default defineConfig({
     plugins: [vue(), tailwindcss()],
+    // resolve: {
+    //     alias: {
+    //         '@': path.resolve(dirname, 'src'),
+    //     },
+    // },
     optimizeDeps: {
         exclude: ['@tailwindcss/vite'],
     },

@@ -7,8 +7,9 @@ withDefaults(defineProps<{ label?: string }>(), {
 
 <template>
     <button
-        class="size-6 opacity-70 hover:opacity-100 focus:opacity-100 cursor-pointer focus-outline text-center">
-        <Icon icon="ri:close-line" class="size-5 mx-auto" />
+        class="focus-outline size-6 cursor-pointer text-center text-inherit opacity-70 hover:opacity-100 focus:opacity-100"
+        :aria-label="label">
+        <Icon icon="ri:close-line" class="mx-auto size-5" />
     </button>
 </template>
 
