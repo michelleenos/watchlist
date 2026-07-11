@@ -20,12 +20,23 @@ Settled — don't relitigate. This keeps the _why_ so rejected alternatives don'
 
 ---
 
-## Next steps (priority order, as of 2026-07-01)
+## Auth (new — implemented as of 2026-07-10)
 
-1. **Backend cleanup** — drop the two safety-net columns now that reads use the join tables: `movies.genres TEXT[]` and `movies.cast_members JSONB`, each with its dual-write in `add_movie`. Do them together (new migration `006_*`). Optionally fold in the connection-boilerplate refactor (the repeated `pool.connection()/cursor()` pair) while in there.
-2. **Frontend updates** — render the new credits on the movie detail (`directors`/`writers`/`sourceAuthors` + `castMembers` now come from `GET /movies/{id}`; `MovieMetaDl.vue` is the natural home), plus the standing frontend todos below.
-3. **Tests (none exist yet)** — set up unit + integration tests. Likely `pytest` + `pytest-asyncio` for the api against an ephemeral Postgres; good first targets are the transform/allowlist logic (`tmdb_people_transform`) and the `insert_movie_people` upsert. Frontend: TBD (Vitest).
-4. **Hosting + auth** — host online. Model: **owner + partner authenticate to add/delete; the rest of the world gets read-only view access.** Implies auth on the write routes (`POST`/`DELETE /movies`) only, public `GET`s. Open questions: hosting target (Postgres host, R2 for posters), auth mechanism (shared/allowlisted accounts vs. a provider), how the client gates the add/delete UI. Not started — research phase.
+Model: **owner + partner authenticate to write; everyone else read-only.** Full plan + rationale in `auth_live_plan.md` (repo root). Phase 1 (backend) and most of Phase 2 (frontend) are done; **nothing is provisioned for production yet** — hosting (Railway/Netlify per the plan) is still open/todo.
+
+- **Backend:** password login (two argon2 hashes via **pwdlib** in the `AUTH_USERS` env var, `username:hash;username:hash` — `;`-separated, commas appear inside argon2 hashes), stateless signed session cookie via Starlette `SessionMiddleware` (`session_secret`, `cookie_secure` settings; `COOKIE_SECURE=false` needed in dev over plain http).
+- **`api/app/auth.py`:** `parse_auth_users`, `authenticate_user` (dummy-hash verify on unknown username to resist enumeration timing), `get_authenticated_user` dependency (401s; also rejects cookies naming removed users). Gates `POST /movies`, `DELETE /movies/{id}`, and both `/tmdb/*` routes (TMDB key protection) via decorator `dependencies=[...]`.
+- **`api/app/routes/auth.py`:** `POST /auth/login` (401 on bad creds, same message for unknown user vs wrong password), `POST /auth/logout`, `GET /auth/me` — **`/me` always 200s**, returning the `AuthStatus` discriminated union (`Authenticated`/`Unauthenticated` in `models.py`, `Literal[True/False]` discriminant) so client TS narrows and logged-out isn't an error path.
+- **Frontend:** `useAuth()` composable (same module-scope pattern as `useMovies`; `authState`, `login()` → bool, `logout()`, `refresh()`); `AuthFooter.vue` (slim footer: "log in" button → AppDialog login form, or "logged in as X · log out"), mounted in `App.vue`. AddMovie trigger (MoviesIndex) and delete section (MovieSingle) are `v-if="authState.authenticated"` — UX-gating only, API is the real enforcement.
+
+---
+
+## Next steps (priority order, as of 2026-07-10)
+
+1. **Hosting** — provision + deploy per `auth_live_plan.md` Phases 3–4 (Railway api/Postgres/volume, Netlify client + `_redirects` proxy, data + poster migration). Also the deferred prod tweaks from plan 1.6 (images-dir mkdir in lifespan, `PORT` in Dockerfile CMD). All still up in the air — nothing provisioned.
+2. **Backend cleanup** — drop the two safety-net columns now that reads use the join tables: `movies.genres TEXT[]` and `movies.cast_members JSONB`, each with its dual-write in `add_movie`. Do them together (new migration `006_*`). Optionally fold in the connection-boilerplate refactor (the repeated `pool.connection()/cursor()` pair) while in there.
+3. **Frontend updates** — render the new credits on the movie detail (`directors`/`writers`/`sourceAuthors` + `castMembers` now come from `GET /movies/{id}`; `MovieMetaDl.vue` is the natural home), plus the standing frontend todos below.
+4. **Tests (none exist yet)** — set up unit + integration tests. Likely `pytest` + `pytest-asyncio` for the api against an ephemeral Postgres; good first targets are the transform/allowlist logic (`tmdb_people_transform`) and the `insert_movie_people` upsert. Frontend: TBD (Vitest).
 
 ---
 
@@ -37,3 +48,4 @@ Settled — don't relitigate. This keeps the _why_ so rejected alternatives don'
 - **Error UI:** `useMovies()` exposes an `error` ref nothing consumes yet — wire it into MoviesIndex (MovieSingle already handles its own).
 - **Re-check add UX** against the backend (poster returned ready; surface `issues[]` on failed poster).
 - **Sort** by (field TBD); maybe revive display options (`client/src/display-options.ts`, retained but unimported).
+- **Extract shared style utilities** — duplicated Tailwind class strings are drifting (e.g. light borders, the input styling repeated in AddMovie search + AuthFooter login form). Extract simple generic classes/components and do a small audit of components to catch subtle differences.

@@ -13,6 +13,7 @@ import AppDialog from '../components/AppDialog.vue'
 import AppBtn from '../components/AppBtn.vue'
 import { useToast } from '../composables/useToast.ts'
 import { useMovies } from '../composables/useMovies.ts'
+import { useAuth } from '../composables/useAuth.ts'
 
 const route = useRoute()
 const router = useRouter()
@@ -24,6 +25,7 @@ const confirmingDelete = ref(false)
 const deleting = ref(false)
 const toasts = useToast()
 const { refresh } = useMovies()
+const { authState } = useAuth()
 
 async function fetchMovie(id: string) {
     try {
@@ -109,6 +111,7 @@ async function deleteMovie() {
                     </ul>
 
                     <div
+                        v-if="authState.authenticated"
                         class="flex w-full items-center justify-end gap-3 border-t border-brown-800 pt-4">
                         <template v-if="confirmingDelete">
                             <span class="text-sm font-bold">Really remove?</span>

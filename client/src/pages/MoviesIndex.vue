@@ -4,6 +4,7 @@ import MovieCard from '../components/MovieCard.vue'
 // import FilterItems from '../components/FilterItems.vue'
 import AddMovie from '../components/AddMovie.vue'
 import { useMovies } from '../composables/useMovies.ts'
+import { useAuth } from '../composables/useAuth.ts'
 import FilterBar from '../components/FilterBar.vue'
 
 const filters = reactive<{ genres: string[]; decades: number[]; languages: string[] }>({
@@ -13,6 +14,7 @@ const filters = reactive<{ genres: string[]; decades: number[]; languages: strin
 })
 
 const { moviesData, loading } = useMovies()
+const { authState } = useAuth()
 
 const shownMovies = computed(() => {
     const { genres, decades, languages } = filters
@@ -51,7 +53,7 @@ const shownMovies = computed(() => {
     <div class="mx-auto max-w-11/12 2xl:max-w-352">
         <div class="flex items-center justify-between border-b border-b-brown-700 pt-12 pb-8">
             <h1 class="text-2xl text-brass">watchlist</h1>
-            <AddMovie />
+            <AddMovie v-if="authState.authenticated" />
         </div>
         <div v-if="loading">LOADING</div>
         <div v-else>

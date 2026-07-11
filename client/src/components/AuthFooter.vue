@@ -1,0 +1,99 @@
+<script setup lang="ts">
+import { ref, useTemplateRef } from 'vue'
+import AppBtn from './AppBtn.vue'
+import AppDialog from './AppDialog.vue'
+import AppTypography from './AppTypography.vue'
+import { useAuth } from '../composables/useAuth'
+import { useToast } from '../composables/useToast'
+
+const { authState, login, logout } = useAuth()
+const toasts = useToast()
+const dialog = useTemplateRef('dialog')
+
+const username = ref('')
+const password = ref('')
+const submitting = ref(false)
+
+const open = () => dialog.value?.open()
+
+const onClose = () => {
+    username.value = ''
+    password.value = ''
+}
+
+async function submit() {
+    if (!username.value.trim() || !password.value || submitting.value) return
+    submitting.value = true
+    const ok = await login(username.value.trim(), password.value)
+    submitting.value = false
+    if (ok) {
+        toasts.add({ html: `logged in as <strong>${authState.user?.username}</strong>` })
+        dialog.value?.close()
+    } else {
+        toasts.add('login failed', 'error')
+    }
+}
+
+async function onLogout() {
+    await logout()
+    toasts.add('logged out')
+}
+</script>
+
+<template>
+    <footer
+        class="mx-auto w-full max-w-11/12 border-t border-brown-900 py-6 text-xs text-brown-600 2xl:max-w-352">
+        <div class="flex items-center justify-end gap-2">
+            <template v-if="authState.authenticated">
+                <span>
+                    logged in as
+                    <span class="font-semibold text-brown-400">{{ authState.user?.username }}</span>
+                </span>
+                <span aria-hidden="true">·</span>
+                <button
+                    class="cursor-pointer transition-colors hover:text-brown-300"
+                    @click="onLogout">
+                    log out
+                </button>
+            </template>
+            <button
+                v-else
+                class="cursor-pointer transition-colors hover:text-brown-300"
+                @click="open">
+                log in
+            </button>
+        </div>
+    </footer>
+
+    <AppDialog ref="dialog" @close="onClose">
+        <form class="flex flex-col gap-6 px-8 py-8" @submit.prevent="submit">
+            <AppTypography variant="caps">Log In</AppTypography>
+
+            <label class="flex flex-col gap-2 text-sm text-brown-400">
+                Username
+                <input
+                    v-model="username"
+                    type="text"
+                    name="username"
+                    autocomplete="username"
+                    class="w-full min-w-0 rounded-lg border border-brown-700 bg-brown-900 px-4 py-3 text-sm text-brown-100 placeholder:text-brown-600 focus:border-brass focus:outline-none" />
+            </label>
+
+            <label class="flex flex-col gap-2 text-sm text-brown-400">
+                Password
+                <input
+                    v-model="password"
+                    type="password"
+                    name="password"
+                    autocomplete="current-password"
+                    class="w-full min-w-0 rounded-lg border border-brown-700 bg-brown-900 px-4 py-3 text-sm text-brown-100 placeholder:text-brown-600 focus:border-brass focus:outline-none" />
+            </label>
+
+            <div class="flex justify-end">
+                <AppBtn type="submit" :disabled="submitting">
+                    {{ submitting ? 'Logging in…' : 'Log in' }}
+                </AppBtn>
+            </div>
+        </form>
+    </AppDialog>
+</template>
