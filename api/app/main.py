@@ -5,12 +5,13 @@ import psycopg
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.sessions import SessionMiddleware
 
 from app.config import settings
 from app.db import pool
 from app.exceptions import DuplicateMovieError, TMDBError
 from app.logging_config import configure_logging
-from app.routes import decades, genres, languages, movies, tmdb
+from app.routes import auth, decades, genres, languages, movies, tmdb
 
 # logging.basicConfig(
 #     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -31,6 +32,14 @@ async def lifespan(app: FastAPI):
 # async with pool.connection() as conn:
 
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=settings.session_secret,
+    max_age=60 * 60 * 24,  # one day
+    same_site="lax",
+    https_only=settings.cookie_https_only,
+)
 
 
 @app.exception_handler(TMDBError)
@@ -64,6 +73,7 @@ app.include_router(genres.router, prefix="/genres", tags=["genres"])
 app.include_router(decades.router, prefix="/decades", tags=["decades"])
 app.include_router(languages.router, prefix="/languages", tags=["languages"])
 app.include_router(tmdb.router, prefix="/tmdb", tags=["tmdb"])
+app.include_router(auth.router, prefix="/auth", tags=["auth"])
 
 
 @app.get("/health")

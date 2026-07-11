@@ -8,9 +8,11 @@ dependencies = [
     "aiofiles>=25.1.0",
     "fastapi[standard]>=0.138.0",
     "httpx>=0.28.1",
+    "itsdangerous>=2.2.0",
     "nanoid>=2.0.0",
     "pillow>=12.2.0",
-	"psycopg[binary,pool]>=3.3.4",
+    "psycopg[binary,pool]>=3.3.4",
+    "pwdlib[argon2]>=0.3.0",
 ]
 
 [tool.uv]

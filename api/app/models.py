@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
@@ -138,3 +140,27 @@ class TMDBSearchResult(BaseModel):
     release_date: str | None = None
     original_language: str | None = None
     poster_path: str | None = None
+
+
+class User(BaseModel):
+    model_config = ConfigDict(
+        alias_generator=to_camel, validate_by_name=True, validate_by_alias=True
+    )
+    username: str
+
+
+class UserWithHashedPw(User):
+    hashed_password: str
+
+
+class Authenticated(BaseModel):
+    authenticated: Literal[True]
+    user: User
+
+
+class Unauthenticated(BaseModel):
+    authenticated: Literal[False]
+    user: None = None
+
+
+AuthStatus = Authenticated | Unauthenticated

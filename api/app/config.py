@@ -9,6 +9,9 @@ class Settings(BaseSettings):
     movies_path: str = "data/movies.json"
     images_dir: str = "public/images"
     database_url: str
+    session_secret: str
+    auth_users: str
+    cookie_https_only: bool = True
 
 
 settings = Settings()  # pyright: ignore[reportCallIssue]
