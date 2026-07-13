@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import type { useMovies } from '@/composables/useMovies'
+import type { useMovies } from '../../composables/useMovies'
 import { sampleFilterOptions, sampleMovies } from './movies.fixtures'
 
 type UseMoviesReturn = ReturnType<typeof useMovies>

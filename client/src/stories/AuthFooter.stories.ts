@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
-import AuthFooter from '@/components/AuthFooter.vue'
+import AuthFooter from '../components/AuthFooter.vue'
 import { mocked } from 'storybook/test'
-import { useAuth } from '@/composables/useAuth'
+import { useAuth } from '../composables/useAuth'
 import { makeUseAuthMock } from './support/useAuth.mock'
 
 const meta = {

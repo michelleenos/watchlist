@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import FilterBar from '../components/FilterBar.vue'
 import { mocked } from 'storybook/test'
-import { useMovies } from '@/composables/useMovies.ts'
+import { useMovies } from '../composables/useMovies.ts'
 import { ref } from 'vue'
 
 const meta = {

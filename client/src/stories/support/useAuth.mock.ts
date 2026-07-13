@@ -1,7 +1,7 @@
 import { reactive, ref } from 'vue'
-import type { useAuth } from '@/composables/useAuth'
+import type { useAuth } from '../../composables/useAuth'
 import { fn } from 'storybook/test'
-import type { AuthStatus, User } from '@/types'
+import type { AuthStatus, User } from '../../types'
 
 type UseAuthReturn = ReturnType<typeof useAuth>
 

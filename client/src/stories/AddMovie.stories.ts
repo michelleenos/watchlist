@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import AddMovie from '../components/AddMovie.vue'
-import { useMovies } from '@/composables/useMovies.ts'
+import { useMovies } from '../composables/useMovies.ts'
 import { mocked } from 'storybook/test'
-import { sampleMovies } from '@/stories/support/movies.fixtures.ts'
+import { sampleMovies } from './support/movies.fixtures.ts'
 import { ref } from 'vue'
 
 const meta = {
