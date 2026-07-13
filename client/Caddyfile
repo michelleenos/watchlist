@@ -20,6 +20,14 @@
         format json # set access log format to json mode
     }
 
+	handle_path /api/* {
+		reverse_proxy watchlist.railway.internal:8080
+	}
+
+	handle /images/* {
+		reverse_proxy watchlist.railway.internal:8080
+	}
+
     # health check for railway
     rewrite /health /*
 
