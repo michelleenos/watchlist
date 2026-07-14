@@ -21,7 +21,9 @@
     }
 
 	handle_path /api/* {
-		reverse_proxy watchlist.railway.internal:8080
+		reverse_proxy watchlist.railway.internal:8080 {
+			header_up X-Real-IP {client_ip}	
+		}
 	}
 
 	handle /images/* {

@@ -29,10 +29,9 @@ Settled — don't relitigate. Keeps the _why_ so rejected alternatives don't get
 
 ## Next steps (priority order)
 
-1. **Login rate-limiting** — no throttle/lockout on `POST /auth/login` yet; argon2 slowness is the only brute-force resistance. Add a small per-IP limit (Caddy or app-side). See `.agents/reference/auth.md`.
-2. **Backend cleanup** — drop the two safety-net columns now that reads use the join tables: `movies.genres TEXT[]` and `movies.cast_members JSONB`, each with its dual-write in `add_movie`. Do them together (new migration `006_*`). Optionally fold in the connection-boilerplate refactor (the repeated `pool.connection()/cursor()` pair) while in there.
-3. **Frontend updates** — render the new credits on the movie detail (`directors`/`writers`/`sourceAuthors` + `castMembers` now come from `GET /movies/{id}`; `MovieMetaDl.vue` is the natural home), plus the standing frontend todos + feature ideas below.
-4. **Tests (none exist yet)** — set up unit + integration tests. Likely `pytest` + `pytest-asyncio` for the api against an ephemeral Postgres; good first targets are the transform/allowlist logic (`tmdb_people_transform`) and the `insert_movie_people` upsert. Frontend: TBD (Vitest).
+1. **Backend cleanup** — drop the two safety-net columns now that reads use the join tables: `movies.genres TEXT[]` and `movies.cast_members JSONB`, each with its dual-write in `add_movie`. Do them together (new migration `006_*`). Optionally fold in the connection-boilerplate refactor (the repeated `pool.connection()/cursor()` pair) while in there.
+2. **Frontend updates** — render the new credits on the movie detail (`directors`/`writers`/`sourceAuthors` + `castMembers` now come from `GET /movies/{id}`; `MovieMetaDl.vue` is the natural home), plus the standing frontend todos + feature ideas below.
+3. **Tests (none exist yet)** — set up unit + integration tests. Likely `pytest` + `pytest-asyncio` for the api against an ephemeral Postgres; good first targets are the transform/allowlist logic (`tmdb_people_transform`) and the `insert_movie_people` upsert. Frontend: TBD (Vitest).
 
 Minor deferred prod tweak: mkdir `images_dir` in the api `lifespan` with `exist_ok=True` (currently the dir must already exist — fine in prod since the volume provides it, and in dev since `public/images` is committed). `PORT` in the Dockerfile CMD is already done.
 

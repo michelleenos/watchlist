@@ -14,7 +14,7 @@ Stable reference for the auth implementation. Read when working on auth/login/se
     - `get_authenticated_user` — FastAPI dependency; 401s when unauthenticated, and also rejects cookies naming a user who's since been removed from `AUTH_USERS`.
     - Gates `POST /movies`, `DELETE /movies/{id}`, and **both `/tmdb/*` routes** (protects the TMDB key from being used as a free proxy) via `dependencies=[...]`.
 - **`api/app/routes/auth.py`:**
-    - `POST /auth/login` — 401 on bad creds; **same message** for unknown user vs wrong password.
+    - `POST /auth/login` — 401 on bad creds; **same message** for unknown user vs wrong password. **Rate-limited** (`app/rate_limit.py`): in-memory sliding-window log keyed by client IP, 5 failed attempts / 5 min → `429` + `Retry-After`; only *failed* logins count, success doesn't clear the record. Client IP comes from Caddy's `X-Real-IP` header (`get_client_ip`), set via `header_up X-Real-IP {client_ip}` in `client/Caddyfile`. State is per-process/in-memory (wiped on restart/redeploy), fine for the single api instance.
     - `POST /auth/logout`.
     - `GET /auth/me` — **always 200s**, returning the `AuthStatus` discriminated union (`Authenticated`/`Unauthenticated` in `models.py`, `Literal[True/False]` discriminant) so client TS narrows and logged-out is not an error path.
 
