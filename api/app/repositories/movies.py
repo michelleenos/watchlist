@@ -1,6 +1,5 @@
 import psycopg
 from psycopg.rows import dict_row
-from psycopg.types.json import Jsonb
 from pydantic import TypeAdapter
 
 from app.db import cursor
@@ -126,19 +125,18 @@ async def delete_movie(id: int) -> bool:
 
 async def add_movie(movie: MovieBase, people: list[MoviePerson] | None = None):
     params = movie.model_dump()
-    params["cast_members"] = Jsonb(params["cast_members"])
     try:
         async with cursor() as cur:
             await cur.execute(
                 """
                 INSERT INTO movies (
-                    name, year, language, tagline, genres, description,
+                    name, year, language, tagline, description,
                     original_title, tmdb_id, issues, poster_path,
-                    tmdb_poster_path, cast_members
+                    tmdb_poster_path
                 ) VALUES (
-                    %(name)s, %(year)s, %(language)s, %(tagline)s, %(genres)s, %(description)s,
+                    %(name)s, %(year)s, %(language)s, %(tagline)s, %(description)s,
                     %(original_title)s, %(tmdb_id)s, %(issues)s, %(poster_path)s,
-                    %(tmdb_poster_path)s, %(cast_members)s
+                    %(tmdb_poster_path)s
                 )
                 RETURNING id
                 """,
@@ -147,8 +145,6 @@ async def add_movie(movie: MovieBase, people: list[MoviePerson] | None = None):
             row = await cur.fetchone()
             assert row is not None
 
-            # dual-write genres: keep the TEXT[] column above, and also link
-            # rows in the normalized genres/movie_genres tables (same transaction).
             if movie.genres:
                 params["id"] = row[0]
                 await cur.execute(
@@ -167,8 +163,6 @@ async def add_movie(movie: MovieBase, people: list[MoviePerson] | None = None):
                 )
 
             # normalize cast + curated crew into people/movie_people
-            # (same transaction). cast is still dual-written to the
-            # cast_members JSONB blob above as a safety net.
             if people:
                 await insert_movie_people(cur, row[0], people)
     except psycopg.errors.UniqueViolation as e:

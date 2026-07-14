@@ -1,0 +1,2 @@
+ALTER TABLE movies DROP COLUMN IF EXISTS genres;
+ALTER TABLE movies DROP COLUMN IF EXISTS cast_members;
