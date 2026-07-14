@@ -1,10 +1,17 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
 from app.auth import get_authenticated_user
-from app.models import MovieFull
-from app.repositories.movies import delete_movie, get_movie, get_movies
+from app.models import MovieFull, MovieUpdate, User
+from app.repositories.movies import (
+    delete_movie,
+    get_movie,
+    get_movies,
+    update_movie,
+)
 from app.services.add_movie import add_movie_from_tmdb
 
 router = APIRouter()
@@ -47,8 +54,26 @@ class AddFromTmdbParams(BaseModel):
     "",
     response_model=MovieFull,
     responses={409: {"description": "Movie with tmdb_id already exists"}},
+)
+async def add_from_tmdb(
+    body: AddFromTmdbParams,
+    user: Annotated[User, Depends(get_authenticated_user)],
+):
+    movie = await add_movie_from_tmdb(body.tmdb_id, added_by=user.username)
+    return movie
+
+
+@router.patch(
+    "/{movie_id}",
+    response_model=MovieFull,
+    response_model_exclude_none=True,
+    responses={404: {"description": "Movie not found"}},
     dependencies=[Depends(get_authenticated_user)],
 )
-async def add_from_tmdb(body: AddFromTmdbParams):
-    movie = await add_movie_from_tmdb(body.tmdb_id)
-    return movie
+async def patch_movie(movie_id: int, body: MovieUpdate):
+    if not body.model_fields_set:
+        raise HTTPException(status_code=400, detail="No fields to update")
+    found = await update_movie(movie_id, body)
+    if not found:
+        raise HTTPException(status_code=404, detail="Movie not found")
+    return await get_movie(movie_id)

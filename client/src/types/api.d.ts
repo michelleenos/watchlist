@@ -37,7 +37,8 @@ export interface paths {
         delete: operations["remove_movie_movies__movie_id__delete"];
         options?: never;
         head?: never;
-        patch?: never;
+        /** Patch Movie */
+        patch: operations["patch_movie_movies__movie_id__patch"];
         trace?: never;
     };
     "/genres": {
@@ -258,6 +259,13 @@ export interface components {
             posterPath?: string | null;
             /** Tmdbposterpath */
             tmdbPosterPath?: string | null;
+            /** Addedby */
+            addedBy?: string | null;
+            /**
+             * Watched
+             * @default false
+             */
+            watched: boolean;
             /** Id */
             id: number;
         } & {
@@ -269,6 +277,18 @@ export interface components {
             name: string;
             /** Role */
             role: string;
+        };
+        /**
+         * MovieUpdate
+         * @description Partial-update body for PATCH /movies/{id}.
+         *
+         *     Every field is optional; only fields the client actually sends are applied
+         *     (via model_dump(exclude_unset=True)). Field names must match updatable
+         *     `movies` columns. Add new updatable columns here as needed.
+         */
+        MovieUpdate: {
+            /** Watched */
+            watched?: boolean | null;
         };
         /** TMDBSearchResult */
         TMDBSearchResult: {
@@ -441,6 +461,48 @@ export interface operations {
                 content: {
                     "application/json": unknown;
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    patch_movie_movies__movie_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                movie_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MovieUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MovieFull"];
+                };
+            };
+            /** @description Movie not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

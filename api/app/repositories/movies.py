@@ -1,10 +1,11 @@
 import psycopg
+from psycopg import sql
 from psycopg.rows import dict_row
 from pydantic import TypeAdapter
 
 from app.db import cursor
 from app.exceptions import DuplicateMovieError
-from app.models import MovieBase, MovieFull, MoviePerson
+from app.models import MovieBase, MovieFull, MoviePerson, MovieUpdate
 
 movies_adapter = TypeAdapter(list[MovieFull])
 
@@ -49,6 +50,7 @@ async def get_movies() -> list[MovieFull]:
         await cur.execute("""
             SELECT
                 name, year, tagline, description, original_title, poster_path, tmdb_id, id,
+                added_by, watched,
 				ARRAY(
 					SELECT genres.name
 					FROM movie_genres
@@ -72,7 +74,7 @@ async def get_movie(id: int):
             """
             SELECT
                     id, name, year, tagline, description, original_title, tmdb_id,
-                    poster_path, tmdb_poster_path, issues,
+                    poster_path, tmdb_poster_path, issues, added_by, watched,
                     languages.english_name AS language,
                     ARRAY(
                         SELECT g.name
@@ -123,6 +125,28 @@ async def delete_movie(id: int) -> bool:
     return result is not None
 
 
+async def update_movie(id: int, updates: MovieUpdate) -> bool:
+    """Patch only the fields the client explicitly sent (exclude_unset).
+
+    Field names on MovieUpdate must match `movies` columns; the SET clause is
+    built from those names via sql.Identifier. Returns False if the movie
+    doesn't exist. Callers must guard the empty-update case before calling.
+    """
+    fields = updates.model_dump(exclude_unset=True)
+    assert fields, "update_movie called with no fields to update"
+    set_clause = sql.SQL(", ").join(
+        sql.SQL("{} = {}").format(sql.Identifier(col), sql.Placeholder(col))
+        for col in fields
+    )
+    query = sql.SQL("UPDATE movies SET {} WHERE id = {} RETURNING id").format(
+        set_clause, sql.Placeholder("id")
+    )
+    async with cursor() as cur:
+        await cur.execute(query, {**fields, "id": id})
+        result = await cur.fetchone()
+    return result is not None
+
+
 async def add_movie(movie: MovieBase, people: list[MoviePerson] | None = None):
     params = movie.model_dump()
     try:
@@ -132,11 +156,11 @@ async def add_movie(movie: MovieBase, people: list[MoviePerson] | None = None):
                 INSERT INTO movies (
                     name, year, language, tagline, description,
                     original_title, tmdb_id, issues, poster_path,
-                    tmdb_poster_path
+                    tmdb_poster_path, added_by
                 ) VALUES (
                     %(name)s, %(year)s, %(language)s, %(tagline)s, %(description)s,
                     %(original_title)s, %(tmdb_id)s, %(issues)s, %(poster_path)s,
-                    %(tmdb_poster_path)s
+                    %(tmdb_poster_path)s, %(added_by)s
                 )
                 RETURNING id
                 """,

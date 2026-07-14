@@ -90,9 +90,10 @@ def tmdb_movie_transform(data: TMDBMovieDetails) -> MovieBase:
     )
 
 
-async def add_movie_from_tmdb(tmdb_id: int):
+async def add_movie_from_tmdb(tmdb_id: int, added_by: str | None = None):
     data = await get_tmdb_data(tmdb_id)
     transformed = tmdb_movie_transform(data)
+    transformed.added_by = added_by
     people = tmdb_people_transform(data)
     if transformed.tmdb_poster_path:
         try:

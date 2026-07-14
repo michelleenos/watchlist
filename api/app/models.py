@@ -46,10 +46,29 @@ class MovieBase(BaseModel):
     issues: list[str] = []
     poster_path: str | None = None
     tmdb_poster_path: str | None = None
+    added_by: str | None = None
+    watched: bool = False
 
 
 class MovieFull(MovieBase):
     id: int
+
+
+class MovieUpdate(BaseModel):
+    """Partial-update body for PATCH /movies/{id}.
+
+    Every field is optional; only fields the client actually sends are applied
+    (via model_dump(exclude_unset=True)). Field names must match updatable
+    `movies` columns. Add new updatable columns here as needed.
+    """
+
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        validate_by_name=True,
+        validate_by_alias=True,
+    )
+
+    watched: bool | None = None
 
 
 # old model from before db migration
