@@ -29,9 +29,10 @@ Settled — don't relitigate. Keeps the _why_ so rejected alternatives don't get
 
 ## Next steps (priority order)
 
-1. **Backend cleanup** — drop the two safety-net columns now that reads use the join tables: `movies.genres TEXT[]` and `movies.cast_members JSONB`, each with its dual-write in `add_movie`. Do them together (new migration `006_*`). Optionally fold in the connection-boilerplate refactor (the repeated `pool.connection()/cursor()` pair) while in there.
+1. **Backend cleanup** — drop the two safety-net columns now that reads use the join tables: `movies.genres TEXT[]` and `movies.cast_members JSONB`, each with its dual-write in `add_movie`. Do them together (new migration `006_*`). _(The connection-boilerplate refactor is done: repos now use a shared `cursor()` async context manager in `app/db.py` instead of the nested `pool.connection()/cursor()` pair.)_
 2. **Frontend updates** — render the new credits on the movie detail (`directors`/`writers`/`sourceAuthors` + `castMembers` now come from `GET /movies/{id}`; `MovieMetaDl.vue` is the natural home), plus the standing frontend todos + feature ideas below.
 3. **Tests (none exist yet)** — set up unit + integration tests. Likely `pytest` + `pytest-asyncio` for the api against an ephemeral Postgres; good first targets are the transform/allowlist logic (`tmdb_people_transform`) and the `insert_movie_people` upsert. Frontend: TBD (Vitest).
+4. **Poster slug rule is inconsistent** — DB `poster_path` (from the old TS server, ASCII-only `\w`) and on-disk files (from `backfill_posters.py`, Python Unicode `\w`) disagree on non-ASCII titles. Only Tár was actually broken and it's manually fixed. Remaining work is preventative: unify on one canonical slug in `app/utils.py:to_filename` (lean ASCII-only via `unicodedata.normalize("NFKD",…).encode("ascii","ignore")`).
 
 Minor deferred prod tweak: mkdir `images_dir` in the api `lifespan` with `exist_ok=True` (currently the dir must already exist — fine in prod since the volume provides it, and in dev since `public/images` is committed). `PORT` in the Dockerfile CMD is already done.
 

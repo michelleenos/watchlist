@@ -13,9 +13,6 @@ from app.exceptions import DuplicateMovieError, TMDBError
 from app.logging_config import configure_logging
 from app.routes import auth, decades, genres, languages, movies, tmdb
 
-# logging.basicConfig(
-#     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-# )
 configure_logging()
 logger = logging.getLogger(__name__)
 
@@ -27,9 +24,6 @@ async def lifespan(app: FastAPI):
     yield
     await pool.close()
 
-
-# in repositories:
-# async with pool.connection() as conn:
 
 app = FastAPI(lifespan=lifespan)
 
