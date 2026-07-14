@@ -12,6 +12,7 @@ export const sampleMovies: MovieFull[] = [
         id: 1,
         posterPath: '/2001-a-space-odyssey.webp',
         issues: [],
+        watched: false,
     },
     {
         name: "Breakfast at Tiffany's",
@@ -26,6 +27,7 @@ export const sampleMovies: MovieFull[] = [
         id: 2,
         issues: [],
         posterPath: '/breakfast-at-tiffanys.webp',
+        watched: false,
     },
     {
         name: "I'm Still Here",
@@ -38,6 +40,7 @@ export const sampleMovies: MovieFull[] = [
         originalTitle: 'Ainda Estou Aqui',
         issues: [],
         id: 3,
+        watched: false,
     },
 ]
 
