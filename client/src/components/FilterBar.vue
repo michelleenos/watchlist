@@ -10,7 +10,7 @@ import AppToggle from './AppToggle.vue'
 import type { MovieView } from '../types/index.ts'
 import { toReactive } from '@vueuse/core'
 
-const { moviesData } = useMovies()
+const { filterOptions } = useMovies()
 
 defineProps<{
     counts?: { shown: number; total: number }
@@ -183,16 +183,16 @@ const onLeave = (el: Element) => {
                                 label="Watched" />
                             <FilterItems
                                 v-model="filters.decades"
-                                :options="moviesData.decades"
+                                :options="filterOptions.decades"
                                 label="Decades" />
                             <FilterItems
                                 v-model="filters.languages"
                                 class=""
-                                :options="moviesData.languages"
+                                :options="filterOptions.languages"
                                 label="Languages" />
                             <FilterItems
                                 v-model="filters.genres"
-                                :options="moviesData.genres"
+                                :options="filterOptions.genres"
                                 label="Genres" />
                         </div>
                     </div>

@@ -2,33 +2,14 @@ import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import AddMovie from '../components/AddMovie.vue'
 import { useMovies } from '../composables/useMovies.ts'
 import { mocked } from 'storybook/test'
-import { sampleMovies } from './support/movies.fixtures.ts'
-import { ref } from 'vue'
+import { makeUseMoviesMock } from './support/useMovies.mock.ts'
 
 const meta = {
     title: 'AddMovie',
     component: AddMovie,
     tags: ['autodocs'],
     beforeEach: () => {
-        mocked(useMovies).mockReturnValue({
-            moviesData: {
-                movies: sampleMovies,
-                genres: [
-                    'Adventure',
-                    'Comedy',
-                    'Drama',
-                    'History',
-                    'Mystery',
-                    'Romance',
-                    'Science Fiction',
-                ],
-                decades: [1960, 2020].map((d) => ({ value: d, label: `${d}s` })),
-                languages: ['English', 'Portuguese'],
-            },
-            refresh: async () => {},
-            error: ref(false),
-            loading: ref(false),
-        })
+        mocked(useMovies).mockReturnValue(makeUseMoviesMock())
     },
 } satisfies Meta<typeof AddMovie>
 

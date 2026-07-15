@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, useTemplateRef } from 'vue'
-import type { MovieFull, TMDBSearchResult } from '../types'
+import type { TMDBSearchResult } from '../types'
 import { Icon } from '@iconify/vue'
 import AppBtn from './AppBtn.vue'
 import AppTypography from './AppTypography.vue'
@@ -8,10 +8,11 @@ import LoadingSpinner from './LoadingSpinner.vue'
 import AppDialog from './AppDialog.vue'
 import { useToast } from '../composables/useToast'
 import { useMovies } from '../composables/useMovies'
+import { searchTmdb, createMovie } from '../api'
 
-const { moviesData, refresh } = useMovies()
+const { movies, refreshMovies } = useMovies()
 
-const existingTmdbIds = computed(() => new Set(moviesData.movies.map((m) => m.tmdbId)))
+const existingTmdbIds = computed(() => new Set(movies.value.map((m) => m.tmdbId)))
 
 const dialog = useTemplateRef('dialog')
 const searchInput = ref('')
@@ -34,9 +35,7 @@ const search = async () => {
     searching.value = true
     searchError.value = false
     try {
-        const res = await fetch(`/api/tmdb/search?name=${encodeURIComponent(searchName.value)}`)
-        if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`)
-        searchResults.value = await res.json()
+        searchResults.value = await searchTmdb(searchName.value)
     } catch (err) {
         console.error(err)
         searchError.value = true
@@ -48,14 +47,8 @@ const search = async () => {
 const addMovie = async (tmdbId: number) => {
     adding.value = tmdbId
     try {
-        const res = await fetch(`/api/movies`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tmdbId }),
-        })
-        if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`)
-        const movie = (await res.json()) as MovieFull
-        refresh()
+        const movie = await createMovie(tmdbId)
+        refreshMovies()
         toasts.add({ html: `added movie <strong>${movie.name}</strong>` })
         close()
     } catch (err) {

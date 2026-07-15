@@ -8,6 +8,7 @@ import { useAuth } from '../composables/useAuth.ts'
 import AuthFooter from '../components/AuthFooter.vue'
 import FilterBar from '../components/FilterBar.vue'
 import MoviesList from '../components/MoviesList.vue'
+import LoadingSpinner from '../components/LoadingSpinner.vue'
 import type { MovieView } from '../types/index.ts'
 import { useModalOpen } from '../composables/useModalOpen.ts'
 
@@ -21,13 +22,13 @@ let viewOpts = reactive<MovieView>({
     compactView: false,
 })
 
-const { moviesData, loading } = useMovies()
+const { movies, loading, initialized } = useMovies()
 const { authState } = useAuth()
 const { modalOpen } = useModalOpen()
 
 const shownMovies = computed(() => {
     const { genres, decades, languages } = viewOpts.filters
-    return [...moviesData.movies].filter((movie) => {
+    return [...movies.value].filter((movie) => {
         if (viewOpts.filters.watched !== null) {
             if (viewOpts.filters.watched === 'Watched' && !movie.watched) return false
             if (viewOpts.filters.watched === 'Unwatched' && movie.watched) return false
@@ -64,15 +65,30 @@ const shownMovies = computed(() => {
             <h1 class="text-2xl text-brass">watchlist</h1>
             <AddMovie v-if="authState.authenticated" />
         </div>
-        <div v-if="loading">LOADING</div>
+        <div
+            v-if="!initialized"
+            class="flex flex-col items-center justify-center gap-4 py-32 text-brown-500">
+            <LoadingSpinner />
+            <p class="text-sm tracking-wide">Loading watchlist…</p>
+        </div>
         <div v-else>
             <div class="sticky top-2 z-99 my-4">
                 <FilterBar
                     v-model="viewOpts"
-                    :counts="{ shown: shownMovies.length, total: moviesData.movies.length }" />
+                    :counts="{ shown: shownMovies.length, total: movies.length }" />
             </div>
 
-            <MoviesList :movies="shownMovies" :compact="viewOpts.compactView" />
+            <div class="relative">
+                <MoviesList
+                    :movies="shownMovies"
+                    :compact="viewOpts.compactView"
+                    :class="loading && 'pointer-events-none opacity-40 transition-opacity'" />
+                <div
+                    v-if="loading"
+                    class="pointer-events-none absolute inset-0 flex justify-center pt-16">
+                    <LoadingSpinner />
+                </div>
+            </div>
         </div>
     </div>
     <AuthFooter />

@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import FilterBar from '../components/FilterBar.vue'
 import { mocked } from 'storybook/test'
 import { useMovies } from '../composables/useMovies.ts'
-import { ref } from 'vue'
+import { makeUseMoviesMock } from './support/useMovies.mock.ts'
+import { reactive } from 'vue'
 
 const meta = {
     title: 'FilterBar',
@@ -24,17 +25,15 @@ const meta = {
         },
     },
     beforeEach: () => {
-        mocked(useMovies).mockReturnValue({
-            moviesData: {
-                movies: [],
-                genres: ['Action', 'Adventure', 'Comedy', 'Science Fiction'],
-                decades: [1960, 1970, 1990, 2020].map((d) => ({ value: d, label: `${d}s` })),
-                languages: ['English', 'Portuguese'],
-            },
-            error: ref(false),
-            loading: ref(false),
-            refresh: () => new Promise<void>((res) => res()),
-        })
+        mocked(useMovies).mockReturnValue(
+            makeUseMoviesMock({
+                filterOptions: reactive({
+                    genres: ['Action', 'Adventure', 'Comedy', 'Science Fiction'],
+                    decades: [1960, 1970, 1990, 2020].map((d) => ({ value: d, label: `${d}s` })),
+                    languages: ['English', 'Portuguese'],
+                }),
+            }),
+        )
     },
 } satisfies Meta<typeof FilterBar>
 

@@ -16,6 +16,7 @@ import AppToggle from '../components/AppToggle.vue'
 import { useToast } from '../composables/useToast.ts'
 import { useMovies } from '../composables/useMovies.ts'
 import { useAuth } from '../composables/useAuth.ts'
+import { getMovie, patchMovie, deleteMovie as deleteMovieApi } from '../api.ts'
 import PageSidePanel from '../components/PageSidePanel.vue'
 
 const route = useRoute()
@@ -27,13 +28,12 @@ const dialog = useTemplateRef('dialog')
 const confirmingDelete = ref(false)
 const deleting = ref(false)
 const toasts = useToast()
-const { refresh } = useMovies()
+const { patchMovieInList, removeMovieFromList } = useMovies()
 const { authState } = useAuth()
 
 async function fetchMovie(id: string) {
     try {
-        const movieRes = await fetch(`/api/movies/${id}`).then((res) => res.json())
-        movie.value = movieRes
+        movie.value = await getMovie(id)
         loading.value = false
         error.value = false
     } catch (err) {
@@ -69,17 +69,11 @@ function onWatchedRowClick(e: MouseEvent) {
 async function setWatched(value: boolean) {
     if (!movie.value) return
     const prev = movie.value.watched
+    const id = movie.value.id
     movie.value.watched = value
     try {
-        const res = await fetch(`/api/movies/${movie.value.id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ watched: value }),
-        })
-        if (!res.ok) {
-            throw new Error(`${res.status}: ${res.statusText}`)
-        }
-        refresh()
+        await patchMovie(id, { watched: value })
+        patchMovieInList(id, { watched: value })
     } catch (err) {
         console.error(err)
         if (movie.value) movie.value.watched = prev
@@ -91,14 +85,11 @@ async function deleteMovie() {
     if (!movie.value) return
     deleting.value = true
     const movieName = movie.value.name
+    const id = movie.value.id
     try {
-        const res = await fetch(`/api/movies/${movie.value.id}`, { method: 'DELETE' })
-        if (!res.ok) {
-            console.error(`error deleting movie: ${res.status}: ${res.statusText}`)
-            throw new Error(`${res.status}: ${res.statusText}`)
-        }
+        await deleteMovieApi(id)
         toasts.add({ html: `deleted movie <strong>${movieName}</strong>` })
-        refresh()
+        removeMovieFromList(id)
         router.back()
     } catch (err) {
         console.error(err)
