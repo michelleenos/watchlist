@@ -73,8 +73,8 @@
 
     --color-brown-darkest: #16100c;
 
-    /* --color-brass: #d8a24a; */
-    --color-brass: #f0a731;
+    --color-brass: #d8a24a;
+    /* --color-brass: #f0a731; */
 
     --text-xs: 0.625rem;
     --text-xs--line-height: calc(1 / 0.75);
@@ -149,15 +149,12 @@
     }
 }
 
-/* 
-
-
-
-
-AddMovie list: 
-- divide-brown-900
-- diff varietires of text brown
-
-MovieSingle 
-- divider is border-brown-800
-*/
+/* dev: make Tailwind breakpoints visible in DevTools media query bars */
+/* prettier-ignore */
+@media (min-width: 640px) { body { --bp: sm; } }
+/* prettier-ignore */
+@media (min-width: 768px) { body { --bp: md; } }
+/* prettier-ignore */
+@media (min-width: 1024px) { body { --bp: lg; } }
+/* prettier-ignore */
+@media (min-width: 1280px) { body { --bp: xl; } }

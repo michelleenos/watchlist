@@ -11,6 +11,13 @@ export interface MovieFilters {
     genres: string[]
     decades: number[]
     languages: string[]
+    /** null = show all, true = watched only, false = unwatched only */
+    watched: boolean | null
+}
+
+export interface MovieView {
+    filters: MovieFilters
+    compactView: boolean
 }
 
 export type AuthStatus = UserAuthenticated | UserUnauthenticated

@@ -9,12 +9,16 @@ import { useToast } from '../composables/useToast'
 const { authState, login, logout } = useAuth()
 const toasts = useToast()
 const dialog = useTemplateRef('dialog')
+// const usernameInput = useTemplateRef('username-input')
 
 const username = ref('')
 const password = ref('')
 const submitting = ref(false)
 
-const open = () => dialog.value?.open()
+const open = () => {
+    dialog.value?.open()
+    // usernameInput.value?.focus()
+}
 
 const onClose = () => {
     username.value = ''
@@ -67,12 +71,14 @@ async function onLogout() {
 
     <AppDialog ref="dialog" @close="onClose">
         <form class="flex flex-col gap-6 px-8 py-8" @submit.prevent="submit">
-            <AppTypography variant="caps">Log In</AppTypography>
+            <AppTypography variant="caps-mono">Log In</AppTypography>
 
             <label class="flex flex-col gap-2 text-sm text-brown-400">
                 Username
                 <input
                     v-model="username"
+                    required
+                    autofocus
                     type="text"
                     name="username"
                     autocomplete="username"
@@ -83,6 +89,7 @@ async function onLogout() {
                 Password
                 <input
                     v-model="password"
+                    required
                     type="password"
                     name="password"
                     autocomplete="current-password"

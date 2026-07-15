@@ -3,6 +3,7 @@ import AppTypography from '../components/AppTypography.vue'
 
 const variants = [
     'serif-lg',
+    'serif-md',
     'serif-sm',
     'body',
     'body-sm',
@@ -10,7 +11,7 @@ const variants = [
     'body-muted-sm',
     'tagline',
     'tagline-lg',
-    'caps',
+    'caps-mono',
 ] as const
 
 const meta = {

@@ -1,35 +1,36 @@
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
 import AppTypography from './AppTypography.vue'
 
 withDefaults(
     defineProps<{
         title: string
         originalTitle?: string | null
-        link?: string
-        size?: 'base' | 'lg'
+        size?: 'base' | 'lg' | 'sm'
         tag?: string
     }>(),
-    { size: 'base', tag: 'h3', originalTitle: undefined, link: undefined },
+    { size: 'base', tag: 'h3', originalTitle: undefined },
 )
 </script>
 
 <template>
     <AppTypography
         :tag="tag"
-        :variant="size === 'base' ? 'serif-sm' : 'serif-lg'"
+        :variant="
+            size === 'lg' ? 'serif-lg'
+            : size === 'sm' ? 'serif-sm'
+            : 'serif-md'
+        "
         class="flex flex-wrap items-baseline gap-x-4">
-        <RouterLink v-if="link" :to="link">
-            {{ title }}
-            <span v-if="originalTitle" :class="size === 'base' ? 'text-lg' : 'text-2xl'">
-                ({{ originalTitle }})
-            </span>
-        </RouterLink>
-        <template v-else>
-            {{ title }}
-            <span v-if="originalTitle" :class="size === 'base' ? 'text-lg' : 'text-2xl'">
-                ({{ originalTitle }})
-            </span>
-        </template>
+        {{ title }}
+        <span
+            v-if="originalTitle"
+            class="text-brown-300"
+            :class="
+                size === 'lg' ? 'text-2xl'
+                : size === 'sm' ? 'text-sm'
+                : 'text-lg'
+            ">
+            ({{ originalTitle }})
+        </span>
     </AppTypography>
 </template>

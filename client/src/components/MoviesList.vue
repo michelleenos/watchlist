@@ -2,18 +2,23 @@
 import type { MovieFull } from '../types'
 import MovieCard from './MovieCard.vue'
 
-defineProps<{
-    movies: MovieFull[]
-}>()
+withDefaults(
+    defineProps<{
+        movies: MovieFull[]
+        compact?: boolean
+    }>(),
+    { compact: false },
+)
 </script>
 
 <template>
-    <div class="grid gap-6 py-8 lg:grid-cols-2">
-        <!-- <div class="col-start-1 -col-end-1">
-            Showing <span class="font-semibold">{{ shownMovies.length }}</span> of
-            <span class="font-semibold">{{ movies.length }}</span>
-        </div> -->
-
-        <MovieCard v-for="movie in movies" :key="movie.name" :movie="movie" />
+    <div
+        class="grid py-8"
+        :class="compact ? 'grid-cols-1 gap-4 xl:grid-cols-2' : 'gap-6 lg:grid-cols-2'">
+        <MovieCard
+            v-for="movie in movies"
+            :key="movie.name"
+            :movie="movie"
+            :style="compact ? 'compact' : 'default'" />
     </div>
 </template>

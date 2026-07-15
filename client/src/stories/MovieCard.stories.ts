@@ -20,12 +20,17 @@ const meta = {
     tags: ['autodocs'],
     args: {
         movie: sampleMovieOptions[0] as unknown as MovieFull,
+        style: 'default',
     },
     argTypes: {
         movie: {
             control: 'select',
             options: sampleMovieOptions,
             mapping: sampleMovieMapping,
+        },
+        style: {
+            control: 'select',
+            options: ['default', 'compact'],
         },
     },
     // render: (args) => ({

@@ -46,12 +46,16 @@ Standing todos:
 - **Loading state on MoviesIndex** is plain "LOADING" text — want spinner/skeleton. Open question: on `refresh()` (every add/delete) the whole list blanks to loading — decide whether to dim/overlay existing content instead and reserve full-blank for initial mount.
 - **Error UI:** `useMovies()` exposes an `error` ref nothing consumes yet — wire it into MoviesIndex (MovieSingle already handles its own).
 - **Re-check add UX** against the backend (poster returned ready; surface `issues[]` on failed poster).
-- **Watched / added-by UI** — backend is ready (`watched`/`addedBy` on movie responses + auth-gated `PATCH /movies/{id}`). Add a watched toggle (PATCH `{ watched }`), show "added by", and a watched filter. Run `pnpm gen:types` first.
+- **FilterBar needs better responsive styling** (the bar + expanded panel don't adapt well at smaller widths).
+- **Rethink when to refresh/reload the movie list** — `useMovies().refresh()` currently refetches everything on every mutation, including toggling "Watched" on MovieSingle (which already updates its own state optimistically — a full list refetch is probably unnecessary there; could patch the one movie in `moviesData.movies` instead). Related to the loading-state todo above (refresh blanks the whole list).
 - **Sort** by (field TBD); maybe revive display options (`client/src/display-options.ts`, retained but unimported).
 - **Extract shared style utilities** — duplicated Tailwind class strings are drifting (e.g. light borders, the input styling repeated in AddMovie search + AuthFooter login form). Extract simple generic classes/components and do a small audit of components to catch subtle differences.
 
 New feature ideas (owner, being considered — not yet scoped):
 
-- **Condensed view option** — a toggle to switch the movie index into a compact list (no posters, tighter rows) as an alternative to the current card grid.
-- **"Added by" and "watched" columns** per movie — **backend done, frontend not yet.** Migration `007` added `movies.added_by VARCHAR(20)` (nullable, no backfill — existing rows are null; set from the authenticated user's `username` on add) and `movies.watched BOOLEAN NOT NULL DEFAULT false`. Both surface in `GET /movies` + `GET /movies/{id}` as `addedBy`/`watched` (`addedBy` omitted when null via `exclude_none`). `PATCH /movies/{id}` (auth-gated) does partial updates via the `MovieUpdate` model — `exclude_unset` means only fields the client sends are written, allowlisted by `MovieUpdate`'s field names; currently just `watched`, extend by adding fields there. **Frontend TODO:** watched check-on/off toggle wired to the PATCH, "added by" display, and a watched filter (see frontend todos). Re-run `pnpm gen:types` (response shape changed) before wiring the client.
 - **Director info on the frontend** — part of the credits-rendering work; make sure director is prominent.
+
+## Done recently (context for current code)
+
+- **Watched / added-by UI is complete** (compact view toggle too): watched badge on MovieCard, `addedBy` in MovieMetaDl, watched toggle row on MovieSingle (optimistic PATCH `{ watched }` + revert-on-error, whole row clickable when authed, read-only when not), and a tri-state watched filter (`filters.watched: boolean | null` on `MovieView`) shown as an All/Watched/Unwatched pill group in FilterBar. `gen:types` already re-run. To make more fields PATCHable, extend the backend `MovieUpdate` model (`exclude_unset` partial updates, field names are the allowlist).
+- **PillItem refactor:** now purely presentational — `interactive` + `active` props (was `selectable` + `peer-checked:*` classes). It no longer depends on a sibling `input.peer`; FilterItems passes `:active="selectedOptions.includes(...)"` and keeps the `peer-focus-visible` focus-ring classes in its own template. Known stale usage: `MovieDebgCard.vue` passes a nonexistent `:content` prop → renders empty pills.

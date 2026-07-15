@@ -6,40 +6,51 @@ import { Icon } from '@iconify/vue'
 import { computed, ref } from 'vue'
 import AppTypography from './AppTypography.vue'
 import PillItem from './PillItem.vue'
-import type { MovieFilters } from '../types/index.ts'
+import AppToggle from './AppToggle.vue'
+import type { MovieView } from '../types/index.ts'
+import { toReactive } from '@vueuse/core'
 
 const { moviesData } = useMovies()
 
 defineProps<{
-    shownCounts?: string
+    counts?: { shown: number; total: number }
 }>()
 
-const filters = defineModel<MovieFilters>({ required: true })
+const view = defineModel<MovieView>({ required: true })
+const { filters } = toReactive(view)
 
 const removeGenre = (genre: string) => {
-    filters.value.genres = filters.value.genres.filter((g) => g !== genre)
+    filters.genres = filters.genres.filter((g) => g !== genre)
 }
 
 const removeDecade = (decade: number) => {
-    filters.value.decades = filters.value.decades.filter((d) => d !== decade)
+    filters.decades = filters.decades.filter((d) => d !== decade)
 }
 
 const removeLanguage = (language: string) => {
-    filters.value.languages = filters.value.languages.filter((d) => d !== language)
+    filters.languages = filters.languages.filter((d) => d !== language)
 }
+
+const watchedOptions: { value: boolean | null; label: string }[] = [
+    { value: null, label: 'All' },
+    { value: true, label: 'Watched' },
+    { value: false, label: 'Unwatched' },
+]
 
 const hasActiveFilters = computed(() => {
     return (
-        filters.value.genres.length > 0 ||
-        filters.value.decades.length > 0 ||
-        filters.value.languages.length > 0
+        filters.genres.length > 0 ||
+        filters.decades.length > 0 ||
+        filters.languages.length > 0 ||
+        filters.watched !== null
     )
 })
 
 const clearAllFilters = () => {
-    filters.value.genres = []
-    filters.value.decades = []
-    filters.value.languages = []
+    filters.genres = []
+    filters.decades = []
+    filters.languages = []
+    filters.watched = null
 }
 
 const isOpen = ref(false)
@@ -88,52 +99,77 @@ const onLeave = (el: Element) => {
                     class="transition-transform duration-200"
                     :class="{ 'rotate-180': isOpen }" />
             </AppBtn>
-            <AppTypography v-if="!hasActiveFilters" variant="caps" class="grow">
-                No Active Filters
-            </AppTypography>
-            <div v-else class="flex grow justify-between gap-4">
-                <ul class="flex gap-2" aria-label="Active Filters">
-                    <PillItem v-for="genre in filters.genres" :key="genre" tag="li" :alt="true">
-                        {{ genre }}
-                        <button
-                            :aria-label="`Remove ${genre} filter`"
-                            class="-mb-0.5 ml-1 cursor-pointer text-brown-300 hover:text-amber-50 focus:text-amber-50"
-                            @click="removeGenre(genre)">
-                            <Icon icon="ri:close-line"></Icon>
-                        </button>
-                    </PillItem>
-                    <PillItem v-for="decade in filters.decades" :key="decade" tag="li" :alt="true">
-                        {{ decade }}
-                        <button
-                            :aria-label="`Remove ${decade} filter`"
-                            class="-mb-0.5 ml-1 cursor-pointer text-brown-300 hover:text-amber-50 focus:text-amber-50"
-                            @click="removeDecade(decade)">
-                            <Icon icon="ri:close-line"></Icon>
-                        </button>
-                    </PillItem>
-                    <PillItem
-                        v-for="language in filters.languages"
-                        :key="language"
-                        tag="li"
-                        :alt="true">
-                        {{ language }}
-                        <button
-                            :aria-label="`Remove ${language} filter`"
-                            class="-mb-0.5 ml-1 cursor-pointer text-brown-300 hover:text-amber-50 focus:text-amber-50"
-                            @click="removeLanguage(language)">
-                            <Icon icon="ri:close-line"></Icon>
-                        </button>
-                    </PillItem>
-                </ul>
-                <AppTypography
-                    variant="body-sm"
-                    tag="button"
-                    class="cursor-pointer underline decoration-dashed underline-offset-4 opacity-70 hover:decoration-brass hover:opacity-100 focus:decoration-brass focus:opacity-100"
-                    @click="clearAllFilters">
-                    Clear All
+            <div class="grow *:max-sm:hidden">
+                <AppTypography v-if="!hasActiveFilters" variant="caps-mono">
+                    No Active Filters
                 </AppTypography>
+                <div v-else class="flex justify-between gap-4">
+                    <ul class="flex gap-2" aria-label="Active Filters">
+                        <PillItem v-for="genre in filters.genres" :key="genre" tag="li" :alt="true">
+                            {{ genre }}
+                            <button
+                                :aria-label="`Remove ${genre} filter`"
+                                class="-mb-0.5 ml-1 cursor-pointer text-brown-300 hover:text-amber-50 focus:text-amber-50"
+                                @click="removeGenre(genre)">
+                                <Icon icon="ri:close-line"></Icon>
+                            </button>
+                        </PillItem>
+                        <PillItem
+                            v-for="decade in filters.decades"
+                            :key="decade"
+                            tag="li"
+                            :alt="true">
+                            {{ decade }}
+                            <button
+                                :aria-label="`Remove ${decade} filter`"
+                                class="-mb-0.5 ml-1 cursor-pointer text-brown-300 hover:text-amber-50 focus:text-amber-50"
+                                @click="removeDecade(decade)">
+                                <Icon icon="ri:close-line"></Icon>
+                            </button>
+                        </PillItem>
+                        <PillItem
+                            v-for="language in filters.languages"
+                            :key="language"
+                            tag="li"
+                            :alt="true">
+                            {{ language }}
+                            <button
+                                :aria-label="`Remove ${language} filter`"
+                                class="-mb-0.5 ml-1 cursor-pointer text-brown-300 hover:text-amber-50 focus:text-amber-50"
+                                @click="removeLanguage(language)">
+                                <Icon icon="ri:close-line"></Icon>
+                            </button>
+                        </PillItem>
+                        <PillItem v-if="filters.watched !== null" tag="li" :alt="true">
+                            {{ filters.watched ? 'Watched' : 'Unwatched' }}
+                            <button
+                                aria-label="Remove watched filter"
+                                class="-mb-0.5 ml-1 cursor-pointer text-brown-300 hover:text-amber-50 focus:text-amber-50"
+                                @click="filters.watched = null">
+                                <Icon icon="ri:close-line"></Icon>
+                            </button>
+                        </PillItem>
+                    </ul>
+                    <AppTypography
+                        variant="body-sm"
+                        tag="button"
+                        class="cursor-pointer underline decoration-dashed underline-offset-4 opacity-70 hover:decoration-brass hover:opacity-100 focus:decoration-brass focus:opacity-100"
+                        @click="clearAllFilters">
+                        Clear All
+                    </AppTypography>
+                </div>
             </div>
-            <AppTypography v-if="shownCounts" variant="body-sm">{{ shownCounts }}</AppTypography>
+            <div class="flex *:py-2">
+                <p
+                    v-if="counts"
+                    class="relative shrink-0 border-r border-subtle pr-3 text-sm text-brown-500">
+                    <span class="text-brown-100"> {{ counts.shown }}</span> / {{ counts.total }}
+                </p>
+                <AppToggle
+                    v-model="view.compactView"
+                    label="Compact"
+                    class="shrink-0 pl-3 first:pl-0" />
+            </div>
         </div>
         <Transition
             name="filter-expand"
@@ -141,19 +177,45 @@ const onLeave = (el: Element) => {
             @after-enter="onAfterEnter"
             @leave="onLeave">
             <div v-show="isOpen" id="filter-bar-contents">
-                <div class="flex gap-4 border-t border-subtle px-4 py-4">
-                    <FilterItems
-                        v-model="filters.genres"
-                        :options="moviesData.genres"
-                        label="Genres" />
-                    <FilterItems
-                        v-model="filters.decades"
-                        :options="moviesData.decades"
-                        label="Decades" />
-                    <FilterItems
-                        v-model="filters.languages"
-                        :options="moviesData.languages"
-                        label="Languages" />
+                <div class="border-t border-subtle px-4 pt-2 pb-4">
+                    <AppTypography
+                        tag="button"
+                        variant="body-sm"
+                        class="cursor-pointer underline decoration-dashed underline-offset-4 opacity-70 hover:decoration-brass hover:opacity-100 focus:decoration-brass focus:opacity-100"
+                        @click="clearAllFilters">
+                        Clear All
+                    </AppTypography>
+                    <div class="flex gap-4 pt-2">
+                        <FilterItems
+                            v-model="filters.genres"
+                            :options="moviesData.genres"
+                            label="Genres" />
+                        <FilterItems
+                            v-model="filters.decades"
+                            :options="moviesData.decades"
+                            label="Decades" />
+                        <FilterItems
+                            v-model="filters.languages"
+                            :options="moviesData.languages"
+                            label="Languages" />
+                        <fieldset class="relative">
+                            <legend class="contents font-mono text-sm text-brown-600">
+                                Watched
+                            </legend>
+                            <div class="mt-2 flex flex-wrap content-start items-start gap-2">
+                                <PillItem
+                                    v-for="opt in watchedOptions"
+                                    :key="String(opt.value)"
+                                    tag="button"
+                                    interactive
+                                    :active="filters.watched === opt.value"
+                                    :aria-pressed="filters.watched === opt.value"
+                                    @click="filters.watched = opt.value">
+                                    {{ opt.label }}
+                                </PillItem>
+                            </div>
+                        </fieldset>
+                    </div>
                 </div>
             </div>
         </Transition>

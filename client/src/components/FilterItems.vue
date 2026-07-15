@@ -40,7 +40,7 @@ function selectAll() {
             <PillItem
                 tag="button"
                 :aria-pressed="isAll"
-                selectable
+                interactive
                 :active="isAll"
                 @click="selectAll">
                 All
@@ -52,7 +52,12 @@ function selectAll() {
                     type="checkbox"
                     :value="optionValue(option)"
                     class="peer sr-only" />
-                <PillItem tag="label" :for="`option-${optionValue(option)}`" selectable>
+                <PillItem
+                    tag="label"
+                    :for="`option-${optionValue(option)}`"
+                    class="peer-focus-visible:outline-2 peer-focus-visible:outline-brass"
+                    interactive
+                    :active="selectedOptions.includes(optionValue(option))">
                     {{ optionLabel(option) }}
                 </PillItem>
             </div>

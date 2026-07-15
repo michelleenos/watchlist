@@ -84,7 +84,7 @@ const clearResults = () => {
         <div class="flex max-h-[80vh] flex-col">
             <div class="shrink-0 px-8 pt-8 pb-6">
                 <div class="mb-6 flex items-center justify-between">
-                    <AppTypography variant="caps">Add Movie</AppTypography>
+                    <AppTypography variant="caps-mono">Add Movie</AppTypography>
                 </div>
 
                 <!-- Search input -->

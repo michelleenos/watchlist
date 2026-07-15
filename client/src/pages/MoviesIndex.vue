@@ -7,19 +7,25 @@ import { useMovies } from '../composables/useMovies.ts'
 import { useAuth } from '../composables/useAuth.ts'
 import FilterBar from '../components/FilterBar.vue'
 import MoviesList from '../components/MoviesList.vue'
+import type { MovieView } from '../types/index.ts'
 
-let filters = reactive<{ genres: string[]; decades: number[]; languages: string[] }>({
-    genres: [],
-    decades: [],
-    languages: [],
+let viewOpts = reactive<MovieView>({
+    filters: {
+        genres: [],
+        decades: [],
+        languages: [],
+        watched: null,
+    },
+    compactView: false,
 })
 
 const { moviesData, loading } = useMovies()
 const { authState } = useAuth()
 
 const shownMovies = computed(() => {
-    const { genres, decades, languages } = filters
+    const { genres, decades, languages, watched } = viewOpts.filters
     return [...moviesData.movies].filter((movie) => {
+        if (watched !== null && movie.watched !== watched) return false
         if (decades.length > 0) {
             if (!movie.year) return false
             const year = movie.year
@@ -38,7 +44,7 @@ const shownMovies = computed(() => {
         }
         if (genres.length > 0) {
             if (!movie.genres) return false
-            if (!movie.genres.some((movieGenre) => filters.genres.includes(movieGenre)))
+            if (!movie.genres.some((movieGenre) => viewOpts.filters.genres.includes(movieGenre)))
                 return false
         }
         return true
@@ -56,15 +62,11 @@ const shownMovies = computed(() => {
         <div v-else>
             <div class="sticky top-2 z-99 my-4">
                 <FilterBar
-                    v-model="filters"
-                    :barText="`${shownMovies.length} / ${moviesData.movies.length}`" />
+                    v-model="viewOpts"
+                    :counts="{ shown: shownMovies.length, total: moviesData.movies.length }" />
             </div>
 
-            <div class="col-start-1 -col-end-1">
-                Showing <span class="font-semibold">{{ shownMovies.length }}</span> of
-                <span class="font-semibold">{{ moviesData.movies.length }}</span>
-            </div>
-            <MoviesList :movies="shownMovies" :filters="filters" />
+            <MoviesList :movies="shownMovies" :compact="viewOpts.compactView" />
 
             <!-- <div class="grid gap-6 py-8 lg:grid-cols-2">
 

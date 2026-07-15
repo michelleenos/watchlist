@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { onMounted, ref, useTemplateRef, watch } from 'vue'
+import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { Icon } from '@iconify/vue'
 import type { MovieFull } from '../types'
 import MoviePoster from '../components/MoviePoster.vue'
 import MovieTagline from '../components/MovieTagline.vue'
@@ -11,6 +12,7 @@ import PillItem from '../components/PillItem.vue'
 import AppTypography from '../components/AppTypography.vue'
 import AppDialog from '../components/AppDialog.vue'
 import AppBtn from '../components/AppBtn.vue'
+import AppToggle from '../components/AppToggle.vue'
 import { useToast } from '../composables/useToast.ts'
 import { useMovies } from '../composables/useMovies.ts'
 import { useAuth } from '../composables/useAuth.ts'
@@ -49,6 +51,40 @@ watch(
     () => route.params.id,
     async (newId) => fetchMovie(newId as string),
 )
+
+const watched = computed({
+    get: () => movie.value?.watched ?? false,
+    set: (value) => setWatched(value),
+})
+
+function onWatchedRowClick(e: MouseEvent) {
+    if (!authState.authenticated) return
+    // Clicks on the AppToggle label toggle the checkbox natively; only handle
+    // clicks landing elsewhere in the row so they don't double-toggle.
+    if ((e.target as HTMLElement).closest('label')) return
+    watched.value = !watched.value
+}
+
+async function setWatched(value: boolean) {
+    if (!movie.value) return
+    const prev = movie.value.watched
+    movie.value.watched = value
+    try {
+        const res = await fetch(`/api/movies/${movie.value.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ watched: value }),
+        })
+        if (!res.ok) {
+            throw new Error(`${res.status}: ${res.statusText}`)
+        }
+        refresh()
+    } catch (err) {
+        console.error(err)
+        if (movie.value) movie.value.watched = prev
+        toasts.add('error updating watched status', 'error')
+    }
+}
 
 async function deleteMovie() {
     if (!movie.value) return
@@ -100,7 +136,32 @@ async function deleteMovie() {
                             :original-title="movie.originalTitle" />
                         <MovieTagline size="lg" class="mt-2">{{ movie.tagline }}</MovieTagline>
                     </header>
-                    <MovieMetaDl :movie="movie" />
+                    <div
+                        class="flex items-center justify-between gap-4 rounded-lg border border-brass/50 px-4 py-3"
+                        :class="authState.authenticated && 'cursor-pointer select-none'"
+                        @click="onWatchedRowClick">
+                        <div class="flex items-center gap-3">
+                            <div
+                                aria-hidden="true"
+                                class="flex size-6 items-center justify-center rounded-full transition-colors"
+                                :class="
+                                    movie.watched ? 'bg-brass text-brown-950' : (
+                                        'bg-brown-800 text-brown-600'
+                                    )
+                                ">
+                                <Icon icon="ri:check-line" />
+                            </div>
+                            <span class="text-brown-100">{{
+                                movie.watched ? 'Watched' : 'Not Watched Yet'
+                            }}</span>
+                        </div>
+                        <AppToggle
+                            v-if="authState.authenticated"
+                            v-model="watched"
+                            label="Watched"
+                            hide-label />
+                    </div>
+                    <MovieMetaDl :movie="movie" class="border-y border-subtle py-3" />
                     <AppTypography v-if="movie.description" variant="body">
                         {{ movie.description }}
                     </AppTypography>

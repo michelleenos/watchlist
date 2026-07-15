@@ -10,11 +10,18 @@ const meta = {
     tags: ['autodocs'],
     args: {
         modelValue: {
-            genres: [],
-            decades: [],
-            languages: [],
+            filters: {
+                genres: [],
+                decades: [],
+                languages: [],
+                watched: null,
+            },
+            compactView: false,
         },
-        shownCounts: '12 / 40',
+        counts: {
+            shown: 12,
+            total: 40,
+        },
     },
     beforeEach: () => {
         mocked(useMovies).mockReturnValue({
