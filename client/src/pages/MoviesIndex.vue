@@ -5,9 +5,11 @@ import { computed, reactive } from 'vue'
 import AddMovie from '../components/AddMovie.vue'
 import { useMovies } from '../composables/useMovies.ts'
 import { useAuth } from '../composables/useAuth.ts'
+import AuthFooter from '../components/AuthFooter.vue'
 import FilterBar from '../components/FilterBar.vue'
 import MoviesList from '../components/MoviesList.vue'
 import type { MovieView } from '../types/index.ts'
+import { useModalOpen } from '../composables/useModalOpen.ts'
 
 let viewOpts = reactive<MovieView>({
     filters: {
@@ -21,6 +23,7 @@ let viewOpts = reactive<MovieView>({
 
 const { moviesData, loading } = useMovies()
 const { authState } = useAuth()
+const { modalOpen } = useModalOpen()
 
 const shownMovies = computed(() => {
     const { genres, decades, languages, watched } = viewOpts.filters
@@ -53,7 +56,7 @@ const shownMovies = computed(() => {
 </script>
 
 <template>
-    <div class="mx-auto max-w-11/12 2xl:max-w-352">
+    <div class="mx-auto max-w-11/12 2xl:max-w-352" :inert="$route.matched.length > 1 || modalOpen">
         <div class="flex items-center justify-between border-b border-b-brown-700 pt-12 pb-8">
             <h1 class="text-2xl text-brass">watchlist</h1>
             <AddMovie v-if="authState.authenticated" />
@@ -67,13 +70,8 @@ const shownMovies = computed(() => {
             </div>
 
             <MoviesList :movies="shownMovies" :compact="viewOpts.compactView" />
-
-            <!-- <div class="grid gap-6 py-8 lg:grid-cols-2">
-
-                <MovieCard v-for="movie in shownMovies" :key="movie.name" :movie="movie" />
-            </div> -->
         </div>
-
-        <RouterView />
     </div>
+    <AuthFooter />
+    <RouterView />
 </template>

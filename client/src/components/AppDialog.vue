@@ -39,7 +39,7 @@ defineExpose({ open, close })
 <template>
     <dialog
         ref="dialog"
-        class="dialog"
+        class="dialog-backdrop dialog-content"
         :class="
             pageSide ?
                 'fixed top-0 right-0 bottom-0 ml-auto h-screen max-h-screen w-full max-w-150 md:w-8/12 md:border-l lg:w-6/12'

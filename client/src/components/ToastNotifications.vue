@@ -9,7 +9,7 @@ const { toasts, dismiss } = useToast()
     <TransitionGroup
         name="toasts"
         tag="div"
-        class="pointer-events-none fixed top-6 right-6 bottom-6 left-6 z-99 flex w-72 max-w-72 flex-col justify-end gap-2">
+        class="pointer-events-none fixed top-6 right-6 bottom-6 left-6 z-999 flex w-72 max-w-72 flex-col justify-end gap-2">
         <div
             v-for="toast in toasts"
             :key="toast.id"

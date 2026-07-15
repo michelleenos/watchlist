@@ -1,41 +1,35 @@
 <script setup lang="ts">
 import { ref, useTemplateRef } from 'vue'
-import AppBtn from './AppBtn.vue'
-import AppDialog from './AppDialog.vue'
-import AppTypography from './AppTypography.vue'
+
 import { useAuth } from '../composables/useAuth'
 import { useToast } from '../composables/useToast'
+import AppModal from './AppModal.vue'
+import AuthLoginForm from './AuthLoginForm.vue'
 
-const { authState, login, logout } = useAuth()
+const { authState, logout } = useAuth()
 const toasts = useToast()
-const dialog = useTemplateRef('dialog')
+// const dialog = useTemplateRef('dialog')
 // const usernameInput = useTemplateRef('username-input')
 
-const username = ref('')
-const password = ref('')
-const submitting = ref(false)
+// const username = ref('')
+// const password = ref('')
+// const submitting = ref(false)
+const modalShown = ref(false)
+const button = useTemplateRef('button')
 
 const open = () => {
-    dialog.value?.open()
+    // dialog.value?.open()
+    modalShown.value = true
     // usernameInput.value?.focus()
 }
 
 const onClose = () => {
-    username.value = ''
-    password.value = ''
+    button.value?.focus()
 }
 
-async function submit() {
-    if (!username.value.trim() || !password.value || submitting.value) return
-    submitting.value = true
-    const ok = await login(username.value.trim(), password.value)
-    submitting.value = false
-    if (ok) {
-        toasts.add({ html: `logged in as <strong>${authState.user?.username}</strong>` })
-        dialog.value?.close()
-    } else {
-        toasts.add('login failed', 'error')
-    }
+function closeModal() {
+    modalShown.value = false
+    onClose()
 }
 
 async function onLogout() {
@@ -55,22 +49,25 @@ async function onLogout() {
                 </span>
                 <span aria-hidden="true">·</span>
                 <button
-                    class="cursor-pointer transition-colors hover:text-brown-300"
+                    ref="button"
+                    class="focus-visible-outline cursor-pointer transition-colors hover:text-brown-300"
                     @click="onLogout">
                     log out
                 </button>
             </template>
             <button
                 v-else
-                class="cursor-pointer transition-colors hover:text-brown-300"
+                ref="button"
+                class="focus-visible-outline cursor-pointer transition-colors hover:text-brown-300"
                 @click="open">
                 log in
             </button>
         </div>
     </footer>
 
-    <AppDialog ref="dialog" @close="onClose">
-        <form class="flex flex-col gap-6 px-8 py-8" @submit.prevent="submit">
+    <AppModal v-if="modalShown" ref="dialog" @request-close="closeModal">
+        <AuthLoginForm :autofocus-input="true" class="p-8" @login-success="closeModal()" />
+        <!-- <form class="flex flex-col gap-6 px-8 py-8" method="POST" @submit.prevent="submit">
             <AppTypography variant="caps-mono">Log In</AppTypography>
 
             <label class="flex flex-col gap-2 text-sm text-brown-400">
@@ -101,6 +98,6 @@ async function onLogout() {
                     {{ submitting ? 'Logging in…' : 'Log in' }}
                 </AppBtn>
             </div>
-        </form>
-    </AppDialog>
+        </form> -->
+    </AppModal>
 </template>

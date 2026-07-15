@@ -10,12 +10,13 @@ import MovieTitle from '../components/MovieTitle.vue'
 import MovieMetaDl from '../components/MovieMetaDl.vue'
 import PillItem from '../components/PillItem.vue'
 import AppTypography from '../components/AppTypography.vue'
-import AppDialog from '../components/AppDialog.vue'
+// import AppDialog from '../components/AppDialog.vue'
 import AppBtn from '../components/AppBtn.vue'
 import AppToggle from '../components/AppToggle.vue'
 import { useToast } from '../composables/useToast.ts'
 import { useMovies } from '../composables/useMovies.ts'
 import { useAuth } from '../composables/useAuth.ts'
+import PageSidePanel from '../components/PageSidePanel.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -109,7 +110,8 @@ async function deleteMovie() {
 </script>
 
 <template>
-    <AppDialog ref="dialog" pageSide @close="$router.back()">
+    <PageSidePanel @request-close="$router.back()">
+        <!-- <AppDialog ref="dialog" pageSide @close="$router.back()"> -->
         <div class="px-8 py-12">
             <div v-if="loading" class="flex h-full w-full items-center justify-center">
                 <LoadingSpinner />
@@ -192,5 +194,5 @@ async function deleteMovie() {
                 </div>
             </div>
         </div>
-    </AppDialog>
+    </PageSidePanel>
 </template>

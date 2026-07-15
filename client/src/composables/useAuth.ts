@@ -69,5 +69,6 @@ export function useAuth() {
         initialized = true
         fetchAuthStatus()
     }
+    // TODO wrap stuff in readonly
     return { authState, login, logout, refresh: fetchAuthStatus, loading, error }
 }

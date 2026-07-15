@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import ToastNotifications from './components/ToastNotifications.vue'
-import AuthFooter from './components/AuthFooter.vue'
-// import ToastTest from './components/ToastTest.vue'
 </script>
 
 <template>
@@ -10,6 +8,5 @@ import AuthFooter from './components/AuthFooter.vue'
         <div class="flex-1">
             <RouterView />
         </div>
-        <AuthFooter />
     </div>
 </template>

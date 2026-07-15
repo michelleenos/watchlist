@@ -126,7 +126,7 @@
     }
 
     .focus-visible-outline {
-        @apply focus:outline-brass focus:not-focus-visible:outline-none focus-visible:outline-brass;
+        @apply outline-offset-3 focus:outline-2 focus:outline-solid focus:not-focus-visible:outline-none focus-visible:outline-brass;
     }
 
     .text-input {
@@ -137,11 +137,13 @@
         @apply focus:border-brass focus:outline-none;
     }
 
-    .dialog {
-        @apply border-subtle;
-        @apply bg-transparent bg-linear-to-tr from-taupe-950/50 to-brown-950;
+    .dialog-backdrop {
         @apply backdrop:bg-black/60 backdrop:backdrop-blur-sm;
-        @apply text-brown-100;
+    }
+
+    .dialog-content {
+        @apply bg-transparent bg-linear-to-tr from-taupe-950/50 to-brown-950;
+        @apply border-subtle text-brown-100;
     }
 
     .card {
