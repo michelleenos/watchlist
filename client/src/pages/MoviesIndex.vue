@@ -26,9 +26,12 @@ const { authState } = useAuth()
 const { modalOpen } = useModalOpen()
 
 const shownMovies = computed(() => {
-    const { genres, decades, languages, watched } = viewOpts.filters
+    const { genres, decades, languages } = viewOpts.filters
     return [...moviesData.movies].filter((movie) => {
-        if (watched !== null && movie.watched !== watched) return false
+        if (viewOpts.filters.watched !== null) {
+            if (viewOpts.filters.watched === 'Watched' && !movie.watched) return false
+            if (viewOpts.filters.watched === 'Unwatched' && movie.watched) return false
+        }
         if (decades.length > 0) {
             if (!movie.year) return false
             const year = movie.year

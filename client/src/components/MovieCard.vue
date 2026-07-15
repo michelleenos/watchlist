@@ -8,6 +8,9 @@ import MovieMetaDl from './MovieMetaDl.vue'
 import { RouterLink } from 'vue-router'
 import { Icon } from '@iconify/vue'
 import AppTypography from './AppTypography.vue'
+// import { useAuth } from '../composables/useAuth.ts'
+
+// const { authState } = useAuth()
 
 withDefaults(defineProps<{ movie: MovieFull; style?: 'default' | 'compact' }>(), {
     style: 'default',
@@ -74,17 +77,22 @@ withDefaults(defineProps<{ movie: MovieFull; style?: 'default' | 'compact' }>(),
                         }}</PillItem>
                     </ul>
                     <div
+                        class="col-start-2 flex size-6 items-center justify-center self-end rounded-full"
+                        :aria-label="movie.watched ? 'Watched' : 'Unwatched'"
+                        :class="
+                            movie.watched ? 'bg-brass/80 text-brown-800' : 'border border-brown-500'
+                        ">
+                        <Icon v-if="movie.watched" icon="ri:check-line" />
+                    </div>
+                    <!-- <div
                         v-if="movie.watched"
                         class="col-start-2 flex size-6 items-center justify-center self-end rounded-full bg-brass/40 text-brown-100"
                         aria-label="Watched"
                         title="Watched">
                         <Icon icon="ri:check-line" class="" />
-                        <!-- Watched -->
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </article>
     </RouterLink>
 </template>
-
-<style scoped lang="scss"></style>

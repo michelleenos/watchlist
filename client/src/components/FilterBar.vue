@@ -31,12 +31,6 @@ const removeLanguage = (language: string) => {
     filters.languages = filters.languages.filter((d) => d !== language)
 }
 
-const watchedOptions: { value: boolean | null; label: string }[] = [
-    { value: null, label: 'All' },
-    { value: true, label: 'Watched' },
-    { value: false, label: 'Unwatched' },
-]
-
 const hasActiveFilters = computed(() => {
     return (
         filters.genres.length > 0 ||
@@ -82,7 +76,10 @@ const onLeave = (el: Element) => {
 </script>
 
 <template>
-    <div class="card bg-brown-950/80 backdrop-blur-sm" role="region" aria-label="Filters">
+    <div
+        class="card bg-transparent bg-linear-to-r from-brown-darkest to-taupe-950/70 backdrop-blur-sm"
+        role="region"
+        aria-label="Filters">
         <div class="flex items-baseline gap-4 px-4 py-4">
             <AppBtn
                 class="flex items-center gap-1"
@@ -178,43 +175,26 @@ const onLeave = (el: Element) => {
             @leave="onLeave">
             <div v-show="isOpen" id="filter-bar-contents">
                 <div class="border-t border-subtle px-4 pt-2 pb-4">
-                    <AppTypography
-                        tag="button"
-                        variant="body-sm"
-                        class="cursor-pointer underline decoration-dashed underline-offset-4 opacity-70 hover:decoration-brass hover:opacity-100 focus:decoration-brass focus:opacity-100"
-                        @click="clearAllFilters">
-                        Clear All
-                    </AppTypography>
-                    <div class="flex gap-4 pt-2">
-                        <FilterItems
-                            v-model="filters.genres"
-                            :options="moviesData.genres"
-                            label="Genres" />
-                        <FilterItems
-                            v-model="filters.decades"
-                            :options="moviesData.decades"
-                            label="Decades" />
-                        <FilterItems
-                            v-model="filters.languages"
-                            :options="moviesData.languages"
-                            label="Languages" />
-                        <fieldset class="relative">
-                            <legend class="contents font-mono text-sm text-brown-600">
-                                Watched
-                            </legend>
-                            <div class="mt-2 flex flex-wrap content-start items-start gap-2">
-                                <PillItem
-                                    v-for="opt in watchedOptions"
-                                    :key="String(opt.value)"
-                                    tag="button"
-                                    interactive
-                                    :active="filters.watched === opt.value"
-                                    :aria-pressed="filters.watched === opt.value"
-                                    @click="filters.watched = opt.value">
-                                    {{ opt.label }}
-                                </PillItem>
-                            </div>
-                        </fieldset>
+                    <div class="pt-2">
+                        <div class="flex flex-col gap-4 lg:flex-row">
+                            <FilterItems
+                                v-model="filters.watched"
+                                :options="['Watched', 'Unwatched']"
+                                label="Watched" />
+                            <FilterItems
+                                v-model="filters.decades"
+                                :options="moviesData.decades"
+                                label="Decades" />
+                            <FilterItems
+                                v-model="filters.languages"
+                                class=""
+                                :options="moviesData.languages"
+                                label="Languages" />
+                            <FilterItems
+                                v-model="filters.genres"
+                                :options="moviesData.genres"
+                                label="Genres" />
+                        </div>
                     </div>
                 </div>
             </div>

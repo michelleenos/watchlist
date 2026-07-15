@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, useId } from 'vue'
 import PillItem from './PillItem.vue'
 
 type FilterOptionObject = { value: string | number; label: string }
@@ -22,17 +22,29 @@ withDefaults(
     { row: false },
 )
 
-const selectedOptions = defineModel<(string | number)[]>({ required: true })
+const model = defineModel<(string | number)[] | null | string>({ required: true })
+const isMultiple = computed(() => {
+    if (Array.isArray(model.value)) return true
+    return false
+})
 
-const isAll = computed(() => selectedOptions.value.length === 0)
+const isAll = computed(() =>
+    Array.isArray(model.value) ? model.value.length === 0 : model.value === null,
+)
 
 function selectAll() {
-    selectedOptions.value = []
+    if (Array.isArray(model.value)) {
+        model.value = []
+    } else {
+        model.value = null
+    }
 }
+
+const groupName = useId()
 </script>
 
 <template>
-    <fieldset class="relative" :class="row ? 'flex items-baseline justify-between gap-4' : ''">
+    <fieldset class="relative" :class="row ? 'flex items-baseline gap-4' : ''">
         <legend class="contents font-mono text-sm text-brown-600">
             {{ label }}
         </legend>
@@ -47,17 +59,22 @@ function selectAll() {
             </PillItem>
             <div v-for="option in options" :key="optionValue(option)">
                 <input
-                    :id="`option-${optionValue(option)}`"
-                    v-model="selectedOptions"
-                    type="checkbox"
+                    :id="`option-${groupName}-${optionValue(option)}`"
+                    v-model="model"
+                    :name="groupName"
+                    :type="isMultiple ? 'checkbox' : 'radio'"
                     :value="optionValue(option)"
                     class="peer sr-only" />
                 <PillItem
                     tag="label"
-                    :for="`option-${optionValue(option)}`"
+                    :for="`option-${groupName}-${optionValue(option)}`"
                     class="peer-focus-visible:outline-2 peer-focus-visible:outline-brass"
                     interactive
-                    :active="selectedOptions.includes(optionValue(option))">
+                    :active="
+                        Array.isArray(model) ?
+                            model.includes(optionValue(option))
+                        :   model === optionValue(option)
+                    ">
                     {{ optionLabel(option) }}
                 </PillItem>
             </div>

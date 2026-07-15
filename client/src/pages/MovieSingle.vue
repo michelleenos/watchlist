@@ -111,7 +111,6 @@ async function deleteMovie() {
 
 <template>
     <PageSidePanel @request-close="$router.back()">
-        <!-- <AppDialog ref="dialog" pageSide @close="$router.back()"> -->
         <div class="px-8 py-12">
             <div v-if="loading" class="flex h-full w-full items-center justify-center">
                 <LoadingSpinner />

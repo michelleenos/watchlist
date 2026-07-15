@@ -11,8 +11,7 @@ export interface MovieFilters {
     genres: string[]
     decades: number[]
     languages: string[]
-    /** null = show all, true = watched only, false = unwatched only */
-    watched: boolean | null
+    watched: string | null
 }
 
 export interface MovieView {
