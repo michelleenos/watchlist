@@ -6,6 +6,9 @@ import AppTypography from './AppTypography.vue'
 import AppBtn from './AppBtn.vue'
 
 const props = defineProps<{
+    /**
+     * autofocus the username input on mount
+     */
     autofocusInput?: boolean
 }>()
 
@@ -16,6 +19,7 @@ const username = ref('')
 const password = ref('')
 const submitting = ref(false)
 const usernameInput = useTemplateRef('username-input')
+const attemptFailed = ref(false)
 
 const emit = defineEmits<{
     loginSuccess: []
@@ -32,10 +36,17 @@ async function submit() {
     if (ok) {
         toasts.add({ html: `logged in as <strong>${authState.user?.username}</strong>` })
         emit('loginSuccess')
+        clearValues()
     } else {
         toasts.add('login failed', 'error')
+        attemptFailed.value = true
         emit('loginFail')
     }
+}
+
+function clearValues() {
+    username.value = ''
+    password.value = ''
 }
 
 function focusInput() {
@@ -50,8 +61,8 @@ onMounted(() => {
 </script>
 
 <template>
-    <form class="flex flex-col gap-6" method="POST" @submit.prevent="submit">
-        <AppTypography variant="caps-mono">Log In</AppTypography>
+    <form method="POST" class="flex flex-col gap-6" @submit.prevent="submit">
+        <AppTypography tag="h2" variant="caps-mono">Log In</AppTypography>
 
         <label class="flex flex-col gap-2 text-sm text-brown-400">
             Username
@@ -78,6 +89,13 @@ onMounted(() => {
         </label>
 
         <div class="flex justify-end">
+            <AppTypography
+                v-if="attemptFailed"
+                variant="body-sm"
+                class="mr-auto self-center text-red-400"
+                >Invalid credentails</AppTypography
+            >
+
             <AppBtn type="submit" :disabled="submitting">
                 {{ submitting ? 'Logging in…' : 'Log in' }}
             </AppBtn>

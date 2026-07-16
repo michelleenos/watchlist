@@ -8,19 +8,11 @@ import AuthLoginForm from './AuthLoginForm.vue'
 
 const { authState, logout } = useAuth()
 const toasts = useToast()
-// const dialog = useTemplateRef('dialog')
-// const usernameInput = useTemplateRef('username-input')
-
-// const username = ref('')
-// const password = ref('')
-// const submitting = ref(false)
 const modalShown = ref(false)
 const button = useTemplateRef('button')
 
 const open = () => {
-    // dialog.value?.open()
     modalShown.value = true
-    // usernameInput.value?.focus()
 }
 
 const onClose = () => {
@@ -67,37 +59,5 @@ async function onLogout() {
 
     <AppModal v-if="modalShown" ref="dialog" @request-close="closeModal">
         <AuthLoginForm :autofocus-input="true" class="p-8" @login-success="closeModal()" />
-        <!-- <form class="flex flex-col gap-6 px-8 py-8" method="POST" @submit.prevent="submit">
-            <AppTypography variant="caps-mono">Log In</AppTypography>
-
-            <label class="flex flex-col gap-2 text-sm text-brown-400">
-                Username
-                <input
-                    v-model="username"
-                    required
-                    autofocus
-                    type="text"
-                    name="username"
-                    autocomplete="username"
-                    class="text-input" />
-            </label>
-
-            <label class="flex flex-col gap-2 text-sm text-brown-400">
-                Password
-                <input
-                    v-model="password"
-                    required
-                    type="password"
-                    name="password"
-                    autocomplete="current-password"
-                    class="text-input w-full min-w-0" />
-            </label>
-
-            <div class="flex justify-end">
-                <AppBtn type="submit" :disabled="submitting">
-                    {{ submitting ? 'Logging in…' : 'Log in' }}
-                </AppBtn>
-            </div>
-        </form> -->
     </AppModal>
 </template>

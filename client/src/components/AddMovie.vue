@@ -80,10 +80,10 @@ const clearResults = () => {
                     <AppTypography variant="caps-mono">Add Movie</AppTypography>
                 </div>
 
-                <!-- Search input -->
                 <div class="relative flex items-center">
                     <input
                         v-model="searchInput"
+                        autofocus
                         type="text"
                         placeholder="Search for a movie..."
                         class="text-input pr-12 pl-4"
