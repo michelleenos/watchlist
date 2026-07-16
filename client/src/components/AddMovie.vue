@@ -10,6 +10,10 @@ import { useToast } from '../composables/useToast'
 import { useMovies } from '../composables/useMovies'
 import { searchTmdb, createMovie } from '../api'
 
+defineProps<{
+    iconOnly?: boolean
+}>()
+
 const { movies, refreshMovies } = useMovies()
 
 const existingTmdbIds = computed(() => new Set(movies.value.map((m) => m.tmdbId)))
@@ -68,8 +72,15 @@ const clearResults = () => {
 </script>
 
 <template>
-    <AppBtn class="flex items-center gap-1" size="lg" @click="open">
-        <Icon icon="ri:add-line" />
+    <button
+        v-if="iconOnly"
+        aria-label="Add Movie"
+        class="flex size-7 items-center justify-center rounded-full bg-brass text-brown-900"
+        @click="open">
+        <Icon icon="ri:add-line"></Icon>
+    </button>
+    <AppBtn v-else class="flex items-center gap-1" size="sm" @click="open">
+        <Icon icon="ri:add-line" class="-ml-1" />
         Add Movie
     </AppBtn>
 

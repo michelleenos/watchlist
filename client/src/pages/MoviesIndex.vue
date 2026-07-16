@@ -2,9 +2,7 @@
 import { computed, reactive } from 'vue'
 
 // import FilterItems from '../components/FilterItems.vue'
-import AddMovie from '../components/AddMovie.vue'
 import { useMovies } from '../composables/useMovies.ts'
-import { useAuth } from '../composables/useAuth.ts'
 import AuthFooter from '../components/AuthFooter.vue'
 import FilterBar from '../components/FilterBar.vue'
 import MoviesList from '../components/MoviesList.vue'
@@ -23,7 +21,6 @@ let viewOpts = reactive<MovieView>({
 })
 
 const { movies, loading, initialized } = useMovies()
-const { authState } = useAuth()
 const { modalOpen } = useModalOpen()
 
 const shownMovies = computed(() => {
@@ -65,7 +62,7 @@ const shownMovies = computed(() => {
             <h1 class="font-serif text-3xl tracking-wide text-brown-300">
                 <span class="text-brass">watch</span>list
             </h1>
-            <AddMovie v-if="authState.authenticated" />
+            <!-- <AddMovie v-if="authState.authenticated" /> -->
         </div>
         <div
             v-if="!initialized"

@@ -9,8 +9,12 @@ import PillItem from './PillItem.vue'
 import AppToggle from './AppToggle.vue'
 import type { MovieView } from '../types/index.ts'
 import { toReactive } from '@vueuse/core'
+import AddMovie from './AddMovie.vue'
+import { useAuth } from '../composables/useAuth.ts'
 
 const { filterOptions } = useMovies()
+
+const { authState } = useAuth()
 
 defineProps<{
     counts?: { shown: number; total: number }
@@ -156,16 +160,21 @@ const onLeave = (el: Element) => {
                     </AppTypography>
                 </div>
             </div>
-            <div class="flex *:py-2">
+            <div class="flex items-baseline self-center">
                 <p
                     v-if="counts"
-                    class="relative shrink-0 border-r border-subtle pr-3 text-sm text-brown-500">
+                    class="relative shrink-0 border-r border-subtle py-2 pr-3 text-sm text-brown-500">
                     <span class="text-brown-100"> {{ counts.shown }}</span> / {{ counts.total }}
                 </p>
                 <AppToggle
                     v-model="view.compactView"
                     label="Compact"
-                    class="shrink-0 pl-3 first:pl-0" />
+                    class="shrink-0 border-r border-subtle py-2 pr-3 pl-3 first:pl-0 last:border-0 last:pr-0" />
+                <div
+                    v-if="authState.authenticated"
+                    class="flex items-center self-stretch py-0 pl-3">
+                    <AddMovie iconOnly />
+                </div>
             </div>
         </div>
         <Transition
