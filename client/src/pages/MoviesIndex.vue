@@ -61,8 +61,10 @@ const shownMovies = computed(() => {
 
 <template>
     <div class="mx-auto max-w-11/12 2xl:max-w-352" :inert="$route.matched.length > 1 || modalOpen">
-        <div class="flex items-center justify-between border-b border-b-brown-700 pt-12 pb-8">
-            <h1 class="text-2xl text-brass">watchlist</h1>
+        <div class="flex items-center justify-between border-b border-b-brown-700 pt-10 pb-8">
+            <h1 class="font-serif text-3xl tracking-wide text-brown-300">
+                <span class="text-brass">watch</span>list
+            </h1>
             <AddMovie v-if="authState.authenticated" />
         </div>
         <div
