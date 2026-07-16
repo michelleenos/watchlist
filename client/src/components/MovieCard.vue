@@ -84,13 +84,21 @@ withDefaults(defineProps<{ movie: MovieFull; style?: 'default' | 'compact' }>(),
                         ">
                         <Icon v-if="movie.watched" icon="ri:check-line" />
                     </div> -->
-                    <div
+                    <PillItem
+                        v-if="movie.watched"
+                        class="col-start-2 flex items-center self-end"
+                        alt
+                        size="tiny">
+                        <Icon icon="ri:check-line" class="mr-0.5 -ml-1" />
+                        watched
+                    </PillItem>
+                    <!-- <div
                         v-if="movie.watched"
                         class="col-start-2 flex size-5 items-center justify-center self-end rounded-full bg-brass/40 text-sm text-brown-100"
                         aria-label="Watched"
                         title="Watched">
                         <Icon icon="ri:check-line" class="" />
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </article>

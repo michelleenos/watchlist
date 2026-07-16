@@ -5,16 +5,18 @@ withDefaults(
         interactive?: boolean
         active?: boolean
         alt?: boolean
+        size?: 'default' | 'tiny'
     }>(),
-    { tag: 'div', interactive: false, active: false, alt: false },
+    { tag: 'div', interactive: false, active: false, alt: false, size: 'default' },
 )
 </script>
 
 <template>
     <component
         :is="tag"
-        class="font-500 inline-flex items-center justify-center rounded-full border px-3 py-1 text-center text-sm leading-tight text-nowrap text-brown-300 transition-[filter,background-color,border-color,color]"
+        class="font-500 inline-flex items-center justify-center rounded-full border text-center text-nowrap text-brown-300 transition-[filter,background-color,border-color,color]"
         :class="[
+            size === 'tiny' ? 'px-2 py-1 text-xs' : 'px-3 py-1 text-sm leading-tight',
             alt && 'border-0 bg-brass/20 text-brown-100',
             interactive && 'cursor-pointer focus-visible:outline-2 focus-visible:outline-brass',
             interactive && !active && 'hover:bg-brass/15',
