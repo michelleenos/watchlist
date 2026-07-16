@@ -100,7 +100,7 @@ const onLeave = (el: Element) => {
                     class="transition-transform duration-200"
                     :class="{ 'rotate-180': isOpen }" />
             </AppBtn>
-            <div class="grow *:max-sm:hidden">
+            <div class="grow self-center *:max-sm:hidden">
                 <AppTypography v-if="!hasActiveFilters" variant="caps-mono">
                     No Active Filters
                 </AppTypography>

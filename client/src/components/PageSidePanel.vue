@@ -32,7 +32,7 @@ onUnmounted(() => {
             ref="panel"
             tabindex="-1"
             class="dialog-content fixed top-0 right-0 bottom-0 ml-auto h-screen max-h-screen w-full max-w-150 outline-none md:w-8/12 md:border-l lg:w-6/12">
-            <CloseButton class="absolute top-8 right-4" @click="$emit('requestClose')" />
+            <CloseButton class="absolute top-8 right-4 z-10" @click="$emit('requestClose')" />
             <div class="relative h-full w-full overflow-y-auto">
                 <slot></slot>
             </div>

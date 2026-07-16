@@ -75,7 +75,7 @@ const clearResults = () => {
     <button
         v-if="iconOnly"
         aria-label="Add Movie"
-        class="flex size-7 items-center justify-center rounded-full bg-brass text-brown-900"
+        class="hover: focus-outline flex size-7 cursor-pointer items-center justify-center rounded-full bg-brass text-brown-900 transition-[filter] hover:brightness-110 active:brightness-90"
         @click="open">
         <Icon icon="ri:add-line"></Icon>
     </button>
