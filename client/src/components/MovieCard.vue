@@ -76,21 +76,21 @@ withDefaults(defineProps<{ movie: MovieFull; style?: 'default' | 'compact' }>(),
                             genre
                         }}</PillItem>
                     </ul>
-                    <div
+                    <!-- <div
                         class="col-start-2 flex size-6 items-center justify-center self-end rounded-full"
                         :aria-label="movie.watched ? 'Watched' : 'Unwatched'"
                         :class="
                             movie.watched ? 'bg-brass/80 text-brown-800' : 'border border-brown-500'
                         ">
                         <Icon v-if="movie.watched" icon="ri:check-line" />
-                    </div>
-                    <!-- <div
+                    </div> -->
+                    <div
                         v-if="movie.watched"
-                        class="col-start-2 flex size-6 items-center justify-center self-end rounded-full bg-brass/40 text-brown-100"
+                        class="col-start-2 flex size-5 items-center justify-center self-end rounded-full bg-brass/40 text-sm text-brown-100"
                         aria-label="Watched"
                         title="Watched">
                         <Icon icon="ri:check-line" class="" />
-                    </div> -->
+                    </div>
                 </div>
             </div>
         </article>
