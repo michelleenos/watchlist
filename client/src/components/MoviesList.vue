@@ -1,14 +1,19 @@
 <script setup lang="ts">
-import type { MovieFull } from '../types'
+import type { MovieFilters, MovieFull } from '../types'
 import MovieCard from './MovieCard.vue'
 
 withDefaults(
     defineProps<{
         movies: MovieFull[]
         compact?: boolean
+        genresFilters?: MovieFilters['genres']
     }>(),
-    { compact: false },
+    { compact: false, genresFilters: () => [] },
 )
+
+const emit = defineEmits<{
+    filterSelect: [genre: string]
+}>()
 </script>
 
 <template>
@@ -19,6 +24,8 @@ withDefaults(
             v-for="movie in movies"
             :key="movie.name"
             :movie="movie"
-            :style="compact ? 'compact' : 'default'" />
+            :genres-filters="genresFilters"
+            :style="compact ? 'compact' : 'default'"
+            @filter-select="emit('filterSelect', $event)" />
     </div>
 </template>

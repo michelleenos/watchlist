@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, reactive } from 'vue'
 
-// import FilterItems from '../components/FilterItems.vue'
 import { useMovies } from '../composables/useMovies.ts'
 import AuthFooter from '../components/AuthFooter.vue'
 import FilterBar from '../components/FilterBar.vue'
@@ -22,6 +21,16 @@ let viewOpts = reactive<MovieView>({
 
 const { movies, loading, initialized } = useMovies()
 const { modalOpen } = useModalOpen()
+
+function toggleGenreFilter(genre: string) {
+    const genres = viewOpts.filters.genres
+    const i = genres.indexOf(genre)
+    if (i === -1) {
+        genres.push(genre)
+    } else {
+        genres.splice(i, 1)
+    }
+}
 
 const shownMovies = computed(() => {
     const { genres, decades, languages } = viewOpts.filters
@@ -81,7 +90,9 @@ const shownMovies = computed(() => {
                 <MoviesList
                     :movies="shownMovies"
                     :compact="viewOpts.compactView"
-                    :class="loading && 'pointer-events-none opacity-40 transition-opacity'" />
+                    :genres-filters="viewOpts.filters.genres"
+                    :class="loading && 'pointer-events-none opacity-40 transition-opacity'"
+                    @filter-select="toggleGenreFilter" />
                 <div
                     v-if="loading"
                     class="pointer-events-none absolute inset-0 flex justify-center pt-16">
