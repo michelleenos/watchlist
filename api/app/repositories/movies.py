@@ -51,13 +51,19 @@ async def get_movies() -> list[MovieFull]:
             SELECT
                 name, year, tagline, description, original_title, poster_path, tmdb_id, id,
                 added_by, watched,
-				ARRAY(
-					SELECT genres.name
-					FROM movie_genres
+                ARRAY(
+                    SELECT genres.name
+                    FROM movie_genres
                         JOIN genres ON movie_genres.genre_id = genres.id
                     WHERE movie_id = movies.id
                     ORDER BY genres.name
-				) AS genres,
+                ) AS genres,
+                ARRAY(
+                    SELECT p.name
+                    FROM movie_people mp JOIN people p ON p.id = mp.person_id
+                    WHERE mp.movie_id = movies.id AND mp.role = 'director'
+                    ORDER BY p.name
+                ) AS directors,
                 languages.english_name AS language
             FROM movies
             LEFT JOIN languages

@@ -34,7 +34,7 @@ const VARIANT_CLASSES = {
     'body-muted-sm': 'text-sm text-brown-300',
     tagline: 'text-body font-serif leading-tight italic text-brass',
     'tagline-lg': 'text-lg lg:text-xl font-serif leading-tight italic text-brass',
-    'caps-mono': 'text-brown-300 font-mono text-[10px] tracking-widest uppercase lg:text-[11px]',
+    'caps-mono': 'text-brown-300 font-mono text-[10px] tracking-wide uppercase lg:text-[11px]',
     'body-sm': 'text-sm',
     body: '',
 } satisfies Record<TypeVariant, string>

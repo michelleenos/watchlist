@@ -6,7 +6,7 @@ defineProps<{ movie: MovieFull; horizontal?: boolean }>()
 </script>
 
 <template>
-    <dl class="flex gap-8">
+    <dl class="flex gap-6">
         <MovieMetaDt
             v-if="movie.year"
             :class="horizontal ? 'flex items-baseline gap-2' : ''"

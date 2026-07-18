@@ -71,23 +71,31 @@ const emit = defineEmits<{
                     </li>
                 </ul>
             </div>
-            <div v-else class="grid grid-rows-[auto_auto_1fr_auto] gap-3">
+            <div v-else class="grid grid-rows-[auto_auto_1fr_auto]">
                 <RouterLink :to="`/movie/${movie.id}`">
                     <header class="">
                         <MovieTitle
                             class="mb-0.5"
                             :title="movie.name"
                             :original-title="movie.originalTitle" />
-                        <MovieTagline size="base" class="line-clamp-1">
+                        <MovieTagline size="base" class="mb-2 line-clamp-1">
                             {{ movie.tagline }}
                         </MovieTagline>
+                        <div v-if="movie.directors" class="my-2 flex items-baseline gap-3">
+                            <AppTypography variant="caps-mono">{{
+                                movie.directors.length > 1 ? 'Directors' : 'Director'
+                            }}</AppTypography>
+                            <AppTypography variant="body-sm">{{
+                                movie.directors.join(', ')
+                            }}</AppTypography>
+                        </div>
                     </header>
                 </RouterLink>
                 <MovieMetaDl :movie="movie" class="border-b border-subtle pb-2" />
                 <AppTypography
                     v-if="movie.description"
                     variant="body-muted-sm"
-                    class="line-clamp-3 self-start">
+                    class="my-2 line-clamp-3 self-start">
                     {{ movie.description }}
                 </AppTypography>
                 <div class="grid grid-cols-[1fr_auto]">
@@ -106,7 +114,7 @@ const emit = defineEmits<{
 
                     <PillItem
                         v-if="movie.watched"
-                        class="col-start-2 flex items-center self-end"
+                        class="col-start-2 ml-2 flex items-center self-end"
                         alt
                         size="tiny">
                         <Icon icon="ri:check-line" class="mr-0.5 -ml-1" />
