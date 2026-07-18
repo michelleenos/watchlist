@@ -12,7 +12,7 @@ import { toReactive } from '@vueuse/core'
 import AddMovie from './AddMovie.vue'
 import { useAuth } from '../composables/useAuth.ts'
 
-const { filterOptions } = useMovies()
+const { filterOptions, directorOptions } = useMovies()
 
 const { authState } = useAuth()
 
@@ -40,7 +40,8 @@ const hasActiveFilters = computed(() => {
         filters.genres.length > 0 ||
         filters.decades.length > 0 ||
         filters.languages.length > 0 ||
-        filters.watched !== null
+        filters.watched !== null ||
+        filters.director !== null
     )
 })
 
@@ -49,6 +50,7 @@ const clearAllFilters = () => {
     filters.decades = []
     filters.languages = []
     filters.watched = null
+    filters.director = null
 }
 
 const isOpen = ref(false)
@@ -150,6 +152,15 @@ const onLeave = (el: Element) => {
                                 <Icon icon="ri:close-line"></Icon>
                             </button>
                         </PillItem>
+                        <PillItem v-if="filters.director !== null" tag="li" :alt="true">
+                            {{ filters.director }}
+                            <button
+                                aria-label="Remove director filter"
+                                class="-mb-0.5 ml-1 cursor-pointer text-brown-300 hover:text-amber-50 focus:text-amber-50"
+                                @click="filters.director = null">
+                                <Icon icon="ri:close-line"></Icon>
+                            </button>
+                        </PillItem>
                     </ul>
                     <AppTypography
                         variant="body-sm"
@@ -184,19 +195,45 @@ const onLeave = (el: Element) => {
             @leave="onLeave">
             <div v-show="isOpen" id="filter-bar-contents">
                 <div class="border-t border-subtle px-4 pt-2 pb-4">
-                    <div class="pt-2">
-                        <div class="flex flex-col gap-4 lg:flex-row">
+                    <div class="flex flex-col gap-4 pt-2">
+                        <div
+                            class="flex flex-col gap-4 border-b border-subtle pb-6 sm:flex-row sm:items-baseline sm:gap-8">
+                            <div class="relative">
+                                <label
+                                    for="director-filter"
+                                    class="font-mono text-sm text-brown-600">
+                                    Director
+                                </label>
+                                <select
+                                    id="director-filter"
+                                    v-model="filters.director"
+                                    class="text-input mt-2 w-full appearance-none pr-9">
+                                    <option :value="null">All</option>
+                                    <option
+                                        v-for="director in directorOptions"
+                                        :key="director"
+                                        :value="director">
+                                        {{ director }}
+                                    </option>
+                                </select>
+                                <Icon
+                                    icon="ri:arrow-down-s-line"
+                                    aria-hidden="true"
+                                    class="pointer-events-none absolute right-3 bottom-3.5 text-brown-400" />
+                            </div>
                             <FilterItems
                                 v-model="filters.watched"
+                                class="self-end"
                                 :options="['Watched', 'Unwatched']"
                                 label="Watched" />
+                        </div>
+                        <div class="flex flex-col gap-4 lg:flex-row">
                             <FilterItems
                                 v-model="filters.decades"
                                 :options="filterOptions.decades"
                                 label="Decades" />
                             <FilterItems
                                 v-model="filters.languages"
-                                class=""
                                 :options="filterOptions.languages"
                                 label="Languages" />
                             <FilterItems

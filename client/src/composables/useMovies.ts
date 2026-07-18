@@ -1,4 +1,4 @@
-import { reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import type { MovieFull } from '../types'
 import { getMovies, getGenres, getDecades, getLanguages } from '../api'
 
@@ -12,6 +12,16 @@ const filterOptions = reactive<{
     genres: [],
     decades: [],
     languages: [],
+})
+
+// Derived client-side from the loaded movies (not a server facet): unique
+// director names across all movies, sorted alphabetically.
+const directorOptions = computed(() => {
+    const names = new Set<string>()
+    for (const movie of movies.value) {
+        for (const director of movie.directors ?? []) names.add(director)
+    }
+    return [...names].sort((a, b) => a.localeCompare(b))
 })
 
 const loading = ref(false)
@@ -79,6 +89,7 @@ export function useMovies() {
     return {
         movies,
         filterOptions,
+        directorOptions,
         refresh,
         refreshMovies,
         patchMovieInList,

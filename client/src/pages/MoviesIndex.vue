@@ -15,6 +15,7 @@ let viewOpts = reactive<MovieView>({
         decades: [],
         languages: [],
         watched: null,
+        director: null,
     },
     compactView: false,
 })
@@ -33,8 +34,11 @@ function toggleGenreFilter(genre: string) {
 }
 
 const shownMovies = computed(() => {
-    const { genres, decades, languages } = viewOpts.filters
+    const { genres, decades, languages, director } = viewOpts.filters
     return [...movies.value].filter((movie) => {
+        if (director !== null) {
+            if (!movie.directors?.includes(director)) return false
+        }
         if (viewOpts.filters.watched !== null) {
             if (viewOpts.filters.watched === 'Watched' && !movie.watched) return false
             if (viewOpts.filters.watched === 'Unwatched' && movie.watched) return false

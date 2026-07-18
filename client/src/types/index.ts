@@ -12,6 +12,7 @@ export interface MovieFilters {
     decades: number[]
     languages: string[]
     watched: string | null
+    director: string | null
 }
 
 export interface MovieView {
