@@ -3,7 +3,7 @@ import FilterItems from './FilterItems.vue'
 import { useMovies } from '../composables/useMovies'
 import AppBtn from './AppBtn.vue'
 import { Icon } from '@iconify/vue'
-import { computed, ref } from 'vue'
+import { computed, ref, useTemplateRef } from 'vue'
 import AppTypography from './AppTypography.vue'
 import PillItem from './PillItem.vue'
 import AppToggle from './AppToggle.vue'
@@ -11,9 +11,9 @@ import type { MovieView } from '../types/index.ts'
 import { toReactive } from '@vueuse/core'
 import AddMovie from './AddMovie.vue'
 import { useAuth } from '../composables/useAuth.ts'
+import { onClickOutside } from '@vueuse/core'
 
 const { filterOptions } = useMovies()
-
 const { authState } = useAuth()
 
 defineProps<{
@@ -22,6 +22,12 @@ defineProps<{
 
 const view = defineModel<MovieView>({ required: true })
 const { filters } = toReactive(view)
+
+const bar = useTemplateRef('bar')
+
+onClickOutside(bar, () => {
+    if (isOpen.value) isOpen.value = false
+})
 
 const removeGenre = (genre: string) => {
     filters.genres = filters.genres.filter((g) => g !== genre)
@@ -83,6 +89,7 @@ const onLeave = (el: Element) => {
 
 <template>
     <div
+        ref="bar"
         class="card bg-transparent bg-linear-to-r from-brown-darkest to-taupe-950/70 backdrop-blur-sm"
         role="region"
         aria-label="Filters">
