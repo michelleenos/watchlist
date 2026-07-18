@@ -40,7 +40,7 @@ const emit = defineEmits<{
 
             <div v-if="style === 'compact'" class="flex items-center gap-6">
                 <div class="w-1/2 max-w-100 flex-1/2 grow">
-                    <RouterLink :to="`/movie/${movie.id}`">
+                    <RouterLink :to="`/movie/${movie.id}`" class="text-brown-100">
                         <header>
                             <MovieTitle
                                 class="mb-0.5"
@@ -72,7 +72,7 @@ const emit = defineEmits<{
                 </ul>
             </div>
             <div v-else class="grid grid-rows-[auto_auto_1fr_auto]">
-                <RouterLink :to="`/movie/${movie.id}`">
+                <RouterLink :to="`/movie/${movie.id}`" class="text-brown-100">
                     <header class="">
                         <MovieTitle
                             class="mb-0.5"

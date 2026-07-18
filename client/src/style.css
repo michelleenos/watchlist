@@ -119,6 +119,10 @@
     .card {
         @apply rounded-lg border border-subtle bg-brown-950/50;
     }
+
+    a {
+        @apply text-brass hover:text-white;
+    }
 }
 
 /* dev: make Tailwind breakpoints visible in DevTools media query bars */

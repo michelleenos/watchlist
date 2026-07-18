@@ -4,6 +4,7 @@ import './style.css'
 import App from './App.vue'
 import MoviesIndex from './pages/MoviesIndex.vue'
 import MovieSingle from './pages/MovieSingle.vue'
+import NotFound from './pages/NotFound.vue'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -11,7 +12,11 @@ const router = createRouter({
         {
             path: '/',
             component: MoviesIndex,
-            children: [{ path: '/movie/:id', component: MovieSingle }],
+            children: [{ path: 'movie/:id', component: MovieSingle }],
+        },
+        {
+            path: '/:notfound',
+            component: NotFound,
         },
     ],
 })

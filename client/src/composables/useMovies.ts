@@ -9,8 +9,8 @@ const filterOptions = reactive({
     decades: [] as { value: number; label: string }[],
     languages: [] as string[],
     // Derived client-side from the loaded movies (not a server facet): unique
-    // director names across all movies, sorted alphabetically. As a computed
-    // nested in the reactive object, it auto-unwraps to `string[]` on access.
+    // director names across all movies, sorted alphabetically.
+    // As a computed nested in the reactive object, it auto-unwraps to `string[]` on access.
     directors: computed(() => {
         const names = new Set<string>()
         for (const movie of movies.value) {

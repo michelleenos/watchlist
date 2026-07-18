@@ -16,14 +16,14 @@ import AppToggle from '../components/AppToggle.vue'
 import { useToast } from '../composables/useToast.ts'
 import { useMovies } from '../composables/useMovies.ts'
 import { useAuth } from '../composables/useAuth.ts'
-import { getMovie, patchMovie, deleteMovie as deleteMovieApi } from '../api.ts'
+import { getMovie, patchMovie, deleteMovie as deleteMovieApi, ApiError } from '../api.ts'
 import PageSidePanel from '../components/PageSidePanel.vue'
 
 const route = useRoute()
 const router = useRouter()
 const movie = ref<MovieFull>()
 const loading = ref(true)
-const error = ref(false)
+const error = ref<boolean | ApiError>(false)
 const dialog = useTemplateRef('dialog')
 const confirmingDelete = ref(false)
 const deleting = ref(false)
@@ -38,8 +38,12 @@ async function fetchMovie(id: string) {
         error.value = false
     } catch (err) {
         console.error(err)
+        if (err instanceof ApiError) {
+            error.value = err
+        } else {
+            error.value = true
+        }
         loading.value = false
-        error.value = true
     }
 }
 
@@ -101,15 +105,20 @@ async function deleteMovie() {
 </script>
 
 <template>
-    <PageSidePanel @request-close="$router.back()">
+    <PageSidePanel @request-close="$router.push('/')">
         <div class="px-8 py-12">
             <div v-if="loading" class="flex h-full w-full items-center justify-center">
                 <LoadingSpinner />
             </div>
-            <div
-                v-else-if="error || !movie"
-                class="flex min-h-1/2 w-full items-center justify-center">
-                <p>Sorry, there seems to have been an error :(</p>
+            <div v-else-if="error || !movie" class="flex min-h-1/2 w-full flex-col gap-4 py-4">
+                <AppTypography tag="h1" variant="serif-lg" class="text-brass"
+                    >Error finding movie</AppTypography
+                >
+                <p>
+                    {{
+                        error instanceof ApiError ? error.message : 'Sorry, something went wrong :('
+                    }}
+                </p>
             </div>
             <div v-else>
                 <MoviePoster
