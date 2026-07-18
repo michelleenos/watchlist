@@ -16,6 +16,7 @@ const meta = {
                 decades: [],
                 languages: [],
                 watched: null,
+                director: null,
             },
             compactView: false,
         },
@@ -31,6 +32,7 @@ const meta = {
                     genres: ['Action', 'Adventure', 'Comedy', 'Science Fiction'],
                     decades: [1960, 1970, 1990, 2020].map((d) => ({ value: d, label: `${d}s` })),
                     languages: ['English', 'Portuguese'],
+                    directors: [],
                 }),
             }),
         )

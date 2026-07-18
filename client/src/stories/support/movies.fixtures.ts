@@ -48,4 +48,5 @@ export const sampleFilterOptions = {
     genres: ['Adventure', 'Comedy', 'Drama', 'History', 'Mystery', 'Romance', 'Science Fiction'],
     decades: [1960, 2020].map((d) => ({ value: d, label: `${d}s` })),
     languages: ['English', 'Portuguese'],
+    directors: [],
 }

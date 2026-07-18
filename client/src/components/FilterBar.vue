@@ -12,7 +12,7 @@ import { toReactive } from '@vueuse/core'
 import AddMovie from './AddMovie.vue'
 import { useAuth } from '../composables/useAuth.ts'
 
-const { filterOptions, directorOptions } = useMovies()
+const { filterOptions } = useMovies()
 
 const { authState } = useAuth()
 
@@ -210,7 +210,7 @@ const onLeave = (el: Element) => {
                                     class="text-input mt-2 w-full appearance-none pr-9">
                                     <option :value="null">All</option>
                                     <option
-                                        v-for="director in directorOptions"
+                                        v-for="director in filterOptions.directors"
                                         :key="director"
                                         :value="director">
                                         {{ director }}
