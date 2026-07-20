@@ -38,6 +38,8 @@ Settled — don't relitigate. Keeps the _why_ so rejected alternatives don't get
 
 Minor deferred prod tweak: mkdir `images_dir` in the api `lifespan` with `exist_ok=True` (currently the dir must already exist — fine in prod since the volume provides it, and in dev since `public/images` is committed). `PORT` in the Dockerfile CMD is already done.
 
+- **Local-dev onboarding for public repo** — the README intentionally omits "run locally" instructions because the current setup is deployment-specific (Railway/Caddy/volume). To make the repo runnable by others: add a `.env.example` (TMDB key at minimum), confirm `docker compose up` works from a clean clone, and document migration + any seed steps. Could also note a generic Docker deploy path as an alternative to the Railway-specific setup. Deferred — some work to generalize.
+
 ---
 
 ## Frontend — todo + feature ideas
@@ -56,6 +58,8 @@ Standing todos:
 New feature ideas (owner, being considered — not yet scoped):
 
 - **Director info on the frontend** — part of the credits-rendering work; make sure director is prominent.
+- **Pull trailers from TMDB** — `videos` endpoint via `append_to_response`; returns an array of video objects, `key` being the YouTube id (`youtube.com/watch?v=KEY`).
+- **Richer discovery** via TMDB [`/discover/movie`](https://developer.themoviedb.org/reference/discover-movie) with keyword AND/OR logic.
 
 ## Done recently (context for current code)
 
