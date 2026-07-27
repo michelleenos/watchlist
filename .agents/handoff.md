@@ -25,14 +25,14 @@ Settled — don't relitigate. Keeps the _why_ so rejected alternatives don't get
 - **Posters:** DB stores only the filename. Files live on a **Railway volume** at `/data/images`, served by the api's `/images` static mount and proxied through Caddy. (The earlier **R2 / object-storage / `VITE_POSTER_BASE_URL`** plan was abandoned.)
 - **People/credits = one unified `movie_people` table** (not split cast/crew), coarse **`role`** not TMDB's raw `job`, source-material authors as their own `source` role, and crew selected by an explicit **`job` allowlist, never `department`** (the Writing department is polluted with storyboard crafts). Full rationale + mechanics in `.agents/reference/backend.md`.
 - **Frontend API layer = flat `client/src/api.ts`** — `apiFetch<T>(path, opts)` + `ApiError` + domain one-liners (`getMovie`, `patchMovie`, `createMovie`, `searchTmdb`, …). Deliberately **not** a directory (one file) and **not** a `use*` composable (owns no reactive state).
-- **`useMovies` state is split**: `movies` (ref) vs `filterOptions` (reactive: genres/decades/languages). Facets come from the server (`/genres|/decades|/languages`, each `DISTINCT` over current movies). Deriving them client-side from `movies` was considered and **deferred** (only valid while the client fetches the full set).
+- **`useMovies` state is split**: `movies` (ref) vs `filterOptions` (reactive: genres/decades/languages/directors). Most facets come from the server (`/genres|/decades|/languages`, each `DISTINCT` over current movies); deriving *those* client-side was considered and **deferred** (only valid while the client fetches the full set). **`directors` is the one exception** — a `computed` nested in the reactive object (`useMovies.ts:14`), unique names across `movies`, sorted. No server endpoint for it. Being a computed, it auto-unwraps to `string[]` on access and self-syncs after add/delete.
 - **List mutations patch the shared list in place** — `patchMovieInList`/`removeMovieFromList` (watched-toggle, delete), not a full refetch. `useMovies` exposes `refresh()` (movies + facets, initial mount) and `refreshMovies()` (movies only, used after add).
 
 ---
 
 ## Next steps (roughly priority order)
 
-- **Frontend updates** — render the new credits on the movie detail (`directors`/`writers`/`sourceAuthors` + `castMembers` now come from `GET /movies/{id}`; `MovieMetaDl.vue` is the natural home), plus the standing frontend todos + feature ideas below.
+- **Frontend updates** — finish rendering credits: `directors` are done (MovieCard + a director filter), but `writers`/`sourceAuthors`/`castMembers` still render nowhere. `MovieSingle` shows no credits at all — it's the natural home for the full set. Plus the standing frontend todos + feature ideas below.
 - **Tests (none exist yet)** — set up unit + integration tests. Likely `pytest` + `pytest-asyncio` for the api against an ephemeral Postgres; good first targets are the transform/allowlist logic (`tmdb_people_transform`) and the `insert_movie_people` upsert. Frontend: TBD (Vitest).
 - **Poster slug rule is inconsistent** — DB `poster_path` (from the old TS server, ASCII-only `\w`) and on-disk files (from `backfill_posters.py`, Python Unicode `\w`) disagree on non-ASCII titles. Only Tár was actually broken and it's manually fixed. Remaining work is preventative: unify on one canonical slug in `app/utils.py:to_filename` (lean ASCII-only via `unicodedata.normalize("NFKD",…).encode("ascii","ignore")`).
 
@@ -46,7 +46,7 @@ Minor deferred prod tweak: mkdir `images_dir` in the api `lifespan` with `exist_
 
 Standing todos:
 
-- **Render credits on the movie detail** — the "Frontend updates" next step. Decide labels ("Directed by" / "Written by" / "Based on work by"). Crew arrays are `[]` when empty (check length); `castMembers` may be absent.
+- **Render the remaining credits** — the "Frontend updates" next step. `writers`/`sourceAuthors`/`castMembers` are still unrendered; `MovieSingle` has no credits section. Decide labels ("Written by" / "Based on work by"). Crew arrays are `[]` when empty (check length); `castMembers` may be absent.
 - **Toast leave animation** is jittery — try separate enter/leave translations; check `max-height` snapping; test multiple in sequence.
 - **Error UI:** `useMovies()` exposes an `error` ref nothing consumes yet — wire it into MoviesIndex (MovieSingle already handles its own).
 - **Re-check add UX** against the backend (poster returned ready; surface `issues[]` on failed poster).
@@ -57,12 +57,14 @@ Standing todos:
 
 New feature ideas (owner, being considered — not yet scoped):
 
-- **Director info on the frontend** — part of the credits-rendering work; make sure director is prominent.
 - **Pull trailers from TMDB** — `videos` endpoint via `append_to_response`; returns an array of video objects, `key` being the YouTube id (`youtube.com/watch?v=KEY`).
 - **Richer discovery** via TMDB [`/discover/movie`](https://developer.themoviedb.org/reference/discover-movie) with keyword AND/OR logic.
 
 ## Done recently (context for current code)
 
+- **`runtime` added to movies** (commit `d3f5b41`) — integer minutes from TMDB's base `/movie/{id}` payload (no `append_to_response` change needed). Column added by `008_add_runtime.sql` (nullable — TMDB returns `null` for some titles); `runtime` on `MovieBase` + `TMDBMovieDetails`, selected in both movie reads, inserted in `add_movie`, mapped in `tmdb_movie_transform`. Client renders it in `MovieMetaDl.vue` as `` `${movie.runtime}m` `` behind a `v-if`, so it shows on both MovieCard and MovieSingle. Deliberately **not** PATCHable and **not** a filter/sort field. Storybook fixtures were not updated (no `runtime` in `movies.fixtures.ts`).
+  - **Prod is done** — migration applied (via the api's `preDeployCommand`) and `008_backfill_runtime.py` run in the container. For the next backfill script: `railway ssh --service watchlist-api`, then `python migrations/NNN_*.py`, *after* the deploy and inside the container (prod Postgres has no public networking, so `railway run` can't reach it).
+- **Director filter + display** — `movie.directors` renders on MovieCard, and there's a single-select director filter (`filters.director: string | null` on `MovieView`) in FilterBar, backed by the client-derived `filterOptions.directors` computed (see Frozen Decisions).
 - **API layer extracted + `useMovies` reworked** (see Frozen Decisions): all raw `fetch` calls in `useMovies`/`MovieSingle`/`AddMovie` now go through `client/src/api.ts`. State split into `movies`/`filterOptions`. Watched-toggle and delete patch the list in place; add calls `refreshMovies()`. `useAuth` still has its own inline fetches (optional follow-up — its `login` returns `false` instead of throwing, so it needs a slightly different shape).
 - **MoviesIndex loading UI redone**: initial mount shows a centered `LoadingSpinner` + label, gated on a new `initialized` ref from `useMovies` (flips true after the first load settles — distinct from `loading`). Background refresh (add) dims the list (`opacity-40`) with an overlaid spinner instead of blanking it; FilterBar stays live. `display-options.ts` was deleted.
 - **Watched / added-by UI is complete** (compact view toggle too): watched badge on MovieCard, `addedBy` in MovieMetaDl, watched toggle row on MovieSingle (optimistic PATCH `{ watched }` + revert-on-error, whole row clickable when authed, read-only when not), and a tri-state watched filter (`filters.watched: boolean | null` on `MovieView`) shown as an All/Watched/Unwatched pill group in FilterBar. `gen:types` already re-run. To make more fields PATCHable, extend the backend `MovieUpdate` model (`exclude_unset` partial updates, field names are the allowlist).
