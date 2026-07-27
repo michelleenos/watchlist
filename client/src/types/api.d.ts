@@ -266,6 +266,8 @@ export interface components {
              * @default false
              */
             watched: boolean;
+            /** Runtime */
+            runtime?: number | null;
             /** Id */
             id: number;
         } & {

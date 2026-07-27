@@ -48,6 +48,7 @@ class MovieBase(BaseModel):
     tmdb_poster_path: str | None = None
     added_by: str | None = None
     watched: bool = False
+    runtime: int | None = None
 
 
 class MovieFull(MovieBase):
@@ -145,6 +146,7 @@ class TMDBMovieDetails(BaseModel):
     popularity: float | None = None
     vote_average: float | None = None
     vote_count: int | None = None
+    runtime: int | None = None
     credits: TMDBCredit
 
 

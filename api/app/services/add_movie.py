@@ -87,6 +87,7 @@ def tmdb_movie_transform(data: TMDBMovieDetails) -> MovieBase:
         original_title=original_title,
         tmdb_id=data.id,
         tmdb_poster_path=data.poster_path,
+        runtime=data.runtime,
     )
 
 

@@ -22,6 +22,11 @@ defineProps<{ movie: MovieFull; horizontal?: boolean }>()
             :class="horizontal ? 'flex items-baseline gap-2' : ''"
             title="Added By"
             :description="movie.addedBy" />
+        <MovieMetaDt
+            v-if="movie.runtime"
+            :class="horizontal ? 'flex items-baseline gap-2' : ''"
+            title="Runtime"
+            :description="`${movie.runtime}m`" />
     </dl>
 </template>
 
