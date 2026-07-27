@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import MovieCard from '../components/MovieCard.vue'
 import { sampleMovies } from './support/movies.fixtures.ts'
 import type { MovieFull } from '../types/index.ts'
+import { fn } from 'storybook/test'
 
 const sampleMovieMapping = sampleMovies.reduce(
     (mapping, current) => {
@@ -21,6 +22,7 @@ const meta = {
     args: {
         movie: sampleMovieOptions[0] as unknown as MovieFull,
         style: 'default',
+        onFilterSelect: fn(),
     },
     argTypes: {
         movie: {
@@ -33,13 +35,6 @@ const meta = {
             options: ['default', 'compact'],
         },
     },
-    // render: (args) => ({
-    // 	components: { MovieCard },
-    // 	setup: () => {
-    // 		const movie = sampleMovieMapping[args.movie]
-    // 	},
-    // 	// template:
-    // })
 } satisfies Meta<typeof MovieCard>
 
 export default meta

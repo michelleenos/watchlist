@@ -13,11 +13,14 @@ export interface MovieFilters {
     languages: string[]
     watched: string | null
     director: string | null
+    query: string | null
 }
 
 export interface MovieView {
     filters: MovieFilters
-    compactView: boolean
+    view: {
+        compact: boolean
+    }
 }
 
 export type AuthStatus = UserAuthenticated | UserUnauthenticated

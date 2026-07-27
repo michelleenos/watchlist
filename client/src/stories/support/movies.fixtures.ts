@@ -7,17 +7,20 @@ export const sampleMovies: MovieFull[] = [
         language: 'English',
         tagline: 'An epic drama of adventure and exploration.',
         genres: ['Science Fiction', 'Mystery', 'Adventure'],
+        runtime: 120,
         description:
             "Humanity finds a mysterious object buried beneath the lunar surface and sets off to find its origins with the help of HAL 9000, the world's most advanced super computer.",
         id: 1,
         posterPath: '/2001-a-space-odyssey.webp',
         issues: [],
         watched: false,
+        directors: ['Stanley Kubrick'],
     },
     {
         name: "Breakfast at Tiffany's",
         year: 1961,
         language: 'English',
+        runtime: 110,
         tagline:
             'Audrey Hepburn plays that daring, darling Holly Golightly to a new high in entertainment delight!',
         genres: ['Comedy', 'Romance', 'Drama'],
@@ -28,10 +31,12 @@ export const sampleMovies: MovieFull[] = [
         issues: [],
         posterPath: '/breakfast-at-tiffanys.webp',
         watched: false,
+        directors: ['Blake Edwards'],
     },
     {
         name: "I'm Still Here",
         year: 2024,
+        runtime: 110,
         language: 'Portuguese',
         tagline: "When a mother's courage defies tyranny, hope is reborn.",
         genres: ['Drama', 'History'],
@@ -41,6 +46,7 @@ export const sampleMovies: MovieFull[] = [
         issues: [],
         id: 3,
         watched: false,
+        directors: ['Walter Salles'],
     },
 ]
 

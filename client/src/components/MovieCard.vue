@@ -72,7 +72,9 @@ const emit = defineEmits<{
                 </ul>
             </div>
             <div v-else class="grid grid-rows-[auto_auto_1fr_auto]">
-                <RouterLink :to="`/movie/${movie.id}`" class="text-brown-100">
+                <RouterLink
+                    :to="`/movie/${movie.id}`"
+                    class="text-brown-100 after:absolute after:inset-0">
                     <header class="">
                         <MovieTitle
                             class="mb-0.5"
@@ -102,11 +104,12 @@ const emit = defineEmits<{
                     <ul v-if="movie.genres" class="flex flex-wrap gap-x-2 gap-y-1">
                         <li v-for="(genre, i) in movie.genres" :key="i">
                             <PillItem
+                                class="relative z-1"
                                 tag="button"
                                 interactive
                                 :alt="genresFilters.includes(genre)"
                                 :aria-pressed="genresFilters.includes(genre)"
-                                @click.stop="emit('filterSelect', genre)">
+                                @click="emit('filterSelect', genre)">
                                 {{ genre }}
                             </PillItem>
                         </li>

@@ -4,6 +4,8 @@ import { mocked } from 'storybook/test'
 import { useMovies } from '../composables/useMovies.ts'
 import { makeUseMoviesMock } from './support/useMovies.mock.ts'
 import { reactive } from 'vue'
+import { useAuth } from '../composables/useAuth.ts'
+import { makeUseAuthMock } from './support/useAuth.mock.ts'
 
 const meta = {
     title: 'FilterBar',
@@ -17,8 +19,11 @@ const meta = {
                 languages: [],
                 watched: null,
                 director: null,
+                query: null,
             },
-            compactView: false,
+            view: {
+                compact: false,
+            },
         },
         counts: {
             shown: 12,
@@ -36,6 +41,7 @@ const meta = {
                 }),
             }),
         )
+        mocked(useAuth).mockReturnValue(makeUseAuthMock())
     },
 } satisfies Meta<typeof FilterBar>
 

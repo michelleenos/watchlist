@@ -16,8 +16,11 @@ let viewOpts = reactive<MovieView>({
         languages: [],
         watched: null,
         director: null,
+        query: null,
     },
-    compactView: false,
+    view: {
+        compact: false,
+    },
 })
 
 const { movies, loading, initialized } = useMovies()
@@ -34,8 +37,15 @@ function toggleGenreFilter(genre: string) {
 }
 
 const shownMovies = computed(() => {
-    const { genres, decades, languages, director } = viewOpts.filters
+    const { genres, decades, languages, director, query } = viewOpts.filters
     return [...movies.value].filter((movie) => {
+        if (query) {
+            if (
+                !movie.name.toLowerCase().includes(query) &&
+                (!movie.originalTitle || !movie.originalTitle.toLowerCase().includes(query))
+            )
+                return false
+        }
         if (director !== null) {
             if (!movie.directors?.includes(director)) return false
         }
@@ -64,6 +74,7 @@ const shownMovies = computed(() => {
             if (!movie.genres.some((movieGenre) => viewOpts.filters.genres.includes(movieGenre)))
                 return false
         }
+
         return true
     })
 })
@@ -75,7 +86,6 @@ const shownMovies = computed(() => {
             <h1 class="font-serif text-3xl tracking-wide text-brown-300">
                 <span class="text-brass">watch</span>list
             </h1>
-            <!-- <AddMovie v-if="authState.authenticated" /> -->
         </div>
         <div
             v-if="!initialized"
@@ -93,7 +103,7 @@ const shownMovies = computed(() => {
             <div class="relative">
                 <MoviesList
                     :movies="shownMovies"
-                    :compact="viewOpts.compactView"
+                    :compact="viewOpts.view.compact"
                     :genres-filters="viewOpts.filters.genres"
                     :class="loading && 'pointer-events-none opacity-40 transition-opacity'"
                     @filter-select="toggleGenreFilter" />
