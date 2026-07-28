@@ -85,7 +85,7 @@ const emit = defineEmits<{
                         </MovieTagline>
                     </header>
                 </RouterLink>
-                <MovieMetaDl :movie="movie" class="border-b border-subtle pb-2" />
+                <MovieMetaDl :movie="movie" class="border-y border-subtle py-2" />
                 <AppTypography
                     v-if="movie.description"
                     variant="body-muted-sm"
