@@ -268,13 +268,15 @@ export interface components {
             watched: boolean;
             /** Runtime */
             runtime?: number | null;
+            /** Trailerkey */
+            trailerKey?: string | null;
+            /** Id */
+            id: number;
             /**
              * Createdat
              * Format: date-time
              */
             createdAt: string;
-            /** Id */
-            id: number;
         } & {
             [key: string]: unknown;
         };

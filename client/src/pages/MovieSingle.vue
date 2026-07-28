@@ -10,14 +10,12 @@ import MovieTitle from '../components/MovieTitle.vue'
 import MovieMetaDl from '../components/MovieMetaDl.vue'
 import PillItem from '../components/PillItem.vue'
 import AppTypography from '../components/AppTypography.vue'
-// import AppDialog from '../components/AppDialog.vue'
-import AppBtn from '../components/AppBtn.vue'
-import AppToggle from '../components/AppToggle.vue'
 import { useToast } from '../composables/useToast.ts'
 import { useMovies } from '../composables/useMovies.ts'
 import { useAuth } from '../composables/useAuth.ts'
 import { getMovie, patchMovie, deleteMovie as deleteMovieApi, ApiError } from '../api.ts'
 import PageSidePanel from '../components/PageSidePanel.vue'
+import AppBtn from '../components/AppBtn.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -137,36 +135,43 @@ async function deleteMovie() {
                             :original-title="movie.originalTitle" />
                         <MovieTagline size="lg" class="mt-2">{{ movie.tagline }}</MovieTagline>
                     </header>
-                    <div
-                        class="flex items-center justify-between gap-4 rounded-lg border border-brass/50 px-4 py-3"
-                        :class="authState.authenticated && 'cursor-pointer select-none'"
-                        @click="onWatchedRowClick">
-                        <div class="flex items-center gap-3">
-                            <div
-                                aria-hidden="true"
-                                class="flex size-6 items-center justify-center rounded-full transition-colors"
-                                :class="
-                                    movie.watched ? 'bg-brass text-brown-950' : (
-                                        'bg-brown-800 text-brown-600'
-                                    )
-                                ">
-                                <Icon icon="ri:check-line" />
-                            </div>
-                            <span class="text-brown-100">{{
-                                movie.watched ? 'Watched' : 'Not Watched Yet'
-                            }}</span>
-                        </div>
-                        <AppToggle
-                            v-if="authState.authenticated"
-                            v-model="watched"
-                            label="Watched"
-                            hide-label />
-                    </div>
+
                     <div>
-                        <MovieMetaDl
-                            :movie="movie"
-                            :include="['year', 'language', 'runtime']"
-                            class="border-b border-subtle py-3 first:border-t" />
+                        <div
+                            class="flex justify-between gap-x-3 border-b border-subtle py-3 first:border-t">
+                            <MovieMetaDl
+                                :movie="movie"
+                                :include="['year', 'language', 'runtime']" />
+                            <div class="flex gap-2">
+                                <PillItem
+                                    class="flex items-center"
+                                    :alt="movie.watched"
+                                    interactive
+                                    tag="button"
+                                    :class="authState.authenticated && 'cursor-pointer'"
+                                    @click="onWatchedRowClick">
+                                    <Icon
+                                        v-if="movie.watched"
+                                        icon="ri:check-line"
+                                        class="mr-1 -ml-1" />
+                                    {{ movie.watched ? 'Watched' : 'Not Watched' }}
+                                    <!-- <AppToggle
+                                        v-if="authState.authenticated"
+                                        v-model="watched"
+                                        class="-mr-0.5 ml-2"
+                                        label="Watched"
+                                        hide-label /> -->
+                                </PillItem>
+
+                                <AppBtn
+                                    v-if="movie.trailerKey"
+                                    :href="`https://youtube.com/watch?v=${movie.trailerKey}`"
+                                    :new-tab="true"
+                                    >View Trailer
+                                    <Icon icon="ri:arrow-right-up-line" class="ml-1"></Icon>
+                                </AppBtn>
+                            </div>
+                        </div>
                         <MovieMetaDl
                             :movie="movie"
                             :include="['directors', 'castMembers', 'writers', 'sourceAuthors']"

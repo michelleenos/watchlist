@@ -136,7 +136,7 @@ const onLeave = (el: Element) => {
             </AppBtn>
 
             <div class="flex min-w-0 flex-1 justify-between gap-4 self-center *:max-sm:hidden">
-                <ul class="flex flex-wrap items-baseline gap-2" aria-label="Active Filters">
+                <ul class="flex grow flex-wrap items-baseline gap-2" aria-label="Active Filters">
                     <PillItem v-for="f in activeFilters" :key="f.key" tag="li" :alt="true">
                         {{ f.label }}
                         <button

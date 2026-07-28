@@ -50,11 +50,12 @@ class MovieBase(BaseModel):
     added_by: str | None = None
     watched: bool = False
     runtime: int | None = None
-    created_at: datetime
+    trailer_key: str | None = None
 
 
 class MovieFull(MovieBase):
     id: int
+    created_at: datetime
 
 
 class MovieUpdate(BaseModel):
@@ -134,6 +135,21 @@ class TMDBCredit(BaseModel):
     crew: list[TMDBCreditCrew]
 
 
+class TMDBVideo(BaseModel):
+    name: str
+    key: str | None = None
+    site: str | None = None
+    size: int | None = None
+    type: str | None = None
+    official: bool | None = None
+    id: str | None = None
+    published_at: str | None = None
+
+
+class TMDBVideoResult(BaseModel):
+    results: list[TMDBVideo]
+
+
 class TMDBMovieDetails(BaseModel):
     model_config = ConfigDict(extra="allow")
     id: int
@@ -149,6 +165,7 @@ class TMDBMovieDetails(BaseModel):
     vote_average: float | None = None
     vote_count: int | None = None
     runtime: int | None = None
+    videos: TMDBVideoResult
     credits: TMDBCredit
 
 

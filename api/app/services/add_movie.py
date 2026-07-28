@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from app.exceptions import ImageError
 from app.external.images import download_poster
 from app.external.tmdb import get_tmdb_data
@@ -61,12 +63,32 @@ def tmdb_people_transform(data: TMDBMovieDetails) -> list[MoviePerson]:
     return list(people.values())
 
 
+def tmdb_trailer_transform(data: TMDBMovieDetails) -> str | None:
+    videos_results = data.videos.results
+    videos = [v for v in videos_results if v.site == "YouTube" and v.type == "Trailer"]
+    videos_official = [v for v in videos if v.official]
+    # if trailers are marked as "official" we take from those, otherwise fall back to all
+    videos_sorted = sorted(
+        videos_official if videos_official else videos,
+        key=lambda v: (
+            datetime.fromisoformat(v.published_at) if v.published_at else datetime.now()
+        ),  # sort by date starting with oldest
+    )
+    trailer_key = videos_sorted[0].key if videos_sorted else None
+    return trailer_key
+
+
+def parse_date(s: str) -> datetime:
+    return datetime.fromisoformat(s)
+
+
 def tmdb_movie_transform(data: TMDBMovieDetails) -> MovieBase:
     cast_data = data.credits.cast
     cast_members: list[MovieMember] = [
         MovieMember(name=c.name, role=c.character) for c in cast_data[:5]
     ]
 
+    trailer = tmdb_trailer_transform(data)
     year = None
     original_title = None
 
@@ -88,6 +110,7 @@ def tmdb_movie_transform(data: TMDBMovieDetails) -> MovieBase:
         tmdb_id=data.id,
         tmdb_poster_path=data.poster_path,
         runtime=data.runtime,
+        trailer_key=trailer,
     )
 
 

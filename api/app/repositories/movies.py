@@ -81,7 +81,7 @@ async def get_movie(id: int):
             SELECT
                     id, name, year, tagline, description, original_title, tmdb_id,
                     poster_path, tmdb_poster_path, issues, added_by, watched,
-                    languages.english_name AS language, runtime, created_at,
+                    languages.english_name AS language, runtime, created_at, trailer_key,
                     ARRAY(
                         SELECT g.name
                         FROM movie_genres mg JOIN genres g ON g.id = mg.genre_id
@@ -191,7 +191,7 @@ async def add_movie(movie: MovieBase, people: list[MoviePerson] | None = None):
                     """,
                     params,
                 )
-
+            # TODO return type here doesn't return directors/writers/etc
             # normalize cast + curated crew into people/movie_people
             if people:
                 await insert_movie_people(cur, row[0], people)

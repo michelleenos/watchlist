@@ -39,7 +39,7 @@ async def get_tmdb_data(tmdb_id: int) -> TMDBMovieDetails:
             response = await client.get(
                 f"{TMDB_BASE}/movie/{tmdb_id}",
                 headers=tmdb_headers,
-                params={"append_to_response": "credits"},
+                params={"append_to_response": "credits,videos"},
             )
             response.raise_for_status()
             data = response.json()
