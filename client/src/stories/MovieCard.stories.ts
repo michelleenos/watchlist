@@ -1,34 +1,23 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import MovieCard from '../components/MovieCard.vue'
-import { sampleMovies } from './support/movies.fixtures.ts'
+import { sampleMovieArg } from './support/movies.fixtures.ts'
 import type { MovieFull } from '../types/index.ts'
 import { fn } from 'storybook/test'
-
-const sampleMovieMapping = sampleMovies.reduce(
-    (mapping, current) => {
-        return {
-            ...mapping,
-            [current.name]: current,
-        }
-    },
-    {} as { [key: string]: MovieFull },
-)
-const sampleMovieOptions = sampleMovies.map((m) => m.name)
 
 const meta = {
     title: 'MovieCard',
     component: MovieCard,
     tags: ['autodocs'],
     args: {
-        movie: sampleMovieOptions[0] as unknown as MovieFull,
+        movie: sampleMovieArg.options[0] as unknown as MovieFull,
         style: 'default',
         onFilterSelect: fn(),
     },
     argTypes: {
         movie: {
             control: 'select',
-            options: sampleMovieOptions,
-            mapping: sampleMovieMapping,
+            options: sampleMovieArg.options,
+            mapping: sampleMovieArg.mapping,
         },
         style: {
             control: 'select',

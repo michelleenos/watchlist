@@ -83,14 +83,6 @@ const emit = defineEmits<{
                         <MovieTagline size="base" class="mb-2 line-clamp-1">
                             {{ movie.tagline }}
                         </MovieTagline>
-                        <div v-if="movie.directors" class="my-2 flex items-baseline gap-3">
-                            <AppTypography variant="caps-mono">{{
-                                movie.directors.length > 1 ? 'Directors' : 'Director'
-                            }}</AppTypography>
-                            <AppTypography variant="body-sm">{{
-                                movie.directors.join(', ')
-                            }}</AppTypography>
-                        </div>
                     </header>
                 </RouterLink>
                 <MovieMetaDl :movie="movie" class="border-b border-subtle pb-2" />

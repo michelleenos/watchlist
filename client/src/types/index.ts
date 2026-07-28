@@ -1,6 +1,11 @@
 import type { components } from './api'
 
+type KnownKeys<T> = keyof {
+    [K in keyof T as string extends K ? never : K]: T[K]
+}
+
 export type MovieFull = components['schemas']['MovieFull']
+export type MovieKey = KnownKeys<MovieFull>
 export type MovieMember = components['schemas']['MovieMember']
 export type TMDBSearchResult = components['schemas']['TMDBSearchResult']
 export type UserAuthenticated = components['schemas']['Authenticated']

@@ -162,7 +162,18 @@ async function deleteMovie() {
                             label="Watched"
                             hide-label />
                     </div>
-                    <MovieMetaDl :movie="movie" class="border-y border-subtle py-3" />
+                    <div>
+                        <MovieMetaDl
+                            :movie="movie"
+                            :include="['year', 'language', 'runtime']"
+                            class="border-b border-subtle py-3 first:border-t" />
+                        <MovieMetaDl
+                            :movie="movie"
+                            :include="['directors', 'castMembers', 'writers', 'sourceAuthors']"
+                            class="border-b border-subtle py-3 first:border-t"
+                            stackedRows />
+                    </div>
+
                     <AppTypography v-if="movie.description" variant="body">
                         {{ movie.description }}
                     </AppTypography>
@@ -173,22 +184,31 @@ async function deleteMovie() {
                     </ul>
 
                     <div
-                        v-if="authState.authenticated"
-                        class="flex w-full items-center justify-end gap-3 border-t border-subtle pt-4">
-                        <template v-if="confirmingDelete">
-                            <span class="text-sm font-bold">Really remove?</span>
-                            <button
-                                class="cursor-pointer text-sm text-brown-400 transition-colors hover:text-brown-200"
-                                @click="confirmingDelete = false">
-                                Cancel
-                            </button>
-                            <AppBtn :disabled="deleting" destructive @click="deleteMovie">
-                                {{ deleting ? 'Removing…' : 'Remove' }}
+                        class="flex w-full items-baseline justify-between gap-3 border-t border-subtle pt-4">
+                        <p v-if="movie.addedBy" class="text-sm text-brown-400">
+                            Added by {{ movie.addedBy }}
+                            <span v-if="movie.createdAt"
+                                >on {{ new Date(movie.createdAt).toLocaleDateString() }}</span
+                            >
+                        </p>
+                        <div
+                            v-if="authState.authenticated"
+                            class="flex items-center justify-end gap-3">
+                            <template v-if="confirmingDelete">
+                                <span class="text-sm font-bold">Really remove?</span>
+                                <button
+                                    class="cursor-pointer text-sm text-brown-400 transition-colors hover:text-brown-200"
+                                    @click="confirmingDelete = false">
+                                    Cancel
+                                </button>
+                                <AppBtn :disabled="deleting" destructive @click="deleteMovie">
+                                    {{ deleting ? 'Removing…' : 'Remove' }}
+                                </AppBtn>
+                            </template>
+                            <AppBtn v-else destructive @click="confirmingDelete = true">
+                                Remove From List
                             </AppBtn>
-                        </template>
-                        <AppBtn v-else destructive @click="confirmingDelete = true">
-                            Remove From List
-                        </AppBtn>
+                        </div>
                     </div>
                 </div>
             </div>

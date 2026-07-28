@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
@@ -49,6 +50,7 @@ class MovieBase(BaseModel):
     added_by: str | None = None
     watched: bool = False
     runtime: int | None = None
+    created_at: datetime
 
 
 class MovieFull(MovieBase):

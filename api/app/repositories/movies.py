@@ -50,7 +50,7 @@ async def get_movies() -> list[MovieFull]:
         await cur.execute("""
             SELECT
                 name, year, tagline, description, original_title, poster_path, tmdb_id, id,
-                added_by, watched, runtime,
+                added_by, watched, runtime, created_at,
                 ARRAY(
                     SELECT genres.name
                     FROM movie_genres
@@ -81,7 +81,7 @@ async def get_movie(id: int):
             SELECT
                     id, name, year, tagline, description, original_title, tmdb_id,
                     poster_path, tmdb_poster_path, issues, added_by, watched,
-                    languages.english_name AS language, runtime,
+                    languages.english_name AS language, runtime, created_at,
                     ARRAY(
                         SELECT g.name
                         FROM movie_genres mg JOIN genres g ON g.id = mg.genre_id

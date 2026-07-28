@@ -268,6 +268,11 @@ export interface components {
             watched: boolean;
             /** Runtime */
             runtime?: number | null;
+            /**
+             * Createdat
+             * Format: date-time
+             */
+            createdAt: string;
             /** Id */
             id: number;
         } & {
