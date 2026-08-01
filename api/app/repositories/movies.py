@@ -162,11 +162,11 @@ async def add_movie(movie: MovieBase, people: list[MoviePerson] | None = None):
                 INSERT INTO movies (
                     name, year, language, tagline, description,
                     original_title, tmdb_id, issues, poster_path,
-                    tmdb_poster_path, added_by, runtime
+                    tmdb_poster_path, added_by, runtime, trailer_key
                 ) VALUES (
                     %(name)s, %(year)s, %(language)s, %(tagline)s, %(description)s,
                     %(original_title)s, %(tmdb_id)s, %(issues)s, %(poster_path)s,
-                    %(tmdb_poster_path)s, %(added_by)s, %(runtime)s
+                    %(tmdb_poster_path)s, %(added_by)s, %(runtime)s, %(trailer_key)s
                 )
                 RETURNING id
                 """,
